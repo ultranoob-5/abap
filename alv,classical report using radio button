@@ -1,0 +1,254 @@
+*&---------------------------------------------------------------------*
+*& Report  ZMULTIDISPLAY
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZMULTIDISPLAY.
+
+TYPES: BEGIN OF ts_ekko,
+         ebeln TYPE ekko-ebeln,
+         bukrs TYPE ekko-bukrs,
+       END OF ts_ekko.
+
+TYPES: BEGIN OF ts_ekpo,
+         ebeln TYPE ekpo-ebeln,
+         ebelp TYPE ekpo-ebelp,
+         matnr TYPE ekpo-matnr,
+       END OF ts_ekpo.
+
+TYPES: BEGIN OF ts_ekes,
+         ebeln TYPE ekes-ebeln,
+         EINDT TYPE ekes-EINDT,
+       END OF ts_ekes.
+
+TYPES: BEGIN OF ts_final,
+         ebeln TYPE ekko-ebeln,
+         bukrs TYPE ekko-bukrs,
+         ebelp TYPE ekpo-ebelp,
+         matnr TYPE ekpo-matnr,
+         EINDT TYPE ekes-EINDT,
+       END OF ts_final.
+
+DATA: lt_ekko TYPE TABLE OF ts_ekko,
+      ls_ekko TYPE ts_ekko,
+      lt_ekpo TYPE TABLE OF ts_ekpo,
+      ls_ekpo TYPE ts_ekpo,
+      lt_ekes TYPE TABLE OF ts_ekes,
+      ls_ekes TYPE ts_ekes,
+      lt_final TYPE TABLE OF ts_final,
+      ls_final TYPE ts_final,
+      ls_layout TYPE slis_layout_alv,
+      lt_fcat TYPE slis_t_fieldcat_alv,
+      ls_fcat TYPE slis_fieldcat_alv,
+      lt_fcat1 TYPE slis_t_fieldcat_alv,
+      ls_fcat1 TYPE slis_fieldcat_alv,
+      lt_fcat2 TYPE slis_t_fieldcat_alv,
+      ls_fcat2 TYPE slis_fieldcat_alv,
+      lt_fcat3 TYPE slis_t_fieldcat_alv,
+      ls_fcat3 TYPE slis_fieldcat_alv.
+
+
+SELECTION-SCREEN begin of BLOCK b1 WITH FRAME TITLE text-001.
+PARAMETERS: r1 RADIOBUTTON GROUP g,
+            r2 RADIOBUTTON GROUP g,
+            r3 RADIOBUTTON GROUP g.
+SELECTION-SCREEN END OF BLOCK b1.
+
+START-OF-SELECTION.
+IF r1 = 'X'.
+  PERFORM select.
+  perform classical.
+ELSEIF r2 = 'X'.
+  PERFORM select.
+  PERFORM alv.
+ELSEIF r3 = 'X'.
+  PERFORM INTERACTIVE_ALV.
+ENDIF.
+
+form Select.
+  SELECT ebeln bukrs FROM ekko INTO TABLE lt_ekko.
+  SELECT ebeln ebelp matnr FROM ekpo INTO TABLE lt_ekpo FOR ALL ENTRIES IN lt_ekko WHERE ebeln = lt_ekko-ebeln.
+  SELECT ebeln EINDT FROM ekes INTO TABLE lt_ekes FOR ALL ENTRIES IN lt_ekko WHERE ebeln = lt_ekko-ebeln.
+
+  LOOP AT lt_ekpo INTO ls_ekpo.
+    ls_final-ebelp = ls_ekpo-ebelp.
+    ls_final-matnr = ls_ekpo-matnr.
+
+    READ TABLE lt_ekko INTO ls_ekko WITH KEY ebeln = ls_ekpo-EBELN BINARY SEARCH.
+    ls_final-ebeln = ls_ekko-ebeln.
+    ls_final-bukrs = ls_ekko-bukrs.
+
+    READ TABLE lt_ekes INTO ls_ekes WITH KEY ebeln = ls_ekko-ebeln BINARY SEARCH.
+    ls_final-EINDT = ls_ekes-EINDT.
+
+    APPEND ls_final TO lt_final.
+    CLEAR ls_final.
+  ENDLOOP.
+ENDFORM.
+
+FORM classical.
+  WRITE : / 'Purchase Document Number', 30 'Company Code', 40 'Item Number', 60 'Material Number', 80 'Vendor Confirmation'.
+  ULINE.
+  LOOP AT lt_final INTO ls_final.
+    WRITE : / ls_final-EBELN, 30 ls_final-BUKRS, 40 ls_final-EBELP, 60 ls_final-MATNR, 80 ls_final-EINDT.
+  ENDLOOP.
+ENDFORM.
+
+FORM alv.
+  ls_layout-colwidth_optimize = 'X'.
+  ls_layout-zebra = 'X'.
+
+  CLEAR ls_fcat.
+  ls_fcat-COL_POS = '1'.
+  ls_fcat-fieldname = 'EBELN'.
+  ls_fcat-seltext_m = 'Purchase Document Number'.
+  ls_fcat-tabname = 'LT_FINAL'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-COL_POS = '2'.
+  ls_fcat-fieldname = 'BUKRS'.
+  ls_fcat-seltext_m = 'Company Code'.
+  ls_fcat-tabname = 'LT_FINAL'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-COL_POS = '3'.
+  ls_fcat-fieldname = 'EBELP'.
+  ls_fcat-seltext_m = 'Item Number'.
+  ls_fcat-tabname = 'LT_FINAL'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-COL_POS = '4'.
+  ls_fcat-fieldname = 'MATNR'.
+  ls_fcat-seltext_m = 'Material Number'.
+  ls_fcat-tabname = 'LT_FINAL'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-COL_POS = '5'.
+  ls_fcat-fieldname = 'EINDT'.
+  ls_fcat-seltext_m = 'Vendor Confirmation'.
+  ls_fcat-tabname = 'LT_FINAL'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      is_layout = ls_layout
+      it_fieldcat              = lt_fcat
+    TABLES
+      t_outtab = lt_final[].
+ENDFORM.
+
+FORM INTERACTIVE_ALV.
+ SELECT ebeln bukrs FROM ekko INTO TABLE lt_ekko.
+
+  ls_fcat1-col_pos = '1'.
+  ls_fcat1-fieldname = 'EBELN'.
+  ls_fcat1-seltext_m = 'EBELN'.
+  ls_fcat1-tabname = 'LT_EKKO'.
+  APPEND ls_fcat1 TO lt_fcat1.
+
+  CLEAR ls_fcat1.
+  ls_fcat1-col_pos = '2'.
+  ls_fcat1-fieldname = 'BURKS'.
+  ls_fcat1-seltext_m = 'BZIRK'.
+  ls_fcat1-tabname = 'LT_EKKO'.
+  APPEND ls_fcat1 TO lt_fcat1.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+  I_CALLBACK_PROGRAM                = SY-REPID
+  I_CALLBACK_USER_COMMAND           = 'USER_COMMAND'
+      is_layout   = ls_layout
+      it_fieldcat = lt_fcat1
+    TABLES
+      t_outtab    = lt_ekko[].
+ENDFORM.
+
+FORM USER_COMMAND USING UCOMM LIKE SY-UCOMM
+      SEL TYPE SLIS_SELFIELD.
+
+  IF UCOMM EQ '&IC1'.
+    CLEAR ls_ekko.
+    READ TABLE lt_ekko INTO ls_ekko INDEX sel-TABINDEX.
+
+    SELECT ebeln ebelp matnr FROM ekpo INTO TABLE lt_ekpo WHERE ebeln = ls_ekko-ebeln.
+
+      ls_fcat2-COL_POS = 1.
+      ls_fcat2-FIELDNAME = 'EBELN'.
+      ls_fcat2-TABNAME = 'LT_EKPO'.
+      ls_fcat2-SELTEXT_M = 'EBLEN'.
+
+      APPEND ls_fcat2 TO lt_fcat2.
+      CLEAR ls_fcat2.
+
+      ls_fcat2-COL_POS = 2.
+      ls_fcat2-FIELDNAME = 'EBELP'.
+      ls_fcat2-TABNAME = 'LT_EKPO'.
+      ls_fcat2-SELTEXT_M = 'EBLEP'.
+
+      APPEND ls_fcat2 TO lt_fcat2.
+      CLEAR ls_fcat2.
+
+      ls_fcat2-COL_POS = 3.
+      ls_fcat2-FIELDNAME = 'MATNR'.
+      ls_fcat2-TABNAME = 'LT_EKPO'.
+      ls_fcat2-SELTEXT_M = 'MATNR'.
+
+      APPEND ls_fcat2 TO lt_fcat2.
+      CLEAR ls_fcat2.
+
+      CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+      EXPORTING
+      I_CALLBACK_PROGRAM     = SY-REPID
+      I_CALLBACK_USER_COMMAND     = 'UCOMM_MARA'
+      IT_FIELDCAT                 = lt_fcat2
+      TABLES
+          T_OUTTAB                = lt_ekpo.
+
+      REFRESH : lt_fcat2.
+
+    ENDIF.
+ENDFORM.
+
+FORM UCOMM_MARA USING R_UCOMM LIKE SY-UCOMM
+                      SEL1 TYPE SLIS_SELFIELD.
+    CASE R_UCOMM.
+      WHEN '&IC1'.
+      CLEAR ls_ekpo.
+      READ TABLE lt_ekpo INTO ls_ekpo INDEX sel1-TABINDEX.
+
+      SELECT ebeln EINDT FROM ekes INTO TABLE lt_ekes WHERE ebeln = ls_ekpo-ebeln.
+
+      ls_fcat3-COL_POS = 1.
+      ls_fcat3-FIELDNAME = 'EBELN'.
+      ls_fcat3-TABNAME = 'LT_EKES'.
+      ls_fcat3-SELTEXT_M = 'EBLEN'.
+
+      APPEND ls_fcat3 TO lt_fcat3.
+      CLEAR ls_fcat3.
+
+      ls_fcat3-COL_POS = 2.
+      ls_fcat3-FIELDNAME = 'EINDT'.
+      ls_fcat3-TABNAME = 'LT_EKES'.
+      ls_fcat3-SELTEXT_M = 'EINDT'.
+
+      APPEND ls_fcat3 TO lt_fcat3.
+      CLEAR ls_fcat3.
+
+      CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+        EXPORTING
+          I_CALLBACK_PROGRAM                = sy-repid
+          IT_FIELDCAT                       = lt_fcat3
+          TABLES
+            T_OUTTAB                          = lt_ekes.
+
+      REFRESH : lt_fcat3.
+
+   ENDCASE.
+ENDFORM.
