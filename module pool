@@ -61,9 +61,10 @@ MODULE user_command_0201 INPUT.
       LEAVE PROGRAM.
   ELSEIF sy-ucomm = 'BT'.
        DATA: cust_no TYPE ZCUSTOMER_DOC-ZCUST_NO.
-
        CLEAR: gs_cust.
-
+       IF cust_no IS INITIAL.
+        MESSAGE 'Customer ID Not entered!' TYPE 'E'.
+       ELSE.
        SELECT SINGLE * FROM ZCUSTOMER_DOC INTO gs_cust WHERE ZCUST_NO = cust_no.
 
 *      IF sy-subrc = 0.
@@ -72,6 +73,8 @@ MODULE user_command_0201 INPUT.
       ELSEIF gs_cust-zcust_no IS INITIAL.
         CALL SCREEN '202'.
       ENDIF.
+       ENDIF.
+
   ENDIF.
 
 ENDMODULE.                 " USER_COMMAND_0201  INPUT
