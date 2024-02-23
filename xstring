@@ -1,0 +1,27 @@
+&---------------------------------------------------------------------
+*& Report  ZOOP3
+*&
+&---------------------------------------------------------------------
+*&
+*&
+&---------------------------------------------------------------------
+
+REPORT zoop3.
+
+DATA : lv_xstring TYPE xstring,
+       lt TYPE TABLE OF zemp_mast,
+       lt1 TYPE TABLE OF zemp_mast.
+
+START-OF-SELECTION.
+
+  SELECT *
+    FROM zemp_mast
+    INTO TABLE lt.
+
+  EXPORT p1 = lt TO DATA BUFFER lv_xstring. "to convert internal table to xstring.
+
+  IMPORT p1 = lt1 FROM DATA BUFFER lv_xstring. "to convert xstring to internal table.
+
+  cl_demo_output=>display( lt ).
+  cl_demo_output=>display( lt1 ).
+  cl_demo_output=>display( lv_xstring ).
