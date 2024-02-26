@@ -1,0 +1,223 @@
+*&---------------------------------------------------------------------*
+*& Report  ZOO_ALV_EKKO
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+    REPORT zoo_alv_ekko.
+
+    CLASS cl_vbrk DEFINITION.
+    PUBLIC SECTION.
+    TYPES:
+    BEGIN OF ty_vbrk,
+    vbeln TYPE vbeln_vf,
+    fkart TYPE fkart,
+    fktyp TYPE fktyp,
+    vsbed TYPE vsbed,
+    belnr TYPE belnr_d,
+    gjahr TYPE gjahr,
+    END OF ty_vbrk,
+    BEGIN OF ty_vbrp,
+    vbeln TYPE vbeln_vf,
+    posnr TYPE posnr_vf,
+    meins TYPE meins,
+    aubel TYPE aubel,
+    charg TYPE charg_d,
+    netwr TYPE netwr_fp,
+    END OF ty_vbrp,
+    BEGIN OF ty_final,
+    vbeln TYPE vbeln_vf,
+    fkart TYPE fkart,
+    fktyp TYPE fktyp,
+    vsbed TYPE vsbed,
+    belnr TYPE belnr_d,
+    gjahr TYPE gjahr,
+    posnr TYPE posnr_vf,
+    meins TYPE meins,
+    aubel TYPE aubel,
+    charg TYPE charg_d,
+    netwr TYPE netwr_fp,
+    END OF ty_final.
+
+    DATA:
+          lt_vbrk TYPE TABLE OF ty_vbrk,
+          ls_vbrk  TYPE ty_vbrk,
+          lt_vbrp  TYPE TABLE OF ty_vbrp,
+          ls_vbrp  TYPE ty_vbrp,
+          lt_final TYPE TABLE OF ty_final,
+          ls_final TYPE ty_final,
+          lo_tool  TYPE REF TO cl_salv_functions_list,
+          lo_columns TYPE REF TO cl_salv_columns,
+          lo_layout TYPE REF TO cl_salv_layout,
+          lo_zebra TYPE REF TO cl_salv_display_settings,
+          lo_logo  TYPE REF TO cl_salv_form_layout_logo,
+          lo_grid  TYPE REF TO cl_salv_form_layout_grid,
+          lo_total TYPE REF TO cl_salv_aggregations,
+          lo_stotal TYPE REF TO cl_salv_sorts,
+          lo_st_table TYPE REF TO cl_salv_sort,
+          lo_content TYPE REF TO cl_salv_form_element,
+          lv_title TYPE string,
+          lv_row TYPE string,
+          lo_label TYPE REF TO cl_salv_form_label,
+          lo_flow TYPE REF TO cl_salv_form_layout_flow.
+
+    METHODS: fetch_data,
+    display_data.
+
+    ENDCLASS.
+
+    CLASS cl_vbrk IMPLEMENTATION.
+    METHOD fetch_data.
+    SELECT vbeln fkart fktyp vsbed belnr gjahr
+    FROM vbrk INTO TABLE lt_vbrk.
+
+    IF sy-subrc = 0.
+    SELECT vbeln posnr meins aubel charg netwr
+    FROM vbrp INTO TABLE lt_vbrp
+    FOR ALL ENTRIES IN lt_vbrk
+    WHERE vbeln = lt_vbrk-vbeln.
+    ENDIF.
+
+    LOOP AT lt_vbrp INTO ls_vbrp.
+    CLEAR ls_final.
+    ls_final-vbeln = ls_vbrp-vbeln.
+    ls_final-posnr = ls_vbrp-posnr.
+    ls_final-meins = ls_vbrp-meins.
+    ls_final-aubel = ls_vbrp-aubel.
+    ls_final-charg = ls_vbrp-charg.
+    ls_final-netwr = ls_vbrp-netwr.
+
+    READ TABLE lt_vbrk INTO ls_vbrk WITH KEY vbeln = ls_vbrp-vbeln BINARY SEARCH.
+
+    IF sy-subrc = 0.
+    ls_final-fkart = ls_vbrk-fkart.
+    ls_final-fktyp = ls_vbrk-fktyp.
+    ls_final-vsbed = ls_vbrk-vsbed.
+    ls_final-belnr = ls_vbrk-belnr.
+    ls_final-gjahr = ls_vbrk-gjahr.
+
+    APPEND ls_final TO lt_final.
+    CLEAR : ls_final,ls_vbrk,ls_vbrp.
+    ENDIF.
+    ENDLOOP.
+    ENDMETHOD.
+
+    METHOD display_data.
+    TRY.
+    cl_salv_table=>factory(
+    IMPORTING
+    r_salv_table = DATA(lo_alv)
+    CHANGING
+      t_table      = lt_final
+      ).
+    CATCH cx_salv_msg INTO DATA(lv_msg).
+    ENDTRY.
+
+    lo_tool = lo_alv->get_functions( ).
+    lo_tool->set_all( abap_true ).
+
+    lo_columns = lo_alv->get_columns( ).
+    lo_columns->set_optimize( 'X' ).
+
+    lo_zebra = lo_alv->get_display_settings( ).
+    lo_zebra->set_striped_pattern( cl_salv_display_settings=>true ).
+
+    CREATE OBJECT lo_grid.
+    CREATE OBJECT lo_logo.
+
+    CLEAR: lv_row, lv_title.
+    DESCRIBE TABLE lt_final LINES lv_row.
+    CONCATENATE 'No of Records:' lv_row INTO lv_title SEPARATED BY ' '.
+    lo_logo->set_right_logo( 'ENJOYSAP_LOGO' ).
+
+    lo_label = lo_grid->create_label(
+    EXPORTING
+      row         =   1  " Natural Number
+      column      =   1  " Natural Number
+        text        =  'sales records'
+        tooltip     = 'sales records'
+        bold = abap_true
+      ).
+
+    lo_label->SET_TEXT( 'Purchase Order Details Report' ).
+
+*    lo_grid->create_label(
+*      EXPORTING
+*        row         =   2
+*        column      =   1
+*        text        =  lv_title
+*        tooltip     =  lv_title
+*    ).
+*
+    lo_flow = lo_grid->CREATE_FLOW(
+    ROW     = 2
+    COLUMN  = 1
+    ).
+
+    lo_flow->CREATE_TEXT( TEXT = 'Date :' ).
+
+    lo_flow = lo_grid->CREATE_FLOW(
+    ROW     = 2
+    COLUMN  = 2
+    ).
+
+    lo_flow->CREATE_TEXT( TEXT = sy-datum ).
+
+*    lo_grid->create_text(
+*      EXPORTING
+*        row     =    2 " Natural Number
+*        column  =    2 " Natural Number
+*        text    = sy-datum
+*        tooltip = sy-datum
+*    ).
+
+*    lo_logo->set_left_content( lo_grid ).
+*    lo_content = lo_logo.
+*    lo_alv->set_top_of_list( lo_content ).
+
+    lo_alv->SET_TOP_OF_LIST( lo_grid ).
+
+    lo_alv->SET_TOP_OF_LIST_PRINT( lo_grid ).
+
+    lo_total = lo_alv->get_aggregations( ).
+
+    TRY .
+    CALL METHOD lo_total->add_aggregation
+    EXPORTING
+      columnname  = 'NETWR'   " ALV Control: Field Name of Internal Table Field
+      aggregation = if_salv_c_aggregation=>total    " Aggregation
+      .
+    CATCH cx_salv_data_error.    "
+    CATCH cx_salv_not_found.    "
+    CATCH cx_salv_existing.    "
+    ENDTRY.
+
+    CALL METHOD lo_alv->get_sorts
+    RECEIVING
+    VALUE = lo_stotal.    " ALV Sort
+
+    TRY .
+    CALL METHOD lo_stotal->add_sort
+    EXPORTING
+      columnname = 'VBELN'   " ALV Control: Field Name of Internal Table Field
+      RECEIVING
+      VALUE      = lo_st_table.    " ALV Sort Settings
+
+    CALL METHOD lo_st_table->set_subtotal
+    EXPORTING
+      VALUE = if_salv_c_bool_sap=>true.    " Boolean Variable (X=True, Space=False)
+    CATCH cx_salv_not_found.    "
+    CATCH cx_salv_existing.    "
+    CATCH cx_salv_data_error.    "
+    ENDTRY.
+
+    lo_alv->display( ).
+    ENDMETHOD.
+    ENDCLASS.
+
+    START-OF-SELECTION.
+    DATA: obj TYPE REF TO cl_vbrk.
+    CREATE OBJECT obj.
+    obj->fetch_data( ).
+    obj->display_data( ).
