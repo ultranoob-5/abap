@@ -10,7 +10,10 @@ DATA: lt_vbak  TYPE TABLE OF zstr_vbak_salesdoc,   " Internal table for VBAK dat
       lt_final TYPE TABLE OF zstr_final_salesdoc,  " Internal table for final data
       ls_final TYPE zstr_final_salesdoc,          " Structure for final data
       lo_alv   TYPE REF TO cl_salv_table,         " ALV object reference
-      lo_events TYPE REF TO cl_salv_events_table. " ALV events object reference
+      lo_events TYPE REF TO cl_salv_events_table, " ALV events object reference
+          ls_control_parameters TYPE ssfctrlop,
+          ls_output_options TYPE ssfcompop.
+
 
 SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-002.
 PARAMETERS: p_vbeln TYPE vbak-vbeln.  " Selection screen parameter for sales document number
@@ -61,12 +64,16 @@ CLASS cl_vend IMPLEMENTATION.
 
   METHOD displaydata.
     " Create ALV object
-    cl_salv_table=>factory(
-      IMPORTING
-        r_salv_table = lo_alv
-      CHANGING
-        t_table      = lt_final
-    ).
+    TRY .
+      cl_salv_table=>factory(
+        IMPORTING
+          r_salv_table = lo_alv
+        CHANGING
+          t_table      = lt_final
+      ).
+    CATCH cx_salv_msg.
+
+    ENDTRY.
 
     " Set PF-STATUS for ALV
     SET PF-STATUS 'ZSALESBT'.
@@ -125,10 +132,9 @@ CLASS cl_vend IMPLEMENTATION.
     lo_label = lo_grid->create_label(
       EXPORTING
         row         =   1
-      " Natural Number
-        column      =   1  " Natural Number
-        text        =  'Sales Document'
-        tooltip     = 'Sales Document'
+        column      =   1
+        text        =  text-003
+        tooltip     =  text-003
     ).
 
     " Create label for No of Records
@@ -136,8 +142,8 @@ CLASS cl_vend IMPLEMENTATION.
       EXPORTING
         row         =   2
         column      =   1
-        text        =  'No of Records:'
-        tooltip     =  'No of Records:'
+        text        =  text-004
+        tooltip     =  text-004
     ).
 
     " Create text field for displaying number of records
@@ -152,17 +158,17 @@ CLASS cl_vend IMPLEMENTATION.
     " Create label for Date
     lo_grid->create_label(
       EXPORTING
-        row         =  3   " Natural Number
-        column      =  1  " Natural Number
-        text        = 'Date :'
-        tooltip     = 'Date :'
+        row         =  3
+        column      =  1
+        text        = text-005
+        tooltip     = text-005
     ).
 
     " Create text field for displaying current date
     lo_grid->create_text(
       EXPORTING
-        row         =  3   " Natural Number
-        column      =  2  " Natural Number
+        row         =  3
+        column      =  2
         text        = sy-datum
         tooltip     = sy-datum
     ).
@@ -170,17 +176,17 @@ CLASS cl_vend IMPLEMENTATION.
     " Create label for Program Name
     lo_grid->create_label(
       EXPORTING
-        row         =  4   " Natural Number
-        column      =  1  " Natural Number
-        text        = 'Program Name :'
-        tooltip     = 'Program Name :'
+        row         =  4
+        column      =  1
+        text        = text-006
+        tooltip     = text-006
     ).
 
     " Create text field for displaying program name
     lo_grid->create_text(
       EXPORTING
-        row         =  4   " Natural Number
-        column      =  2  " Natural Number
+        row         =  4
+        column      =  2
         text        = sy-cprog
         tooltip     = sy-cprog
     ).
@@ -210,11 +216,21 @@ CLASS cl_vend IMPLEMENTATION.
           fm_name             = sfname
         EXCEPTIONS
           no_form             = 1
-          no_function_module = 2
+          no_function_module  = 2
           OTHERS              = 3.
 
+
       IF sy-subrc = 0.
+
+        ls_control_parameters-no_dialog = 'X'.
+        ls_control_parameters-preview = 'X'.
+        ls_output_options-tddest = 'LP01'.
+
         CALL FUNCTION sfname
+         EXPORTING
+            control_parameters         = ls_control_parameters
+            output_options             = ls_output_options
+            user_settings              = ' '
           TABLES
             final = lt_final.  " Pass the table containing data for PDF generation
       ENDIF.
