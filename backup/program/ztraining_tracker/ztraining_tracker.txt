@@ -1,0 +1,211 @@
+*&---------------------------------------------------------------------*
+*& Report  ZTRAINING_TRACKER
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZTRAINING_TRACKER.
+
+TYPES: BEGIN OF ts_employee,
+         employee_id TYPE zemployee_info-employee_id,
+         employee_name TYPE zemployee_info-employee_name,
+       END OF ts_employee.
+
+TYPES: BEGIN OF ts_training,
+         training_program_id TYPE ztraining_info-training_program_id,
+         training_program TYPE ztraining_info-training_program,
+       END OF ts_training.
+
+TYPES: BEGIN OF ts_trainer,
+         trainer_id TYPE ztrainer_info-trainer_id,
+         trainer_name TYPE ztrainer_info-trainer_name,
+       END OF ts_trainer.
+
+TYPES: BEGIN OF ts_training_data,
+         training_id TYPE ztraining_data-training_id,
+         training_date TYPE ztraining_data-training_date,
+         status TYPE ztraining_data-status,
+         employee_id TYPE ztraining_data-employee_id,
+         trainer_id TYPE ztraining_data-trainer_id,
+         training_program_id TYPE ztraining_data-training_program_id,
+       END OF ts_training_data.
+
+TYPES: BEGIN OF ts_final,
+         employee_id TYPE zemployee_info-employee_id,
+         employee_name TYPE zemployee_info-employee_name,
+         training_program_id TYPE ztraining_info-training_program_id,
+         training_program TYPE ztraining_info-training_program,
+         trainer_id TYPE ztrainer_info-trainer_id,
+         trainer_name TYPE ztrainer_info-trainer_name,
+         training_id TYPE ztraining_data-training_id,
+         training_date TYPE ztraining_data-training_date,
+         status TYPE ztraining_data-status,
+       END OF ts_final.
+
+DATA: lt_employee TYPE TABLE OF ts_employee,
+      ls_employee TYPE ts_employee,
+      lt_training TYPE TABLE OF ts_training,
+      ls_training TYPE ts_training,
+      lt_trainer TYPE TABLE OF ts_trainer,
+      ls_trainer TYPE ts_trainer,
+      lt_training_data TYPE TABLE OF ts_training_data,
+      ls_training_data TYPE ts_training_data,
+      lt_final TYPE TABLE OF ts_final,
+      ls_final TYPE ts_final,
+      ls_layout TYPE slis_layout_alv,
+      lt_fcat TYPE slis_t_fieldcat_alv,
+      ls_fcat TYPE slis_fieldcat_alv.
+
+START-OF-SELECTION.
+
+SELECT employee_id employee_name FROM zemployee_info INTO TABLE lt_employee.
+SELECT training_program_id training_program FROM ztraining_info INTO TABLE lt_training.
+SELECT trainer_id trainer_name FROM ztrainer_info INTO TABLE lt_trainer.
+SELECT training_id training_date status FROM ztraining_data INTO TABLE lt_training_data.
+
+LOOP AT lt_training_data INTO ls_training_data.
+  CLEAR: ls_final, ls_employee, ls_training.
+
+  MOVE-CORRESPONDING ls_training_data TO ls_final.
+
+  READ TABLE lt_employee INTO ls_employee WITH KEY employee_id = ls_training_data-employee_id BINARY SEARCH.
+
+  IF sy-subrc = 0.
+    MOVE-CORRESPONDING ls_employee TO ls_final.
+  ENDIF.
+
+  READ TABLE lt_training INTO ls_training WITH KEY training_program_id = ls_training_data-training_program_id BINARY SEARCH.
+
+  IF sy-subrc = 0.
+    MOVE-CORRESPONDING ls_training TO ls_final.
+  ENDIF.
+
+  APPEND VALUE #( employee_id = ls_final-employee_id
+                  employee_name = ls_final-employee_name
+                  training_program_id = ls_final-training_program_id
+                  training_program = ls_final-training_program ) TO lt_final.
+
+  CLEAR: ls_employee, ls_training, ls_final.
+
+ENDLOOP.
+
+
+
+*LOOP AT lt_training_data INTO ls_training_data.
+*  MOVE-CORRESPONDING ls_training_data TO ls_final.
+*
+*  READ TABLE lt_employee INTO ls_employee WITH KEY employee_id = ls_training_data-employee_id BINARY SEARCH.
+*
+*  MOVE-CORRESPONDING ls_employee TO ls_final.
+*
+*  READ TABLE lt_training INTO ls_training WITH KEY training_program_id = ls_training_data-training_program_id BINARY SEARCH.
+*
+*  MOVE-CORRESPONDING ls_training TO ls_final.
+*
+*  READ TABLE lt_trainer INTO ls_trainer WITH KEY trainer_id = ls_training_data-trainer_id BINARY SEARCH.
+*
+*  MOVE-CORRESPONDING ls_trainer TO ls_final.
+*
+*  APPEND ls_final TO lt_final.
+*
+*  CLEAR: ls_employee, ls_training, ls_trainer, ls_final.
+*
+*ENDLOOP.
+
+*LOOP AT lt_ekpo INTO ls_ekpo.
+*
+*MOVE-CORRESPONDING ls_ekpo TO ls_final.
+*
+*READ TABLE lt_ekko INTO ls_ekko  WITH KEY ebeln = ls_ekpo-EBELN BINARY SEARCH.
+*
+*MOVE-CORRESPONDING ls_ekko TO ls_final.
+*
+*READ TABLE lt_ekes INTO ls_ekes WITH KEY ebeln = ls_ekko-ebeln BINARY SEARCH.
+*
+* ls_final-etens = ls_ekes-etens.
+*
+** ls_final = CORRESPONDING #( ls_ekes ).
+*
+*APPEND ls_final TO lt_final.
+*
+*CLEAR : ls_ekpo, ls_ekes, ls_final, ls_ekko.
+*
+*ENDLOOP.
+
+ls_layout-colwidth_optimize = 'X'.
+ls_layout-zebra = 'X'.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '1'.
+ls_fcat-fieldname = 'EMPLOYEE_ID'.
+ls_fcat-seltext_m = 'Employee ID'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '2'.
+ls_fcat-fieldname = 'EMPLOYEE_NAME'.
+ls_fcat-seltext_m = 'Employee Name'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+*CLEAR ls_fcat.
+*ls_fcat-COL_POS = '3'.
+*ls_fcat-fieldname = 'TRAINING_PROGRAM_ID'.
+*ls_fcat-seltext_m = 'Training Program ID'.
+*ls_fcat-tabname = 'LT_FINAL'.
+*APPEND ls_fcat TO lt_fcat.
+*
+*CLEAR ls_fcat.
+*ls_fcat-COL_POS = '4'.
+*ls_fcat-fieldname = 'TRAINING_ON'.
+*ls_fcat-seltext_m = 'Training On'.
+*ls_fcat-tabname = 'LT_FINAL'.
+*APPEND ls_fcat TO lt_fcat.
+*
+*CLEAR ls_fcat.
+*ls_fcat-COL_POS = '5'.
+*ls_fcat-fieldname = 'TRAINER_ID'.
+*ls_fcat-seltext_m = 'Trainer ID'.
+*ls_fcat-tabname = 'LT_FINAL'.
+*APPEND ls_fcat TO lt_fcat.
+*
+*CLEAR ls_fcat.
+*ls_fcat-COL_POS = '6'.
+*ls_fcat-fieldname = 'TRAINER_NAME'.
+*ls_fcat-seltext_m = 'Trainer Name'.
+*ls_fcat-tabname = 'LT_FINAL'.
+*APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '3'.
+ls_fcat-fieldname = 'TRAINING_ID'.
+ls_fcat-seltext_m = 'Training ID'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '4'.
+ls_fcat-fieldname = 'TRAINING_DATE'.
+ls_fcat-seltext_m = 'Training Date'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '5'.
+ls_fcat-fieldname = 'STATUS'.
+ls_fcat-seltext_m = 'Status'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+EXPORTING
+  is_layout                = ls_layout
+  it_fieldcat              = lt_fcat
+TABLES
+  t_outtab                 = lt_final[].
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

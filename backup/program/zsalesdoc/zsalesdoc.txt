@@ -1,0 +1,225 @@
+report ZSALESDOC
+       no standard page heading line-size 255.
+
+TYPES: BEGIN OF ts_data,
+        cust_no      TYPE zcust_no,
+        zcust_no     TYPE zcust_no,
+        zcust_name   TYPE zcust_nam,
+        zcity        TYPE zcust_city,
+        zregion      TYPE zcust_region,
+        zaddress     TYPE zcust_addres,
+        zpostcode    TYPE zcust_postcode,
+        zsalesdoc_no TYPE zsalesdoc_no,
+        zcreated_date TYPE C LENGTH 10,
+        zdoc_cat     TYPE zdoc_cat,
+        znet_value   TYPE C LENGTH 15,
+        zcurrency    TYPE zsales_curr,
+        zitem_no     TYPE zitem_no,
+        zmat_no      TYPE zmatr_no,
+        zquantity    TYPE C LENGTH 10,
+        zunit        TYPE zunit,
+       END OF ts_data.
+
+*include bdcrecx1.
+
+*----------------------------------------------------------------------*
+*   data definition
+*----------------------------------------------------------------------*
+*       Batchinputdata of single transaction
+DATA:   BDCDATA LIKE BDCDATA    OCCURS 0 WITH HEADER LINE.
+*       messages of call transaction
+DATA:   MESSTAB LIKE BDCMSGCOLL OCCURS 0 WITH HEADER LINE,
+*       error session opened (' ' or 'X')
+        gt_sales TYPE TABLE OF ts_data,
+        gs_sales TYPE ts_data,
+        lt_raw TYPE TRUXS_T_TEXT_DATA,
+        ls_layout TYPE slis_layout_alv,
+        lt_fcat TYPE slis_t_fieldcat_alv,
+        ls_fcat TYPE slis_fieldcat_alv.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE text-000.
+PARAMETERS p_file TYPE rlgrap-filename.
+SELECTION-SCREEN END OF BLOCK a1.
+
+AT SELECTION-SCREEN on VALUE-REQUEST FOR p_file.
+
+CALL FUNCTION 'F4_FILENAME'
+ EXPORTING
+   PROGRAM_NAME        = SYST-CPROG
+   DYNPRO_NUMBER       = SYST-DYNNR
+   FIELD_NAME          = 'P_FILE'
+ IMPORTING
+   FILE_NAME           = p_file.
+
+
+CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+  EXPORTING
+   I_FIELD_SEPERATOR          = 'X'
+   I_LINE_HEADER              = 'X'
+    i_tab_raw_data             = LT_RAW
+    i_filename                 = P_FILE
+  TABLES
+    i_tab_converted_data       = GT_SALES
+ EXCEPTIONS
+   CONVERSION_FAILED          = 1
+   OTHERS                     = 2.
+
+start-of-selection.
+
+LOOP AT gt_sales INTO gs_sales.
+
+perform bdc_dynpro      using 'ZCSA' '0201'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=BT'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'CUST_NO'.
+perform bdc_field       using 'CUST_NO'
+                              "'10003'
+                              gs_sales-cust_no.
+perform bdc_dynpro      using 'ZCSA' '0202'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=BT2'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'GS_FINAL-ZUNIT'.
+perform bdc_field       using 'GS_FINAL-ZCUST_NO'
+                              "'10003'
+                              gs_sales-ZCUST_NO.
+perform bdc_field       using 'GS_FINAL-ZSALESDOC_NO'
+                              "'20003'
+                              gs_sales-ZSALESDOC_NO.
+perform bdc_field       using 'GS_FINAL-ZCUST_NAME'
+                              "'GURU'
+                              gs_sales-ZCUST_NAME.
+perform bdc_field       using 'GS_FINAL-ZCREATED_DATE'
+                              "'11.01.2021'
+                              gs_sales-ZCREATED_DATE.
+perform bdc_field       using 'GS_FINAL-ZCITY'
+                              "'ERODE'
+                              gs_sales-ZCITY.
+perform bdc_field       using 'GS_FINAL-ZDOC_CAT'
+                              "'C'
+                              gs_sales-ZDOC_CAT.
+perform bdc_field       using 'GS_FINAL-ZREGION'
+                              "'TAMILNADU'
+                              gs_sales-ZREGION.
+perform bdc_field       using 'GS_FINAL-ZNET_VALUE'
+                              "'3400'
+                              gs_sales-ZNET_VALUE.
+perform bdc_field       using 'GS_FINAL-ZADDRESS'
+                              "'GOBI'
+                              gs_sales-ZADDRESS.
+perform bdc_field       using 'GS_FINAL-ZCURRENCY'
+                              "'INR'
+                              gs_sales-ZCURRENCY.
+perform bdc_field       using 'GS_FINAL-ZPOSTCODE'
+                              "'638476'
+                              gs_sales-ZPOSTCODE.
+perform bdc_field       using 'GS_FINAL-ZITEM_NO'
+                              "'30003'
+                              gs_sales-ZITEM_NO.
+perform bdc_field       using 'GS_FINAL-ZMAT_NO'
+                              "'50'
+                              gs_sales-ZMAT_NO.
+perform bdc_field       using 'GS_FINAL-ZQUANTITY'
+                              "'10000'
+                              gs_sales-ZQUANTITY.
+perform bdc_field       using 'GS_FINAL-ZUNIT'
+                              "'PCS'
+                              gs_sales-ZUNIT.
+perform bdc_dynpro      using 'ZCSA' '0202'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=BACK'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'GS_FINAL-ZCUST_NO'.
+perform bdc_dynpro      using 'ZCSA' '0201'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=BACK'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'CUST_NO'.
+CALL TRANSACTION 'ZCSA' USING bdcdata MODE 'N' UPDATE 'A' MESSAGES INTO messtab.
+  IF sy-subrc = 0.
+    WRITE: / 'Sales Doc Created Successfully:', gs_sales-zcust_no.
+  ELSE.
+    WRITE: / 'Error Creating Sales Doc:', gs_sales-zcust_no.
+  ENDIF.
+CLEAR :gs_sales.
+REFRESH: bdcdata.
+ENDLOOP.
+
+*perform bdc_transaction using 'ZCSA'.
+
+*perform close_group.
+
+*INCLUDE zsalesuploadalv.
+*SORT gt_sales BY zcust_no ASCENDING.
+*
+*DESCRIBE TABLE gt_sales LINES DATA(lv_count).
+*
+*DATA(count) = lines( gt_sales ).
+*
+*READ TABLE gt_sales INTO gs_sales INDEX 1.
+*
+*DATA(min) = gs_sales-zcust_no.
+*clear gs_sales.
+*
+*READ TABLE gt_sales INTO gs_sales INDEX lv_count.
+*
+*DATA(MAX) = gs_sales-zcust_no.
+
+*IF sy-subrc = 0.
+*  WRITE : / 'Min Value = ', min,
+*  'MAX Values = ', max.
+*ENDIF.
+
+*----------------------------------------------------------------------*
+*        Start new screen                                              *
+*----------------------------------------------------------------------*
+FORM BDC_DYNPRO USING PROGRAM DYNPRO.
+  CLEAR BDCDATA.
+  BDCDATA-PROGRAM  = PROGRAM.
+  BDCDATA-DYNPRO   = DYNPRO.
+  BDCDATA-DYNBEGIN = 'X'.
+  APPEND BDCDATA.
+ENDFORM.
+
+*----------------------------------------------------------------------*
+*        Insert field                                                  *
+*----------------------------------------------------------------------*
+FORM BDC_FIELD USING FNAM FVAL.
+*  IF FVAL <> NODATA.
+    CLEAR BDCDATA.
+    BDCDATA-FNAM = FNAM.
+    BDCDATA-FVAL = FVAL.
+    APPEND BDCDATA.
+*  ENDIF.
+ENDFORM.
+
+*Text elements
+*----------------------------------------------------------
+* 000 Upload File Path
+* E00 Error opening dataset, return code:
+* I01 Session name
+* I02 Open session
+* I03 Insert transaction
+* I04 Close Session
+* I05 Return code =
+* I06 Error session created
+* S01 Session name
+* S02 User
+* S03 Keep session
+* S04 Lock date
+* S05 Processing Mode
+* S06 Update Mode
+* S07 Generate session
+* S08 Call transaction
+* S09 Error sessn
+* S10 Nodata indicator
+* S11 Short log
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_FILE         File Path Location
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

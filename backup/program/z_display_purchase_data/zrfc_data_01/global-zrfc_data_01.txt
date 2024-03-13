@@ -1,0 +1,30 @@
+FUNCTION-POOL ZRFC_FG_ABAP.                 "MESSAGE-ID ..
+
+* INCLUDE LZRFC_FG_ABAPD...                  " Local class definition
+
+TYPES : BEGIN OF ts_ekko,
+  ebeln TYPE ekko-ebeln,
+  bukrs TYPE ekko-bukrs,
+END OF ts_ekko,
+
+BEGIN OF ts_ekpo,
+  ebeln TYPE ekpo-ebeln,
+  ebelp TYPE ekpo-ebelp,
+  matnr TYPE ekpo-matnr,
+END OF ts_ekpo,
+
+BEGIN OF ts_ekes,
+  ebeln TYPE ekes-ebeln,
+  etens TYPE ekes-etens,
+END OF ts_ekes.
+
+
+DATA: lt_ekko TYPE TABLE OF ts_ekko,
+      ls_ekko TYPE ts_ekko,
+      lt_ekpo TYPE TABLE OF ts_ekpo,
+      ls_ekpo TYPE ts_ekpo,
+      lt_ekes TYPE TABLE OF ts_ekes,
+      ls_ekes TYPE ts_ekes.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

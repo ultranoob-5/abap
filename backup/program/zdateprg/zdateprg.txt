@@ -1,0 +1,32 @@
+*&---------------------------------------------------------------------*
+*& Report  ZDATEPRG
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZDATEPRG.
+*system date format - 2024012 (YYYYMMDD)
+
+*local date format - 12.02.2024 (DD.MM.YYYY)
+
+PARAMETERS: P_DATE TYPE sy-datum.
+
+DATA: l_date TYPE c LENGTH 8,
+      l_year TYPE c LENGTH 4,
+      l_month TYPE c LENGTH 2 ,
+      l_day TYPE c LENGTH 2,
+      l_final_date TYPE c LENGTH 8.
+
+WRITE: / 'Selected Date:', p_date.
+
+l_year = p_date(4).
+l_month = p_date+4(2).
+l_day = p_date+6(2).
+
+CONCATENATE l_year l_month l_day INTO l_final_date.
+WRITE: / 'Formatted Date:', l_final_date.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

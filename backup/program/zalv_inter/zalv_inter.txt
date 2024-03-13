@@ -1,0 +1,162 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_INTER
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zalv_inter.
+
+TYPES: BEGIN OF ts_vbrk,
+        vbeln TYPE vbrk-vbeln,
+        bzirk TYPE vbrk-bzirk,
+       END OF ts_vbrk,
+
+       BEGIN OF ts_vbrp,
+        vbeln TYPE vbrp-vbeln,
+        matnr TYPE vbrp-matnr,
+        posnr TYPE vbrp-posnr,
+       END OF ts_vbrp,
+
+       BEGIN OF ts_mara,
+         matnr TYPE mara-matnr,
+         ersda TYPE mara-ersda,
+       END OF ts_mara,
+
+       BEGIN OF ts_makt,
+         matnr TYPE makt-matnr,
+         maktx TYPE makt-maktx,
+       END OF ts_makt.
+
+DATA: lt_vbrk TYPE TABLE OF ts_vbrk,
+      ls_vbrk TYPE ts_vbrk,
+      lt_vbrp TYPE TABLE OF ts_vbrp,
+      ls_vbrp TYPE ts_vbrp,
+      lt_mara TYPE TABLE OF ts_mara,
+      ls_mara TYPE ts_mara,
+      lt_makt TYPE TABLE OF ts_makt,
+      ls_makt TYPE ts_makt,
+      ls_layout TYPE slis_layout_alv,
+      lt_fcat TYPE slis_t_fieldcat_alv,
+      ls_fcat TYPE slis_fieldcat_alv,
+      lt_fcat1 TYPE slis_t_fieldcat_alv,
+      ls_fcat1 TYPE slis_fieldcat_alv,
+      lt_fcat2 TYPE slis_t_fieldcat_alv,
+      ls_fcat2 TYPE slis_fieldcat_alv,
+      lt_fcat3 TYPE slis_t_fieldcat_alv,
+      ls_fcat3 TYPE slis_fieldcat_alv.
+
+START-OF-SELECTION.
+
+  SELECT vbeln bzirk FROM vbrk INTO TABLE lt_vbrk.
+
+  ls_fcat-col_pos = '1'.
+  ls_fcat-fieldname = 'VBELN'.
+  ls_fcat-seltext_m = 'VBELN'.
+  ls_fcat-tabname = 'LT_VBRK'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '2'.
+  ls_fcat-fieldname = 'BZIRK'.
+  ls_fcat-seltext_m = 'BZIRK'.
+  ls_fcat-tabname = 'LT_VBRK'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+  I_CALLBACK_PROGRAM                = SY-REPID
+  I_CALLBACK_USER_COMMAND           = 'USER_COMMAND'
+      is_layout   = ls_layout
+      it_fieldcat = lt_fcat
+    TABLES
+      t_outtab    = lt_vbrk[].
+
+FORM USER_COMMAND USING UCOMM LIKE SY-UCOMM
+      SEL TYPE SLIS_SELFIELD.
+
+  IF UCOMM EQ '&IC1'.
+    CLEAR ls_vbrk.
+    READ TABLE lt_vbrk INTO ls_vbrk INDEX sel-TABINDEX.
+
+    SELECT vbeln matnr posnr FROM vbrp INTO TABLE lt_vbrp WHERE vbeln = ls_vbrk-vbeln .
+
+      ls_fcat1-COL_POS = 1.
+      ls_fcat1-FIELDNAME = 'VBELN'.
+      ls_fcat1-TABNAME = 'LT_VBRP'.
+      ls_fcat1-SELTEXT_M = 'VBLEN'.
+
+      APPEND ls_fcat1 TO lt_fcat1.
+      CLEAR ls_fcat1.
+
+      ls_fcat1-COL_POS = 2.
+      ls_fcat1-FIELDNAME = 'MATNR'.
+      ls_fcat1-TABNAME = 'LT_VBRP'.
+      ls_fcat1-SELTEXT_M = 'MATNR'.
+
+      APPEND ls_fcat1 TO lt_fcat1.
+      CLEAR ls_fcat1.
+
+      ls_fcat1-COL_POS = 3.
+      ls_fcat1-FIELDNAME = 'POSNR'.
+      ls_fcat1-TABNAME = 'LT_VBRP'.
+      ls_fcat1-SELTEXT_M = 'POSNR'.
+
+      APPEND ls_fcat1 TO lt_fcat1.
+      CLEAR ls_fcat1.
+
+      CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+      EXPORTING
+      I_CALLBACK_PROGRAM     = SY-REPID
+      I_CALLBACK_USER_COMMAND     = 'UCOMM_MARA'
+      IT_FIELDCAT                 = lt_fcat1
+      TABLES
+          T_OUTTAB                = lt_vbrp.
+
+      REFRESH : lt_fcat1.
+
+    ENDIF.
+ENDFORM.
+
+FORM UCOMM_MARA USING R_UCOMM LIKE SY-UCOMM
+                      SEL1 TYPE SLIS_SELFIELD.
+    CASE R_UCOMM.
+      WHEN '&IC1'.
+      CLEAR ls_vbrp.
+      READ TABLE lt_vbrp INTO ls_vbrp INDEX sel1-TABINDEX.
+
+      SELECT matnr ersda FROM mara INTO TABLE lt_mara.
+
+      ls_fcat2-COL_POS = 1.
+      ls_fcat2-FIELDNAME = 'MATNR'.
+      ls_fcat2-TABNAME = 'LT_MARA'.
+      ls_fcat2-SELTEXT_M = 'MATNR'.
+
+      APPEND ls_fcat2 TO lt_fcat2.
+      CLEAR ls_fcat2.
+
+      ls_fcat2-COL_POS = 2.
+      ls_fcat2-FIELDNAME = 'ERSDA'.
+      ls_fcat2-TABNAME = 'LT_MARA'.
+      ls_fcat2-SELTEXT_M = 'ERSDA'.
+
+      APPEND ls_fcat2 TO lt_fcat2.
+      CLEAR ls_fcat2.
+
+      CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+        EXPORTING
+          I_CALLBACK_PROGRAM                = sy-repid
+          I_CALLBACK_USER_COMMAND     = 'UCOMM_MARA'
+          IT_FIELDCAT                       = lt_fcat2
+
+          TABLES
+            T_OUTTAB                          = lt_mara.
+
+      REFRESH : lt_fcat2.
+
+   ENDCASE.
+ENDFORM.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

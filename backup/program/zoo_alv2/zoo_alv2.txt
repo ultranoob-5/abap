@@ -1,0 +1,145 @@
+*&---------------------------------------------------------------------*
+*& Report  ZOO_ALV2
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zoo_alv2.
+
+
+* Declaring a class to handle vendor data
+CLASS cl_vend DEFINITION.
+  PUBLIC SECTION.
+    TYPES: BEGIN OF ts_lfa1,  " Structure for LFA1 table fields
+             lifnr TYPE lifnr,  " Vendor Number
+             mcod1 TYPE mcdk1,  " Marketing Code
+             ort01 TYPE ort01_gp,  " City
+             land1 TYPE land1_gp,  " Country
+             pstlz TYPE pstlz,  " Postal Code
+           END OF ts_lfa1,
+
+           BEGIN OF ts_lfb1,  " Structure for LFB1 table fields
+             lifnr TYPE lifnr,  " Vendor Number
+             bukrs TYPE bukrs,  " Company Code
+             pernr TYPE  pernr_d,  " Personnel Number
+             erdat TYPE erdat_rf,  " Created On (Date)
+             ernam TYPE ernam_rf,  " Created By (User)
+             akont TYPE akont,  " Account Number
+           END OF ts_lfb1.
+
+    " Declaring internal tables and variables
+    DATA : lt_lfa1 TYPE TABLE OF ts_lfa1,  " Internal table for LFA1 data
+           ls_lfa1 TYPE ts_lfa1,  " Work area for LFA1 data
+           lt_lfb1 TYPE TABLE OF ts_lfb1,  " Internal table for LFB1 data
+           ls_lfb1 TYPE ts_lfb1,  " Work area for LFA1 data
+           zebra TYPE REF TO cl_salv_display_settings,
+           column TYPE REF TO cl_salv_columns,
+           lo_selection TYPE REF TO cl_salv_selections. "variable for selection moode and column properties.
+
+  DATA:    lo_event_handler TYPE REF TO cl_vend,
+           lo_event TYPE REF TO cl_salv_events_table.
+
+
+    " Methods for fetching and displaying data
+    METHODS : fetchdata,  " Method to fetch data from database tables
+              displaydata.  " Method to display fetched data
+
+    METHODS : interactive FOR EVENT double_click OF cl_salv_events_table
+      IMPORTING row column.
+
+  ENDCLASS.
+
+* Implementation of the class
+CLASS cl_vend IMPLEMENTATION.
+
+  METHOD fetchdata.
+
+    " Fetching data from LFA1 table
+    SELECT lifnr mcod1 ort01 land1 pstlz
+      FROM lfa1
+      INTO TABLE lt_lfa1.
+
+  ENDMETHOD.
+
+  METHOD interactive.
+
+  IF column eq 'LIFNR'.
+
+    READ TABLE lt_lfa1 INTO ls_lfa1 INDEX row.
+*    READ TABLE obj->lt_lfa1 INTO DATA(ls) INDEX row
+*    IF sy-subrc eq 0.
+      REFRESH lt_lfb1.
+      SELECT lifnr bukrs pernr erdat ernam akont
+        FROM lfb1
+        INTO TABLE lt_lfb1
+        FOR ALL ENTRIES IN lt_lfa1
+        WHERE lifnr eq lt_lfa1-lifnr.
+*    ENDIF.
+
+    TRY.
+        cl_salv_table=>factory(
+          IMPORTING
+            r_salv_table   =  DATA(lo_alv1)
+          CHANGING
+            t_table        = lt_lfb1
+        ).
+      CATCH cx_salv_msg INTO DATA(lv_msg1).
+
+    ENDTRY.
+    lo_alv1->display( ).
+   ENDIF.
+
+    ENDMETHOD.
+
+
+  METHOD displaydata.
+
+    " Creating ALV grid
+    TRY.
+        cl_salv_table=>factory(
+          IMPORTING
+            r_salv_table   =  DATA(lo_alv)
+          CHANGING
+            t_table        = lt_lfa1
+        ).
+      CATCH cx_salv_msg INTO DATA(lv_msg).
+
+    ENDTRY.
+
+    " Optimizing ALV columns
+    column = lo_alv->get_columns( ).
+    column->set_optimize( 'X' ).
+
+    " Setting striped pattern for ALV display
+    zebra = lo_alv->get_display_settings( ).
+    zebra->set_striped_pattern( cl_salv_display_settings=>true ).
+
+    lo_selection = lo_alv->get_selections( ).
+    lo_selection->set_selection_mode( if_salv_c_selection_mode=>row_column ).
+
+    lo_event = lo_alv->get_event( ).
+    CREATE OBJECT lo_event_handler.
+    SET HANDLER lo_event_handler->interactive FOR lo_event.
+
+    " Displaying ALV grid
+    lo_alv->display( ).
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+" Main program
+START-OF-SELECTION.
+
+  " Creating object of class
+  DATA : obj TYPE REF TO cl_vend.
+  CREATE OBJECT obj.
+
+  " Fetching and displaying data
+  obj->fetchdata( ).
+  obj->displaydata( ).
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

@@ -1,0 +1,149 @@
+*&---------------------------------------------------------------------*
+*& Report  ZMULTIINPUT
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zmultiinput.
+
+TYPES: BEGIN OF ts_app,
+material TYPE C LENGTH 18,
+industrial_sector TYPE C LENGTH 1,
+material_type TYPE C LENGTH 4,
+material_desc TYPE C LENGTH 40,
+uot TYPE C LENGTH 3,
+END OF ts_app.
+
+DATA: lt_app TYPE TABLE OF ts_app,
+      ls_app TYPE ts_app,
+      lt_bdcdata TYPE TABLE OF bdcdata,
+      ls_bdcdata TYPE bdcdata,
+      lv_rawdata TYPE truxs_t_text_data,
+      lt_mess TYPE TABLE OF bdcmsgcoll,
+      ls_mess TYPE bdcmsgcoll.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+PARAMETERS p_file TYPE rlgrap-filename.
+PARAMETERS:  r1 RADIOBUTTON GROUP g,
+             r2   RADIOBUTTON GROUP g.
+SELECTION-SCREEN END OF BLOCK b1 .
+
+
+
+
+START-OF-SELECTION.
+
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+
+CALL FUNCTION 'F4_FILENAME'
+ EXPORTING
+   program_name        = syst-cprog
+   dynpro_number       = syst-dynnr
+   field_name          = 'P_FILE'
+ IMPORTING
+   file_name           = p_file
+          .
+
+
+IF p_file IS NOT INITIAL AND r1 = 'X'.
+
+CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+EXPORTING
+  i_field_seperator    = 'X'
+  i_line_header        = 'X'
+  i_tab_raw_data       = lv_rawdata
+  i_filename           = p_file
+TABLES
+  i_tab_converted_data = lt_app.
+
+LOOP AT lt_app INTO ls_app.
+
+PERFORM bdc_dynpro      USING 'SAPLMGMM' '0060'.
+PERFORM bdc_field       USING 'BDC_CURSOR'
+      'RMMG1-MATNR'.
+PERFORM bdc_field       USING 'BDC_OKCODE'
+      '=ENTR'.
+PERFORM bdc_field       USING 'RMMG1-MATNR'
+      "'MAT-77090'.
+      ls_app-material.
+PERFORM bdc_field       USING 'RMMG1-MBRSH'
+      "'W'.
+      ls_app-industrial_sector.
+PERFORM bdc_field       USING 'RMMG1-MTART'
+      "'MODE'.
+      ls_app-material_type.
+PERFORM bdc_dynpro      USING 'SAPLMGMM' '0070'.
+PERFORM bdc_field       USING 'BDC_CURSOR'
+      'MSICHTAUSW-DYTXT(01)'.
+PERFORM bdc_field       USING 'BDC_OKCODE'
+      '=ENTR'.
+PERFORM bdc_field       USING 'MSICHTAUSW-KZSEL(01)'
+      'X'.
+PERFORM bdc_dynpro      USING 'SAPLMGMM' '4004'.
+PERFORM bdc_field       USING 'BDC_OKCODE'
+      '=BU'.
+PERFORM bdc_field       USING 'MAKT-MAKTX'
+      "'All weather jacket'.
+      ls_app-material_desc.
+PERFORM bdc_field       USING 'BDC_CURSOR'
+      'MARA-MEINS'.
+PERFORM bdc_field       USING 'MARA-MEINS'
+      "'EA'.
+      ls_app-uot.
+PERFORM bdc_field       USING 'MARA-MTPOS_MARA'
+      'NORM'.
+
+CALL TRANSACTION 'MM01' USING lt_bdcdata MODE 'N' UPDATE 'A' MESSAGES INTO lt_mess.
+  IF sy-subrc = 0.
+    WRITE: / 'Material Created Successfully:', ls_app-material.
+  ELSE.
+    WRITE: / 'Error Creating Material:', ls_app-material.
+  ENDIF.
+CLEAR: ls_app.
+REFRESH: lt_bdcdata.
+
+ENDLOOP.
+
+ELSEIF p_file IS NOT INITIAL AND r2 = 'X'.
+
+  SUBMIT zbapi_mm WITH p_file = p_file.
+
+ENDIF.
+
+
+*----------------------------------------------------------------------*
+*        Start new screen                                              *
+*----------------------------------------------------------------------*
+FORM bdc_dynpro USING PROGRAM DYNPRO.
+CLEAR ls_bdcdata.
+ls_bdcdata-PROGRAM  = PROGRAM.
+ls_bdcdata-DYNPRO   = DYNPRO.
+ls_bdcdata-dynbegin = 'X'.
+APPEND ls_bdcdata TO lt_bdcdata.
+ENDFORM.
+
+*----------------------------------------------------------------------*
+*        Insert field                                                  *
+*----------------------------------------------------------------------*
+FORM bdc_field USING fnam fval.
+CLEAR ls_bdcdata.
+ls_bdcdata-fnam = fnam.
+ls_bdcdata-fval = fval.
+APPEND ls_bdcdata TO lt_bdcdata.
+ENDFORM.
+
+*Text elements
+*----------------------------------------------------------
+* 001 Select a Method To Feed The Data
+
+
+*Selection texts
+*----------------------------------------------------------
+* R1         BDC
+* R2         BAPI
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

@@ -1,0 +1,213 @@
+*&---------------------------------------------------------------------*
+*& Report  ZEMP_TRAINING_TRACKER1
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zemp_training_tracker1.
+
+TYPES: BEGIN OF ts_employee,
+employee_id TYPE zemployee_info-employee_id,
+employee_name TYPE zemployee_info-employee_name,
+END OF ts_employee.
+
+TYPES: BEGIN OF ts_training,
+training_program_id TYPE ztraining_info-training_program_id,
+training_program TYPE ztraining_info-training_program,
+END OF ts_training.
+
+TYPES: BEGIN OF ts_trainer,
+trainer_id TYPE ztrainer_info-trainer_id,
+trainer_name TYPE ztrainer_info-trainer_name,
+END OF ts_trainer.
+
+TYPES: BEGIN OF ts_training_data,
+training_id TYPE ztraining_data-training_id,
+training_date TYPE ztraining_data-training_date,
+status TYPE ztraining_data-status,
+employee_id TYPE ztraining_data-employee_id,
+trainer_id TYPE ztraining_data-trainer_id,
+training_program_id TYPE ztraining_data-training_program_id,
+END OF ts_training_data.
+
+TYPES: BEGIN OF ts_final,
+employee_id TYPE zemployee_info-employee_id,
+employee_name TYPE zemployee_info-employee_name,
+training_program_id TYPE ztraining_info-training_program_id,
+training_program TYPE ztraining_info-training_program,
+trainer_id TYPE ztrainer_info-trainer_id,
+trainer_name TYPE ztrainer_info-trainer_name,
+training_id TYPE ztraining_data-training_id,
+training_date TYPE ztraining_data-training_date,
+status TYPE ztraining_data-status,
+END OF ts_final.
+
+DATA: lt_employee TYPE TABLE OF ts_employee,
+      ls_employee TYPE ts_employee,
+      lt_training TYPE TABLE OF ts_training,
+      ls_training TYPE ts_training,
+      lt_trainer TYPE TABLE OF ts_trainer,
+      ls_trainer TYPE ts_trainer,
+      lt_training_data TYPE TABLE OF ts_training_data,
+      ls_training_data TYPE ts_training_data,
+      lt_final TYPE TABLE OF ts_final,
+      ls_final TYPE ts_final,
+      lt_fcat TYPE slis_t_fieldcat_alv,
+      ls_fcat TYPE slis_fieldcat_alv,
+      ls_layout TYPE slis_layout_alv.
+
+START-OF-SELECTION.
+
+SELECT training_id
+training_date
+status
+employee_id
+training_program_id
+ trainer_id
+FROM ztraining_data
+INTO CORRESPONDING FIELDS OF TABLE lt_training_data.
+
+IF lt_training_data[] IS NOT INITIAL.
+
+SELECT employee_id
+employee_name
+FROM zemployee_info
+INTO TABLE lt_employee
+FOR ALL ENTRIES IN lt_training_data
+WHERE employee_id = lt_training_data-EMPLOYEE_ID.
+
+SELECT training_program_id
+training_program
+FROM ztraining_info
+INTO TABLE lt_training
+FOR ALL ENTRIES IN lt_training_data
+WHERE training_program_id = lt_training_data-training_program_id.
+
+SELECT trainer_id trainer_name
+FROM ztrainer_info
+INTO TABLE lt_trainer
+FOR ALL ENTRIES IN lt_training_data
+WHERE trainer_id = lt_training_data-trainer_id.
+
+
+ENDIF.
+
+
+
+LOOP AT lt_training_data INTO ls_training_data.
+
+ls_final-training_program_id = ls_training_data-training_program_id.
+ls_final-trainer_id = ls_training_data-trainer_id.
+ls_final-training_id = ls_training_data-training_id.
+ls_final-training_date = ls_training_data-training_date.
+ls_final-status = ls_training_data-status.
+
+LOOP AT lt_employee INTO ls_employee  WHERE employee_id = ls_training_data-employee_id.
+
+ls_final-employee_id = ls_employee-employee_id.
+ls_final-employee_name = ls_employee-employee_name.
+
+ENDLOOP.
+
+READ TABLE lt_training INTO ls_training
+                       WITH KEY training_program_id = ls_training_data-training_program_id
+                       BINARY SEARCH.
+
+ls_final-training_program = ls_training-training_program.
+
+READ TABLE lt_trainer INTO ls_trainer
+                      WITH KEY trainer_id = ls_training_data-trainer_id
+                      BINARY SEARCH.
+
+ls_final-trainer_name = ls_trainer-trainer_name.
+
+APPEND ls_final TO lt_final[].
+CLEAR: ls_final, ls_training, ls_training_data, ls_trainer, ls_employee.
+
+ENDLOOP.
+
+ls_layout-colwidth_optimize = 'X'.
+ls_layout-zebra = 'X'.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '1'.
+ls_fcat-fieldname = 'EMPLOYEE_ID'.
+ls_fcat-seltext_m = 'Employee ID'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '2'.
+ls_fcat-fieldname = 'EMPLOYEE_NAME'.
+ls_fcat-seltext_m = 'Employee Name'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '3'.
+ls_fcat-fieldname = 'TRAINING_PROGRAM_ID'.
+ls_fcat-seltext_m = 'Training Program ID'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '4'.
+ls_fcat-fieldname = 'TRAINING_PROGRAM'.
+ls_fcat-seltext_m = 'Training Program'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '5'.
+ls_fcat-fieldname = 'TRAINER_ID'.
+ls_fcat-seltext_m = 'Trainer ID'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '6'.
+ls_fcat-fieldname = 'TRAINER_NAME'.
+ls_fcat-seltext_m = 'Trainer Name'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '7'.
+ls_fcat-fieldname = 'TRAINING_ID'.
+ls_fcat-seltext_m = 'Training ID'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '8'.
+ls_fcat-fieldname = 'TRAINING_DATE'.
+ls_fcat-seltext_m = 'Training Date'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-col_pos = '9'.
+ls_fcat-fieldname = 'STATUS'.
+ls_fcat-seltext_m = 'Status'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+CLEAR ls_fcat.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+EXPORTING
+  I_CALLBACK_PROGRAM  = SY-REPID
+  I_CALLBACK_PF_STATUS_SET  = 'BUTTON'
+  I_CALLBACK_USER_COMMAND = 'UCOMMAND'
+  is_layout   = ls_layout
+  it_fieldcat = lt_fcat
+TABLES
+  t_outtab    = lt_final[].
+
+FORM BUTTON USING t_extab TYPE SLIS_T_EXTAB.
+  SET PF-STATUS 'ZSTANDARD'.
+ENDFORM.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

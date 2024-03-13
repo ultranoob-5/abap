@@ -1,0 +1,102 @@
+*&---------------------------------------------------------------------*
+*& Report  ZDEMO_SYNTAX
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zdemo_syntax.
+
+DATA : LT TYPE TABLE OF zemp_mast.
+
+      START-OF-SELECTION.
+
+
+      SELECT * FROM zemp_mast
+      INTO TABLE LT
+      UP TO 15 ROWS.
+
+DATA(itab) = LT.
+
+DATA(lv_json) = cl_sxml_string_writer=>create( TYPE  = if_sxml=>co_xt_json ).
+
+      CALL TRANSFORMATION ID SOURCE itab = itab
+      RESULT XML lv_json.
+
+DATA(json) = lv_json->get_output( ).
+
+      CALL TRANSFORMATION ID SOURCE LT = LT
+RESULT XML DATA(lv_xml).
+
+DATA(lv_html) = cl_demo_output=>get( DATA = LT ).
+
+      cl_demo_output=>display_xml( xml = lv_xml ).
+      cl_demo_output=>display_json( json = json ).
+      cl_demo_output=>DISPLAY_HTML( HTML = lv_html ).
+
+
+DATA : html TYPE TABLE OF w3html WITH HEADER LINE,
+      FIELDS TYPE TABLE OF w3fields WITH HEADER LINE.
+
+      CALL FUNCTION 'WWW_ITAB_TO_HTML'
+EXPORTING
+*   TABLE_ATTRIBUTES       = 'BORDER=1'
+*   TABLE_HEADER           =
+  ALL_FIELDS             = 'X'
+TABLES
+  HTML                   = html
+  FIELDS                 = FIELDS
+*   ROW_HEADER             =
+  ITABLE                 = LT
+  .
+
+  CALL FUNCTION 'GUI_DOWNLOAD'
+EXPORTING
+  FILENAME                        = 'C:\Users\U$ER\Downloads\ITAB_TO_HTML.htm'
+TABLES
+  DATA_TAB                        = html
+EXCEPTIONS
+  FILE_WRITE_ERROR                = 1
+  NO_BATCH                        = 2
+  GUI_REFUSE_FILETRANSFER         = 3
+  INVALID_TYPE                    = 4
+  NO_AUTHORITY                    = 5
+  UNKNOWN_ERROR                   = 6
+  HEADER_NOT_ALLOWED              = 7
+  SEPARATOR_NOT_ALLOWED           = 8
+  FILESIZE_NOT_ALLOWED            = 9
+  HEADER_TOO_LONG                 = 10
+  DP_ERROR_CREATE                 = 11
+  DP_ERROR_SEND                   = 12
+  DP_ERROR_WRITE                  = 13
+  UNKNOWN_DP_ERROR                = 14
+  ACCESS_DENIED                   = 15
+  DP_OUT_OF_MEMORY                = 16
+  DISK_FULL                       = 17
+  DP_TIMEOUT                      = 18
+  FILE_NOT_FOUND                  = 19
+  DATAPROVIDER_EXCEPTION          = 20
+  CONTROL_FLUSH_ERROR             = 21
+  OTHERS                          = 22
+  .
+
+cl_gui_frontend_services=>EXECUTE(
+  exporting
+    DOCUMENT               = 'C:\Users\U$ER\Downloads\ITAB_TO_HTML.htm'     " Path+Name to Document
+    OPERATION              = 'OPEN'    " Reserved: Verb für ShellExecute
+  exceptions
+    CNTL_ERROR             = 1
+    ERROR_NO_GUI           = 2
+    BAD_PARAMETER          = 3
+    FILE_NOT_FOUND         = 4
+    PATH_NOT_FOUND         = 5
+    FILE_EXTENSION_UNKNOWN = 6
+    ERROR_EXECUTE_FAILED   = 7
+    SYNCHRONOUS_FAILED     = 8
+    NOT_SUPPORTED_BY_GUI   = 9
+    OTHERS                 = 10
+).
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

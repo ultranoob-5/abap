@@ -1,0 +1,95 @@
+*&---------------------------------------------------------------------*
+*& Report  ZUPLOAD_DATA_CUSTOMER
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zupload_data_customer.
+
+TYPES : BEGIN OF ts_str, " Structure to get data from external
+        mandt(3) TYPE c,"mandt,
+        cusid TYPE c LENGTH 10,
+        fname(30) TYPE c,
+        lname(15)	TYPE c,
+        phnum	TYPE n LENGTH 11,
+  END OF ts_str.
+
+
+DATA : gt_str TYPE TABLE OF ts_str, "Table to get data from external
+       gs_str TYPE ts_str,
+       gt_customer TYPE TABLE OF zcustomer1, " To create / update data which we get from external
+       gs_customer TYPE zcustomer1,
+       gt_text_data TYPE truxs_t_text_data.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME.
+
+PARAMETERS : p_file TYPE rlgrap-filename.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+
+  CALL FUNCTION 'F4_FILENAME'
+    EXPORTING
+      program_name  = syst-cprog
+      dynpro_number = syst-dynnr
+      field_name    = 'P_FILE'
+    IMPORTING
+      file_name     = p_file.
+
+
+START-OF-SELECTION.
+
+  CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+    EXPORTING
+*     I_FIELD_SEPERATOR    =
+*     I_LINE_HEADER        =
+      i_tab_raw_data       = gt_text_data
+      i_filename           = p_file
+    TABLES
+      i_tab_converted_data = gt_str
+    EXCEPTIONS
+      conversion_failed    = 1
+      OTHERS               = 2.
+
+*  LOOP AT gt_str INTO gs_str.
+*
+*    gs_customer-mandt = gs_str-mandt.
+*    gs_customer-cusid = gs_str-cusid.
+*    gs_customer-fname = gs_str-fname.
+*    gs_customer-lname = gs_str-lname.
+*    gs_customer-phnum = gs_str-phnum.
+*
+*    APPEND gs_customer TO gt_customer.
+*
+*  ENDLOOP.
+
+  MODIFY zcustomer1 FROM TABLE gt_str. "gt_customer
+
+  IF sy-subrc EQ 0.
+
+    MESSAGE : 'Data Uploaded Successfully' TYPE 'S'.
+
+  ELSE.
+
+    MESSAGE : 'Error in Data' TYPE 'E'.
+
+  ENDIF.
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_FILE         File Path
+
+
+*Messages
+*----------------------------------------------------------
+*
+* Message class: Hard coded
+*   Data Uploaded Successfully
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

@@ -1,0 +1,111 @@
+REPORT zoo_intr.
+
+      TYPES: BEGIN OF ts_lfa1,  " Structure for LFA1 table fields
+             lifnr TYPE lifnr,  " Vendor Number
+             mcod1 TYPE mcdk1,  " Marketing Code
+             ort01 TYPE ort01_gp,  " City
+             land1 TYPE land1_gp,  " Country
+             pstlz TYPE pstlz,  " Postal Code
+           END OF ts_lfa1,
+
+           BEGIN OF ts_lfb1,  " Structure for LFB1 table fields
+             lifnr TYPE lifnr,  " Vendor Number
+             bukrs TYPE bukrs,  " Company Code
+             pernr TYPE  pernr_d,  " Personnel Number
+             erdat TYPE erdat_rf,  " Created On (Date)
+             ernam TYPE ernam_rf,  " Created By (User)
+             akont TYPE akont,  " Account Number
+           END OF ts_lfb1.
+
+           DATA: lt_lfa1 TYPE TABLE OF ts_lfa1,
+                 ls_lfa1 TYPE ts_lfa1,
+                 lt_lfb1 TYPE TABLE OF ts_lfb1,
+                 ls_lfb1 TYPE ts_lfb1.
+
+           DATA: lo_columns TYPE REF TO cl_salv_columns_table,
+                 lo_column TYPE REF TO cl_salv_column_table,
+                 zebra TYPE REF TO cl_salv_display_settings,
+                 column TYPE REF TO cl_salv_columns,
+                 lo_selection TYPE REF TO cl_salv_selections. "variable for selection moode and column properties.
+
+
+
+           CLASS cl_inter DEFINITION DEFERRED.
+
+             DATA: lv_inter TYPE REF TO cl_inter.
+
+             CLASS cl_inter DEFINITION.
+               PUBLIC SECTION.
+
+               METHODS double_click FOR EVENT link_click OF cl_salv_events_table
+                    IMPORTING row column.
+             ENDCLASS.
+
+             START-OF-SELECTION.
+
+                 SELECT lifnr mcod1 ort01 land1 pstlz
+                        FROM lfa1
+                        INTO TABLE lt_lfa1.
+
+                 IF sy-subrc IS INITIAL.
+
+                   cl_salv_table=>factory(
+*                     EXPORTING
+*                       list_display   = IF_SALV_C_BOOL_SAP=>FALSE    " ALV Displayed in List Mode
+*                       r_container    =     " Abstract Container for GUI Controls
+*                       container_name =
+                     IMPORTING
+                       r_salv_table   = DATA(lo_alv)     " Basis Class Simple ALV Tables
+                     CHANGING
+                       t_table        = lt_lfa1
+                   ).
+*                     CATCH cx_salv_msg.    "
+
+                   lo_columns = lo_alv->get_columns( ).
+                   lo_column ?= lo_columns->get_column( columnname = 'LIFNR' ).
+
+                   lo_column->set_cell_type(
+                       value = if_salv_c_cell_type=>hotspot
+                   ).
+
+*                   DATA(lo_event) = NEW cl_salv_events_table( ).
+                   DATA: lo_event TYPE REF TO cl_salv_events_table.
+
+                   lo_event = lo_alv->get_event( ).
+                   CREATE OBJECT lv_inter.
+
+                   SET HANDLER lv_inter->double_click FOR lo_event.
+
+                    " Optimizing ALV columns
+                    column = lo_alv->get_columns( ).
+                    column->set_optimize( 'X' ).
+
+                    " Setting striped pattern for ALV display
+                    zebra = lo_alv->get_display_settings( ).
+                    zebra->set_striped_pattern( cl_salv_display_settings=>true ).
+
+                   lo_selection = lo_alv->get_selections( ).
+                   lo_selection->set_selection_mode( if_salv_c_selection_mode=>row_column ).
+
+                   lo_alv->display( ).
+
+                 ENDIF.
+
+                 CLASS cl_inter IMPLEMENTATION.
+                   METHOD double_click.
+                     IF column eq 'LIFNR'.
+
+                     READ TABLE lt_lfa1 INTO ls_lfa1 INDEX row.
+
+                     IF sy-subrc IS INITIAL.
+
+                        WRITE : / 'executed successfully'.
+
+                     ENDIF.
+                     ENDIF.
+
+                   ENDMETHOD.
+                 ENDCLASS.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

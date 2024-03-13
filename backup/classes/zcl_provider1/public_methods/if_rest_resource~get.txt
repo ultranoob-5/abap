@@ -1,0 +1,112 @@
+**************************************************************************
+*   Method attributes.                                                   *
+**************************************************************************
+Instantiation: Public
+**************************************************************************
+
+  METHOD if_rest_resource~get.
+*CALL METHOD SUPER->IF_REST_RESOURCE~GET
+*    .
+
+    TYPES: BEGIN OF ts_ekko,
+                     ebeln TYPE ebeln,
+                     bukrs TYPE bukrs,
+                     bstyp TYPE ebstyp,
+                     bsart TYPE esart,
+                 END OF ts_ekko,
+                 BEGIN OF ts_ekpo,
+                     ebeln TYPE ebeln,
+                     aedat TYPE paedt,
+                     txz01 TYPE txz01,
+                 END OF ts_ekpo,
+                 BEGIN OF ts_final,
+                     ebeln TYPE ebeln,
+                     bukrs TYPE bukrs,
+                     bstyp TYPE ebstyp,
+                     bsart TYPE esart,
+                     aedat TYPE paedt,
+                     txz01 TYPE txz01,
+                 END OF ts_final.
+
+    DATA: lt_ekko TYPE TABLE OF ts_ekko,
+                ls_ekko TYPE ts_ekko,
+                lt_ekpo TYPE TABLE OF ts_ekpo,
+                ls_ekpo TYPE ts_ekpo,
+                lt_final TYPE TABLE OF ts_final,
+                ls_final TYPE ts_final.
+
+    DATA(lv_input) = mo_request->get_uri_query_parameter( 'EBELN' ).
+
+    IF lv_input IS NOT INITIAL.
+
+        SELECT ebeln bukrs bstyp bsart
+            FROM ekko
+            INTO TABLE lt_ekko
+            WHERE ebeln = lv_input.
+
+        SORT lt_ekko[] BY ebeln.
+
+    ELSE.
+
+        SELECT ebeln bukrs bstyp bsart "#EC CI_NOFIELD
+            FROM ekko
+            INTO TABLE lt_ekko
+            WHERE ebeln IS NOT NULL.
+
+    ENDIF.
+
+    IF lt_ekko[] IS NOT INITIAL.
+
+        SELECT ebeln aedat txz01
+            FROM ekpo
+            INTO TABLE lt_ekpo
+            FOR ALL ENTRIES IN lt_ekko
+            WHERE ebeln = lt_ekko-ebeln.
+
+        SORT lt_ekpo[] BY ebeln.
+
+    ENDIF.
+
+    LOOP AT lt_ekpo INTO ls_ekpo.
+
+        ls_final-ebeln = ls_ekpo-ebeln.
+        ls_final-aedat = ls_ekpo-aedat.
+        ls_final-txz01 = ls_ekpo-txz01.
+
+        READ TABLE lt_ekko INTO ls_ekko WITH KEY ebeln = ls_ekpo-ebeln.
+        ls_final-bukrs = ls_ekko-bukrs.
+        ls_final-bstyp = ls_ekko-bstyp.
+        ls_final-bsart = ls_ekko-bsart.
+
+        APPEND ls_final TO lt_final.
+        CLEAR : ls_final,ls_ekko,ls_ekpo.
+
+    ENDLOOP.
+
+    IF lt_final IS NOT INITIAL.
+
+        /ui2/cl_json=>serialize(
+            EXPORTING
+                data        =  lt_final   " Data to serialize
+            RECEIVING
+                r_json      = DATA(json)    " JSON string
+        ).
+
+        mo_response->create_entity( )->set_string_data( iv_data = json ). "to send response.
+
+    ELSE.
+
+        /ui2/cl_json=>serialize(
+            EXPORTING
+                data        = 'FAILED TO GET DATA'   " Data to serialize
+            RECEIVING
+                r_json      = DATA(lv_error)   " JSON string
+        ).
+
+        mo_response->create_entity( )->set_string_data( iv_data = lv_error ).
+
+    ENDIF.
+  ENDMETHOD.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

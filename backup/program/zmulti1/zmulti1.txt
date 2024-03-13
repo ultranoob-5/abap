@@ -1,0 +1,24 @@
+*&---------------------------------------------------------------------*
+*& Report  ZMULTI1
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZMULTI1.
+
+SELECTION-SCREEN begin of BLOCK b1 WITH FRAME TITLE text-001.
+PARAMETERS:  r1 RADIOBUTTON GROUP g,
+             r2   RADIOBUTTON GROUP g.
+SELECTION-SCREEN END OF BLOCK b1 .
+
+START-OF-SELECTION.
+IF r1 = 'X'.
+  submit zret_puf VIA SELECTION-SCREEN.
+ELSEIF r2 = 'X'.
+  SUBMIT zbapi_mm VIA SELECTION-SCREEN .
+ENDIF.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

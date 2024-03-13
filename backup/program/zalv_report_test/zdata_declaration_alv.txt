@@ -1,0 +1,27 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZDATA_DECLARATION_ALV
+*&---------------------------------------------------------------------*
+
+TYPES : BEGIN OF ts_sale,
+        vbeln TYPE vbeln_va,
+        posnr	TYPE posnr_va,
+        matnr	TYPE matnr,
+        matkl	TYPE matkl,
+        netpr TYPE netpr,
+  END OF ts_sale.
+
+DATA : gt_sale TYPE TABLE OF ts_sale,
+       gs_sale TYPE ts_sale,
+       gt_fcat TYPE SLIS_T_FIELDCAT_ALV, " to create ALV grid/list format
+       gs_fcat TYPE slis_fieldcat_alv,
+       gs_lay TYPE SLIS_LAYOUT_ALV, " create layout
+       gt_tot TYPE SLIS_T_SORTINFO_ALV, " to create subtotal for fields
+       gs_tot TYPE slis_sortinfo_alv,
+*       gt_event TYPE SLIS_T_EVENT, "to display all events in ALV
+*       gs_event like LINE OF gt_event,
+       gt_header TYPE SLIS_T_LISTHEADER, "Heading
+       gs_header TYPE slis_listheader,
+       lv_vbeln TYPE vbeln.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

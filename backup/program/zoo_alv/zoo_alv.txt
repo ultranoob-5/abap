@@ -1,0 +1,345 @@
+*&---------------------------------------------------------------------*
+*& Report  ZOO_ALV
+*&
+*&---------------------------------------------------------------------*
+REPORT zoo_alv.
+
+*SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+*  PARAMETERS v_no TYPE lfa1-lifnr.
+*SELECTION-SCREEN END OF BLOCK b1.
+
+* Declaring a class to handle vendor data
+CLASS cl_vend DEFINITION.
+  PUBLIC SECTION.
+    TYPES: BEGIN OF ts_lfa1,  " Structure for LFA1 table fields
+             lifnr TYPE lifnr,  " Vendor Number
+             mcod1 TYPE mcdk1,  " Marketing Code
+             ort01 TYPE ort01_gp,  " City
+             land1 TYPE land1_gp,  " Country
+             pstlz TYPE pstlz,  " Postal Code
+           END OF ts_lfa1,
+
+           BEGIN OF ts_lfb1,  " Structure for LFB1 table fields
+             lifnr TYPE lifnr,  " Vendor Number
+             bukrs TYPE bukrs,  " Company Code
+             pernr TYPE  pernr_d,  " Personnel Number
+             erdat TYPE erdat_rf,  " Created On (Date)
+             ernam TYPE ernam_rf,  " Created By (User)
+             akont TYPE akont,  " Account Number
+           END OF ts_lfb1,
+
+           BEGIN OF ts_bank,  " Structure for bank data
+             lifnr TYPE lifnr,  " Vendor Number
+             bankn TYPE bankn,  " Bank Number
+             bvtyp TYPE bvtyp,  " Bank Type
+             koinh TYPE koinh_fi,  " Account Holder's Name
+           END OF ts_bank,
+
+           BEGIN OF ts_final,  " Structure for final merged data
+             lifnr TYPE lifnr,  " Vendor Number
+             mcod1 TYPE mcdk1,  " Marketing Code
+             ort01 TYPE ort01_gp,  " City
+             land1 TYPE land1_gp,  " Country
+             pstlz TYPE pstlz,  " Postal Code
+             bukrs TYPE bukrs,  " Company Code
+             pernr TYPE  pernr_d,  " Personnel Number
+             erdat TYPE erdat_rf,  " Created On (Date)
+             ernam TYPE ernam_rf,  " Created By (User)
+             akont TYPE akont,  " Account Number
+             bankn TYPE  bankn,  " Bank Number
+             bvtyp TYPE  bvtyp,  " Bank Type
+             koinh TYPE  koinh_fi,  " Account Holder's Name
+           END OF ts_final.
+
+
+
+
+
+
+
+    " Declaring internal tables and variables
+    DATA : lt_lfa1 TYPE TABLE OF ts_lfa1,  " Internal table for LFA1 data
+           ls_lfa1 TYPE ts_lfa1,  " Work area for LFA1 data
+           lt_lfb1 TYPE TABLE OF ts_lfb1,  " Internal table for LFB1 data
+           ls_lfb1 TYPE ts_lfb1,  " Work area for LFB1 data
+           lt_bank TYPE TABLE OF ts_bank,  " Internal table for bank data
+           ls_bank TYPE ts_bank,  " Work area for bank data
+           lt_final TYPE TABLE OF ts_final,  " Internal table for merged final data
+           ls_final TYPE ts_final,  " Work area for final merged data
+           tool TYPE REF TO cl_salv_functions_list,  " Reference variable for ALV functions
+           column TYPE REF TO cl_salv_columns,  " Reference variable for ALV columns
+           columns TYPE REF TO cl_salv_column_table,  " Reference variable for ALV column table
+           zebra TYPE REF TO cl_salv_display_settings,  " Reference variable for ALV display settings
+           lo_grid TYPE REF TO cl_salv_form_layout_grid,  " Reference variable for ALV form layout grid
+           lo_layout TYPE REF TO cl_salv_form_layout_logo,  " Reference variable for ALV form layout logo
+           lo_content TYPE REF TO cl_salv_form_element,  " Reference variable for ALV form element
+           lv_title TYPE STRING,  " Title for ALV display
+           lv_row TYPE STRING,  " Number of rows in internal table
+           table_desc TYPE REF TO cl_abap_tabledescr,  " Reference variable for table description
+           desc TYPE REF TO cl_abap_structdescr,  " Reference variable for structure description
+           ls_table TYPE abap_compdescr,  " Work area for table description components
+           lo_event_handler TYPE REF TO cl_vend,
+           lo_event TYPE REF TO cl_salv_events_table.
+
+    " Methods for fetching and displaying data
+    METHODS : fetchdata,  " Method to fetch data from database tables
+              displaydata.  " Method to display fetched data
+
+
+    METHODS : interactive for EVENT DOUBLE_CLICK of cl_salv_events_table IMPORTING row column.
+
+
+  ENDCLASS.
+
+* Implementation of the class
+CLASS cl_vend IMPLEMENTATION.
+
+METHOD interactive.
+
+  IF column = 'LIFNR'.
+
+    READ TABLE lt_final into ls_final INDEX row.
+
+    SELECT COUNT( * ) FROM lfa1 UP TO 1 ROWS
+      WHERE lifnr = ls_final-lifnr.
+
+    IF sy-subrc = 0 .
+
+      set PARAMETER ID 'MXX' FIELD 'K'.
+      set PARAMETER ID 'LIF' FIELD LS_FINAL-LIFNR.
+
+      CALL TRANSACTION 'XK03' AND SKIP FIRST SCREEN.
+
+    ELSE.
+
+      CALL FUNCTION 'CONVERSION_EXIT_ALPHA_OUTPUT'
+        EXPORTING
+          input         = ls_final-lifnr
+       IMPORTING
+         OUTPUT        =  ls_final-lifnr.
+
+      DATA(lv_error) = 'Vendor' && ls_final-lifnr && 'Doesnt Exist'.
+
+      MESSAGE lv_error TYPE 'I' DISPLAY LIKE 'E'.
+    ENDIF.
+
+    ELSE.
+
+      MESSAGE text-020 TYPE 'I' DISPLAY LIKE 'S'.
+
+  ENDIF.
+
+  ENDMETHOD.
+
+  METHOD fetchdata.
+
+    " Fetching data from LFA1 table
+    SELECT lifnr mcod1 ort01 land1 pstlz "#EC CI_NOFIELD
+      FROM lfa1
+      INTO TABLE lt_lfa1
+      WHERE lifnr IS NOT NULL.
+
+    " Fetching data from LFB1 table based on entries in LFA1 table
+    IF sy-subrc IS INITIAL.
+      SELECT lifnr bukrs pernr erdat ernam akont
+        FROM lfb1
+        INTO TABLE lt_lfb1
+        FOR ALL ENTRIES IN lt_lfa1
+        WHERE lifnr = lt_lfa1-lifnr.
+
+      " Fetching data from bank table based on entries in LFA1 table
+      SELECT lifnr bankn bvtyp koinh
+        FROM zvendorbank
+        INTO TABLE lt_bank
+        FOR ALL ENTRIES IN lt_lfa1
+        WHERE lifnr = lt_lfa1-lifnr.
+
+    ENDIF.
+
+    " Merging fetched data into final internal table
+    LOOP AT lt_lfb1 INTO ls_lfb1.
+*        ls_final-lifnr = ls_lfb1-lifnr.
+*        ls_final-bukrs = ls_lfb1-bukrs.
+*        ls_final-pernr = ls_lfb1-pernr.
+*        ls_final-erdat = ls_lfb1-erdat.
+*        ls_final-ernam = ls_lfb1-ernam.
+*        ls_final-akont = ls_lfb1-akont.
+      MOVE-CORRESPONDING ls_lfb1 TO ls_final.
+
+      READ TABLE lt_lfa1 INTO ls_lfa1 WITH KEY lifnr = ls_final-lifnr BINARY SEARCH.
+
+      IF sy-subrc = 0.
+*          ls_final-mcod1 = ls_lfa1-mcod1.
+*          ls_final-ort01 = ls_lfa1-ort01.
+*          ls_final-land1 = ls_lfa1-land1.
+*          ls_final-pstlz = ls_lfa1-pstlz.
+        MOVE-CORRESPONDING ls_lfa1 TO ls_final.
+      ENDIF.
+
+      READ TABLE lt_bank INTO ls_bank WITH KEY lifnr = ls_final-lifnr BINARY SEARCH.
+
+      IF sy-subrc = 0.
+*          ls_final-bankn = ls_bank-bankn.
+*          ls_final-bvtyp = ls_bank-bvtyp.
+*          ls_final-koinh = ls_bank-koinh.
+        MOVE-CORRESPONDING ls_bank TO ls_final.
+      ENDIF.
+
+      APPEND ls_final TO lt_final.
+      CLEAR : ls_final,ls_lfa1,ls_lfb1,ls_bank.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD displaydata.
+
+    " Creating ALV grid
+    TRY.
+        cl_salv_table=>factory(
+          IMPORTING
+            r_salv_table   =  DATA(lo_alv)
+          CHANGING
+            t_table        = lt_final
+        ).
+      CATCH cx_salv_msg INTO DATA(lv_msg).
+
+    ENDTRY.
+
+    " Setting ALV functions
+    tool = lo_alv->get_functions( ).
+    tool->set_all( abap_true ).
+
+    " Optimizing ALV columns
+    column = lo_alv->get_columns( ).
+    column->set_optimize( 'X' ).
+
+    " Setting striped pattern for ALV display
+    zebra = lo_alv->get_display_settings( ).
+    zebra->set_striped_pattern( cl_salv_display_settings=>true ).
+
+    " Creating title for ALV display
+    clear: lv_row,lv_title.
+    DESCRIBE TABLE lt_final LINES lv_row.
+    CONCATENATE text-002 lv_row INTO lv_title SEPARATED BY ' '.
+
+    " Creating ALV form layout
+    CREATE OBJECT lo_grid.
+    CREATE OBJECT lo_layout.
+    lo_layout->set_right_logo( 'ENJOYSAP_LOGO' ).
+    lo_grid->create_label(
+      EXPORTING
+        row         =   1
+        column      =   1
+        text        =  lv_title
+        tooltip     =  lv_title ).
+
+    "Creating Date in Header
+    lo_grid->create_label(
+      EXPORTING
+        row         =  2   " Natural Number
+        column      =  1  " Natural Number
+        text        = text-089
+        tooltip     = text-089
+    ).
+
+    lo_grid->create_text(
+      EXPORTING
+        row     =    2 " Natural Number
+        column  =    2 " Natural Number
+        text    = sy-datum
+        tooltip = sy-datum
+    ).
+    lo_layout->set_left_content( lo_grid ).
+    lo_content = lo_layout.
+    lo_alv->set_top_of_list( lo_content ).
+
+    " Setting column headers for ALV
+    table_desc ?= cl_abap_typedescr=>describe_by_data( lt_final ).
+    desc ?= table_desc->get_table_line_type( ).
+    DATA: large TYPE scrtext_l,
+          medium TYPE scrtext_m,
+          short TYPE scrtext_s.
+
+    LOOP AT desc->components INTO ls_table FROM 1.
+
+        IF ls_table-name = text-006.
+
+           CLEAR : large,medium,short.
+           large = text-003.
+           medium = text-004.
+           short = text-005.
+
+           TRY .
+              columns ?= column->get_column( ls_table-name ).
+              columns->set_long_text( large ).
+              columns->set_medium_text( medium ).
+              columns->set_short_text( short ).
+           CATCH cx_salv_not_found.
+           ENDTRY.
+
+           ELSEIF ls_table-name = text-008.
+
+           CLEAR : large,medium,short.
+           large = text-009.
+           medium = text-010.
+           short = text-011.
+
+           TRY .
+              columns ?= column->get_column( ls_table-name ).
+              columns->set_long_text( large ).
+              columns->set_medium_text( medium ).
+              columns->set_short_text( short ).
+           CATCH cx_salv_not_found.
+           ENDTRY.
+
+        ENDIF.
+
+    ENDLOOP.
+
+    lo_event = lo_alv->get_event( ).
+
+    CREATE OBJECT lo_event_handler.
+
+    set HANDLER lo_event_handler->interactive FOR lo_event.
+
+    " Displaying ALV grid
+    lo_alv->display( ).
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+" Main program
+START-OF-SELECTION.
+
+  " Creating object of class
+  DATA : obj TYPE REF TO cl_vend.
+  CREATE OBJECT obj.
+
+  " Fetching and displaying data
+  obj->fetchdata( ).
+  obj->displaydata( ).
+
+*Text elements
+*----------------------------------------------------------
+* 001 Enter The Input
+* 002 No of Records :
+* 003 Demo Text 001
+* 004 Demo-200
+* 005 Demo-3
+* 006 LIFNR
+* 008 MCOD1
+* 009 Name Of the Account
+* 010 Account Name
+* 011 Name
+* 020 Your Have Selected Invalid Cell
+* 089 Date :
+
+
+*Selection texts
+*----------------------------------------------------------
+* V_NO         VENDOR NUMER
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

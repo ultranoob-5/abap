@@ -1,0 +1,29 @@
+*&---------------------------------------------------------------------*
+*& Report  ZDEMO_37_2
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZDEMO_37_2.
+DATA : lt_emp TYPE TABLE OF zemp_mast, "Internal Table
+      ls_emp TYPE zemp_mast, "Work Area
+      lt_dept TYPE TABLE OF zdept_data, "Internal Table
+      ls_dept TYPE zdept_data, "Work Area
+      lv_emp TYPE zemp_no,
+      lt_final TYPE TABLE OF zstr_employee,
+      ls_final TYPE zstr_employee.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2.
+
+  PARAMETERS : RD1 RADIOBUTTON GROUP g1,
+               RD2 RADIOBUTTON GROUP g1,
+               RD3 RADIOBUTTON GROUP g1,
+               RD4 RADIOBUTTON GROUP g1,
+               RD5 RADIOBUTTON GROUP g1.
+
+SELECTION-SCREEN END OF BLOCK b2.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

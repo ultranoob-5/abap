@@ -1,0 +1,230 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_REPORT_TEST
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zalv_report_test.
+
+INCLUDE zdata_declaration_alv. "global access to any program
+*TYPES : BEGIN OF ts_sale,
+*        vbeln TYPE vbeln_va,
+*        posnr  TYPE posnr_va,
+*        matnr  TYPE matnr,
+*        matkl  TYPE matkl,
+*        netpr TYPE netpr,
+*  END OF ts_sale.
+*
+*DATA : gt_sale TYPE TABLE OF ts_sale,
+*       gs_sale TYPE ts_sale,
+*       gt_fcat TYPE SLIS_T_FIELDCAT_ALV, " to create ALV grid/list format
+*       gs_fcat TYPE slis_fieldcat_alv, " create layout
+*       gs_lay TYPE SLIS_LAYOUT_ALV,
+*       gt_tot TYPE SLIS_T_SORTINFO_ALV, " to create subtotal for fields
+*       gs_tot TYPE slis_sortinfo_alv,
+*       gt_event TYPE SLIS_T_EVENT, "to display all events in ALV
+*       gs_event like LINE OF gt_event,
+*       lv_vbeln TYPE vbeln.
+
+SELECT-OPTIONS : s_vbeln FOR lv_vbeln.
+
+
+INITIALIZATION.
+
+  s_vbeln-low = '4950'.
+  s_vbeln-high = '4980'.
+  APPEND s_vbeln.
+
+START-OF-SELECTION.
+
+  PERFORM fetch_data.
+  PERFORM fieldcat.
+  PERFORM subtotal.
+  PERFORM display_data.
+*&---------------------------------------------------------------------*
+*&      Form  FETCH_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM fetch_data .
+
+  SELECT * FROM vbap INTO CORRESPONDING FIELDS OF TABLE gt_sale
+           WHERE vbeln IN s_vbeln[].
+
+ENDFORM.                    " FETCH_DATA
+
+
+*&---------------------------------------------------------------------*
+*&      Form  FIELDCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM fieldcat .
+
+  gs_fcat-col_pos = '1'.
+  gs_fcat-fieldname = 'VBELN'.
+  gs_fcat-tabname = 'GT_SALE'.
+  gs_fcat-seltext_m = 'Sales Document'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = '2'.
+  gs_fcat-fieldname = 'POSNR'.
+  gs_fcat-tabname = 'GT_SALE'.
+  gs_fcat-seltext_m = 'Sales Doc Item'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = '3'.
+  gs_fcat-fieldname = 'MATNR'.
+  gs_fcat-tabname = 'GT_SALE'.
+  gs_fcat-seltext_m = 'Material No'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = '4'.
+  gs_fcat-fieldname = 'MATKL'.
+  gs_fcat-tabname = 'GT_SALE'.
+  gs_fcat-seltext_m = 'Material Group'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = '5'.
+  gs_fcat-fieldname = 'NETPR'.
+  gs_fcat-tabname = 'GT_SALE'.
+  gs_fcat-seltext_m = 'Net Price'.
+  gs_fcat-do_sum = 'X'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_lay-zebra = 'X'.
+  gs_lay-colwidth_optimize = 'X'.
+
+ENDFORM.                    " FIELDCAT
+*&---------------------------------------------------------------------*
+*&      Form  DISPLAY_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM display_data .
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program       = sy-repid "Current program Name
+      i_callback_top_of_page   = 'FORM_TOP_OF_PAGE'
+      i_callback_pf_status_set = 'SET_PF'
+      i_callback_user_command  = 'USER_C'
+      is_layout                = gs_lay
+      it_fieldcat              = gt_fcat
+      it_sort                  = gt_tot
+    TABLES
+      t_outtab                 = gt_sale
+* EXCEPTIONS
+*     PROGRAM_ERROR            = 1
+*     OTHERS                   = 2
+    .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+
+
+ENDFORM.                    " DISPLAY_DATA
+*&---------------------------------------------------------------------*
+*&      Form  SUBTOTAL
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM subtotal .
+
+  gs_tot-fieldname = 'VBELN'.
+  gs_tot-down = 'X'.
+  gs_tot-subtot = 'X'.
+
+  APPEND gs_tot TO gt_tot.
+
+ENDFORM.                    " SUBTOTAL
+
+FORM form_top_of_page.
+
+  gs_header-typ = 'H'.
+  gs_header-info = 'Sales Document Report in ALV'.
+  APPEND gs_header TO gt_header.
+  CLEAR gs_header.
+
+  gs_header-typ = 'S'.
+  gs_header-key = 'Username :'.
+  gs_header-info = sy-uname.
+  APPEND gs_header TO gt_header.
+  CLEAR gs_header.
+
+  gs_header-typ = 'S'.
+  gs_header-key = 'Report :'.
+  gs_header-info = sy-repid.
+  APPEND gs_header TO gt_header.
+  CLEAR gs_header.
+
+
+  CONCATENATE sy-datum+6(2)
+              sy-datum+4(2)
+              sy-datum+0(4) INTO DATA(lv_date) SEPARATED BY '-'.
+
+****** sy-datum - 20230304 YYYYMMDD
+
+  gs_header-typ = 'S'.
+  gs_header-key = 'Date :'.
+  gs_header-info = lv_date.
+  APPEND gs_header TO gt_header.
+  CLEAR gs_header.
+
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE' " TO CALL HEADER AND LOGO
+    EXPORTING
+      it_list_commentary = gt_header
+      i_logo             = 'GOOGLE'
+*     I_END_OF_LIST_GRID = 'X'
+*     I_ALV_FORM         =
+    .
+
+ENDFORM.
+
+FORM set_pf USING rt_extab TYPE slis_t_extab.
+
+  SET PF-STATUS 'ZSTANDARD'.
+
+ENDFORM.
+
+FORM user_c USING r_ucomm TYPE sy-ucomm
+                  r_selfield TYPE slis_selfield.
+
+  CASE r_ucomm.
+    WHEN '&NEW'.
+
+      CALL TRANSACTION 'SE37'.
+
+*  	WHEN .
+*  	WHEN OTHERS.
+  ENDCASE.
+
+ENDFORM.
+
+
+*Selection texts
+*----------------------------------------------------------
+* S_VBELN D       .
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

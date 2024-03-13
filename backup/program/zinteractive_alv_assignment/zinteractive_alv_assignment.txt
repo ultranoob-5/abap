@@ -1,0 +1,382 @@
+*&---------------------------------------------------------------------*
+*& Report  ZINTERACTIVE_ALV_ASSIGNMENT
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zinteractive_alv_assignment.
+
+
+TABLES : vbak , vbap, vbuk, vbfa.
+
+TYPES : BEGIN OF ts_sales,   "join table
+        vbeln TYPE vbeln_va,
+        erdat TYPE erdat,
+        erzet	 TYPE erzet,
+        posnr TYPE posnr_va,
+        matnr	TYPE matnr,
+        matwa	TYPE matwa,
+        END OF ts_sales,
+
+        BEGIN OF ts_vbuk,  "secondary tables
+        vbeln	TYPE vbeln,
+        rfstk	TYPE rfstk,
+        rfgsk	TYPE rfgsk,
+        bestk TYPE bestk,
+        END OF ts_vbuk.
+
+
+DATA : gt_sales TYPE TABLE OF ts_sales,
+       gs_sales TYPE ts_sales,
+       gt_vbuk TYPE TABLE OF ts_vbuk,
+       gs_vbuk TYPE ts_vbuk,
+       gt_vbfa TYPE TABLE OF zgsr_vbfa,
+       gs_vbfa TYPE zgsr_vbfa,
+       gt_fcat TYPE slis_t_fieldcat_alv,
+       gs_fcat TYPE slis_fieldcat_alv,
+       gt_fcat1 TYPE slis_t_fieldcat_alv,
+       gs_fcat1 TYPE slis_fieldcat_alv,
+       gt_fcat2 TYPE slis_t_fieldcat_alv,
+       gs_fcat2 TYPE slis_fieldcat_alv,
+       lv_vbeln TYPE vbak-vbeln.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+
+SELECT-OPTIONS : s_vbeln FOR lv_vbeln.
+*PARAMETERS : report1 RADIOBUTTON GROUP grp1 USER-COMMAND UC,
+*             report2 RADIOBUTTON GROUP grp1,
+*             report3 RADIOBUTTON GROUP grp1.
+
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+
+*IF REPORT1 EQ 'X'.
+*
+*  PERFORM REPORT1.
+*
+*ELSEIF REPORT2 EQ 'X'.
+*
+*  PERFORM REPORT2.
+*
+*ELSEIF REPORT3 EQ 'X'.
+*
+*  PERFORM USER_COMMAND2.
+*
+*  ENDIF.
+
+*IF report2 is INITIAL.
+*    PERFORM USER_COMMAND1.
+*
+*    ELSEIF report3 = 'X'.
+*      PERFORM USER_COMMAND2.
+*
+*ENDIF.
+
+
+START-OF-SELECTION.
+
+*FORM REPORT1.
+
+  SELECT vbak~vbeln
+         vbak~erdat
+         vbak~erzet
+         vbap~posnr
+         vbap~matnr
+         vbap~matwa FROM vbak INNER JOIN vbap ON vbak~vbeln = vbap~vbeln
+                     INTO TABLE gt_sales WHERE vbak~vbeln IN s_vbeln.
+
+  gs_fcat-col_pos = 1.
+  gs_fcat-fieldname = 'vbeln'.
+  gs_fcat-tabname = 'gt_sales'.
+  gs_fcat-seltext_m = 'Sales'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = 2.
+  gs_fcat-fieldname = 'erdat'.
+  gs_fcat-tabname = 'gt_sales'.
+  gs_fcat-seltext_m = 'Record created'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = 3.
+  gs_fcat-fieldname = 'erzet'.
+  gs_fcat-tabname = 'gt_sales'.
+  gs_fcat-seltext_m = 'Entry Time'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = 4.
+  gs_fcat-fieldname = 'posnr'.
+  gs_fcat-tabname = 'gt_sales'.
+  gs_fcat-seltext_m = 'Sales Document Item'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = 5.
+  gs_fcat-fieldname = 'matnr'.
+  gs_fcat-tabname = 'gt_sales'.
+  gs_fcat-seltext_m = 'Material Number'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  gs_fcat-col_pos = 6.
+  gs_fcat-fieldname = 'matwa'.
+  gs_fcat-tabname = 'gt_sales'.
+  gs_fcat-seltext_m = 'Material entered'.
+  APPEND gs_fcat TO gt_fcat.
+  CLEAR gs_fcat.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+*     I_INTERFACE_CHECK       = ' '
+*     I_BYPASSING_BUFFER      = ' '
+*     I_BUFFER_ACTIVE         = ' '
+      i_callback_program      = sy-repid
+*     I_CALLBACK_PF_STATUS_SET          = ' '
+      i_callback_user_command = 'USER_COMMAND1'
+*     I_CALLBACK_TOP_OF_PAGE  = ' '
+*     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*     I_CALLBACK_HTML_END_OF_LIST       = ' '
+*     I_STRUCTURE_NAME        =
+*     I_BACKGROUND_ID         = ' '
+*     I_GRID_TITLE            =
+*     I_GRID_SETTINGS         =
+*     IS_LAYOUT               =
+      it_fieldcat             = gt_fcat
+*     IT_EXCLUDING            =
+*     IT_SPECIAL_GROUPS       =
+*     IT_SORT                 =
+*     IT_FILTER               =
+*     IS_SEL_HIDE             =
+*     I_DEFAULT               = 'X'
+*     I_SAVE                  = ' '
+*     IS_VARIANT              =
+*     IT_EVENTS               =
+*     IT_EVENT_EXIT           =
+*     IS_PRINT                =
+*     IS_REPREP_ID            =
+*     I_SCREEN_START_COLUMN   = 0
+*     I_SCREEN_START_LINE     = 0
+*     I_SCREEN_END_COLUMN     = 0
+*     I_SCREEN_END_LINE       = 0
+*     I_HTML_HEIGHT_TOP       = 0
+*     I_HTML_HEIGHT_END       = 0
+*     IT_ALV_GRAPHICS         =
+*     IT_HYPERLINK            =
+*     IT_ADD_FIELDCAT         =
+*     IT_EXCEPT_QINFO         =
+*     IR_SALV_FULLSCREEN_ADAPTER        =
+*    IMPORTING
+*     E_EXIT_CAUSED_BY_CALLER =
+*     ES_EXIT_CAUSED_BY_USER  =
+    TABLES
+      t_outtab                = gt_sales
+*    EXCEPTIONS
+*     PROGRAM_ERROR           = 1
+*     OTHERS                  = 2
+    .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+*ENDFORM.
+
+FORM USER_COMMAND1 USING command type sy-ucomm
+                         self TYPE slis_selfield.
+
+  CASE command.
+    WHEN '&IC1'.
+
+      READ TABLE gt_sales INTO gs_sales INDEX self-tabindex.
+
+*FORM REPORT2.
+
+  SELECT * FROM vbuk INTO CORRESPONDING FIELDS OF TABLE gt_vbuk
+                FOR ALL ENTRIES IN gt_sales WHERE vbeln = gt_sales-vbeln.
+
+  gs_fcat1-col_pos = 1.
+  gs_fcat1-fieldname = 'VBELN'.
+  gs_fcat1-tabname = 'GT_VBUK'.
+  gs_fcat1-seltext_m = 'Document Number'.
+  APPEND gs_fcat1 TO gt_fcat1.
+  CLEAR gs_fcat1.
+
+  gs_fcat1-col_pos = 2.
+  gs_fcat1-fieldname = 'rfstk'.
+  gs_fcat1-tabname = 'GT_VBUK'.
+  gs_fcat1-seltext_m = 'Header Status'.
+  APPEND gs_fcat1 TO gt_fcat1.
+  CLEAR gs_fcat1.
+
+  gs_fcat1-col_pos = 3.
+  gs_fcat1-fieldname = 'rfgsk'.
+  gs_fcat1-tabname = 'GT_VBUK'.
+  gs_fcat1-seltext_m = 'Total reference'.
+  APPEND gs_fcat1 TO gt_fcat1.
+  CLEAR gs_fcat1.
+
+  gs_fcat1-col_pos = 4.
+  gs_fcat1-fieldname = 'bestk'.
+  gs_fcat1-tabname = 'GT_VBUK'.
+  gs_fcat1-seltext_m = 'Confirm status'.
+  APPEND gs_fcat1 TO gt_fcat1.
+  CLEAR gs_fcat1.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+   EXPORTING
+*     I_INTERFACE_CHECK                 = ' '
+*     I_BYPASSING_BUFFER                = ' '
+*     I_BUFFER_ACTIVE                   = ' '
+     I_CALLBACK_PROGRAM                = sy-repid
+*     I_CALLBACK_PF_STATUS_SET          = ' '
+     I_CALLBACK_USER_COMMAND           = 'USER_COMMAND2'
+*     I_CALLBACK_TOP_OF_PAGE            = ' '
+*     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*     I_CALLBACK_HTML_END_OF_LIST       = ' '
+*     I_STRUCTURE_NAME                  =
+*     I_BACKGROUND_ID                   = ' '
+*     I_GRID_TITLE                      =
+*     I_GRID_SETTINGS                   =
+*     IS_LAYOUT                         =
+     IT_FIELDCAT                       = gt_fcat1
+*     IT_EXCLUDING                      =
+*     IT_SPECIAL_GROUPS                 =
+*     IT_SORT                           =
+*     IT_FILTER                         =
+*     IS_SEL_HIDE                       =
+*     I_DEFAULT                         = 'X'
+*     I_SAVE                            = ' '
+*     IS_VARIANT                        =
+*     IT_EVENTS                         =
+*     IT_EVENT_EXIT                     =
+*     IS_PRINT                          =
+*     IS_REPREP_ID                      =
+*     I_SCREEN_START_COLUMN             = 0
+*     I_SCREEN_START_LINE               = 0
+*     I_SCREEN_END_COLUMN               = 0
+*     I_SCREEN_END_LINE                 = 0
+*     I_HTML_HEIGHT_TOP                 = 0
+*     I_HTML_HEIGHT_END                 = 0
+*     IT_ALV_GRAPHICS                   =
+*     IT_HYPERLINK                      =
+*     IT_ADD_FIELDCAT                   =
+*     IT_EXCEPT_QINFO                   =
+*     IR_SALV_FULLSCREEN_ADAPTER        =
+*   IMPORTING
+*     E_EXIT_CAUSED_BY_CALLER           =
+*     ES_EXIT_CAUSED_BY_USER            =
+    TABLES
+      t_outtab                          = gt_vbuk
+*   EXCEPTIONS
+*     PROGRAM_ERROR                     = 1
+*     OTHERS                            = 2
+            .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+*ENDFORM.
+
+ENDCASE.
+ENDFORM.
+
+FORM USER_COMMAND2 USING command2 LIKE SY-ucomm self1 TYPE slis_selfield.
+
+  CASE command2.
+    WHEN '&IC1'.
+
+  READ TABLE gt_vbuk INTO gs_vbuk INDEX self1-tabindex.
+
+  SELECT * from vbfa INTO CORRESPONDING FIELDS OF TABLE gt_vbfa FOR ALL ENTRIES IN gt_vbuk WHERE vbeln = gt_vbuk-vbeln.
+
+  gs_fcat2-col_pos = 1.
+  gs_fcat2-fieldname = 'VBELN'.
+  gs_fcat2-tabname = 'GT_VBFA'.
+  gs_fcat2-seltext_m = 'Document Number'.
+  APPEND gs_fcat2 TO gt_fcat2.
+  CLEAR gs_fcat2.
+
+  gs_fcat2-col_pos = 2.
+  gs_fcat2-fieldname = 'posnn'.
+  gs_fcat2-tabname = 'GT_VBFA'.
+  gs_fcat2-seltext_m = 'Item of an document'.
+  APPEND gs_fcat2 TO gt_fcat2.
+  CLEAR gs_fcat2.
+
+  gs_fcat2-col_pos = 3.
+  gs_fcat2-fieldname = 'VBTYP_N'.
+  gs_fcat2-tabname = 'GT_VBFA'.
+  gs_fcat2-seltext_m = 'Document category'.
+  APPEND gs_fcat2 TO gt_fcat2.
+  CLEAR gs_fcat2.
+
+  gs_fcat2-col_pos = 4.
+  gs_fcat2-fieldname = 'rfmng'.
+  gs_fcat2-tabname = 'GT_VBFA'.
+  gs_fcat2-seltext_m = 'Referenced quantity'.
+  APPEND gs_fcat2 TO gt_fcat2.
+  CLEAR gs_fcat2.
+
+CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+ EXPORTING
+*   I_INTERFACE_CHECK              = ' '
+*   I_BYPASSING_BUFFER             =
+*   I_BUFFER_ACTIVE                = ' '
+   I_CALLBACK_PROGRAM             = sy-repid
+*   I_CALLBACK_PF_STATUS_SET       =
+*   I_CALLBACK_USER_COMMAND        = ''
+*   I_STRUCTURE_NAME               =
+*   IS_LAYOUT                      =
+   IT_FIELDCAT                    = gt_fcat2
+*   IT_EXCLUDING                   =
+*   IT_SPECIAL_GROUPS              =
+*   IT_SORT                        =
+*   IT_FILTER                      =
+*   IS_SEL_HIDE                    =
+*   I_DEFAULT                      = 'X'
+*   I_SAVE                         = ' '
+*   IS_VARIANT                     =
+*   IT_EVENTS                      =
+*   IT_EVENT_EXIT                  =
+*   IS_PRINT                       =
+*   IS_REPREP_ID                   =
+*   I_SCREEN_START_COLUMN          =
+*   I_SCREEN_START_LINE            = 0
+*   I_SCREEN_END_COLUMN            = 0
+*   I_SCREEN_END_LINE              = 0
+*   IR_SALV_LIST_ADAPTER           =
+*   IT_EXCEPT_QINFO                =
+*   I_SUPPRESS_EMPTY_DATA          = ABAP_FALSE
+* IMPORTING
+*   E_EXIT_CAUSED_BY_CALLER        =
+*   ES_EXIT_CAUSED_BY_USER         =
+  TABLES
+    t_outtab                       = gt_vbfa
+* EXCEPTIONS
+*   PROGRAM_ERROR                  = 1
+*   OTHERS                         = 2
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+
+
+    ENDCASE.
+    ENDFORM.
+
+*Text elements
+*----------------------------------------------------------
+* 001 Sale Details
+
+
+*Selection texts
+*----------------------------------------------------------
+* S_VBELN         sales
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

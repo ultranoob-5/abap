@@ -1,0 +1,201 @@
+*&---------------------------------------------------------------------*
+*& Report  ZEMP_TRACKER
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zemp_tracker.
+TYPES: BEGIN OF ts_final,
+  leave_requestid TYPE zleavereqid,
+  employee_id TYPE zemployeeid,
+  approver_id TYPE zapproverid,
+  leave_type TYPE zleavetype,
+  start_date TYPE zdats,
+  end_date TYPE zdats,
+  status TYPE zleavestatus,
+  comments TYPE zcomments,
+  employee_firstname TYPE zempfirstname,
+  employee_lastname TYPE zemplastname,
+  joining_date TYPE zdats,
+  age TYPE  zage,
+  dob TYPE zdob,
+  location TYPE zlocation,
+  approver_name TYPE zapprovername,
+ END OF ts_final.
+
+DATA:  gt_final TYPE TABLE OF ts_final,
+       gs_final TYPE ts_final,
+       gt_empd TYPE TABLE OF  zempdet,
+       gs_empd TYPE zempdet,
+       gt_app TYPE TABLE OF zapprove ,
+       gs_app TYPE zapprove,
+       gt_lvr TYPE TABLE OF zleavereq,
+       gs_lvr TYPE zleavereq.
+
+START-OF-SELECTION.
+
+  CALL SCREEN '201'.
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0201  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE status_0201 OUTPUT.
+  SET PF-STATUS 'ZEMPTRACKER'.
+*  SET TITLEBAR 'xxx'.
+DATA: RD1,UPDATE,DELETE.
+ENDMODULE.                 " STATUS_0201  OUTPUT
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0201  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0201 INPUT.
+
+
+  IF SY-UCOMM = 'BACK'.
+    LEAVE PROGRAM.
+
+  ELSEIF  SY-UCOMM = 'RAD' AND RD1 = 'X'.
+
+    CALL SCREEN '202'.
+
+  ELSEIF SY-UCOMM = 'RAD' AND 'DELETE' = 'X'.
+
+    CALL SCREEN '203'.
+
+  ELSEIF SY-UCOMM = 'RAD' AND 'UPDATE' = 'X'.
+
+    CALL SCREEN '204'.
+
+ ENDIF.
+
+*  CASE SY-UCOMM.
+*  	WHEN 'BACK'.
+*      LEAVE PROGRAM.
+*  	WHEN 'RAD'.
+*  	WHEN OTHERS.
+*  ENDCASE.
+
+ENDMODULE.                 " USER_COMMAND_0201  INPUT
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0202  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE status_0202 OUTPUT.
+  SET PF-STATUS 'ZCREATE'.
+*  SET TITLEBAR 'xxx'.
+
+ENDMODULE.                 " STATUS_0202  OUTPUT
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0202  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0202 INPUT.
+
+  IF SY-UCOMM = 'BACK'.
+
+    LEAVE TO SCREEN '201'.
+
+  ELSEIF SY-UCOMM = 'CRT'.
+
+    DATA : lv_emp_id TYPE zempdet-employee_id,
+           lv_approver_id TYPE zapprove-approver_id,
+           lv_leave_requestid TYPE zleavereq-leave_requestid.
+
+    SELECT SINGLE EMPLOYEE_ID FROM zempdet
+      INTO lv_emp_id
+      WHERE employee_id = gs_final-employee_id.
+
+    SELECT SINGLE APPROVER_ID FROM zapprove
+      INTO lv_approver_id
+      WHERE approver_id = gs_final-approver_id.
+
+      IF lv_emp_id IS INITIAL AND lv_approver_id IS INITIAL.
+        gs_empd = CORRESPONDING #( gs_final ).
+        gs_empd-mandt = sy-mandt.
+        APPEND gs_empd to gt_empd[].
+        CLEAR gs_empd.
+
+        INSERT zempdet FROM TABLE gt_empd[].
+
+        gs_app = CORRESPONDING #( gs_final ).
+        gs_app-mandt = sy-mandt.
+        APPEND gs_app to gt_app[].
+        CLEAR gs_app.
+
+       INSERT zapprove FROM TABLE gt_app[].
+
+        SELECT SINGLE leave_requestid FROM ZLEAVEREQ
+            INTO lv_leave_requestid
+            WHERE leave_requestid = gs_final-leave_requestid.
+
+       IF lv_leave_requestid IS NOT INITIAL.
+
+         MESSAGE:'ERROR: DATA ALREADY EXISTS' TYPE'I'.
+
+       ELSEIF lv_leave_requestid IS INITIAL.
+
+         gs_lvr = CORRESPONDING #( gs_final ).
+         gs_lvr-mandt = sy-mandt.
+         APPEND gs_lvr to gt_lvr[].
+         CLEAR gs_lvr.
+
+         INSERT zleavereq FROM TABLE gt_lvr[].
+
+       ENDIF.
+
+       CLEAR gs_final.
+
+       REFRESH:gt_app,gt_app,gt_empd.
+
+     ELSEIF lv_emp_id IS NOT INITIAL AND lv_approver_id IS NOT INITIAL.
+       gs_empd = CORRESPONDING #( gs_final ).
+       gs_empd-mandt = sy-mandt.
+       APPEND gs_empd to gt_empd[].
+       CLEAR gs_empd.
+
+       MODIFY zempdet FROM TABLE gt_empd[].
+
+       SELECT SINGLE leave_requestid FROM zleavereq
+         INTO lv_leave_requestid
+         WHERE leave_requestid = gs_final-leave_requestid.
+
+       IF lv_leave_requestid IS NOT INITIAL .
+
+         gs_lvr = CORRESPONDING #( gs_final ).
+         gs_lvr-mandt = sy-mandt.
+         APPEND gs_lvr to gt_lvr[].
+         CLEAR gs_lvr.
+
+         MODIFY zleavereq FROM TABLE gt_lvr[].
+
+       ELSEIF lv_leave_requestid IS INITIAL.
+         gs_lvr-mandt = sy-mandt.
+         APPEND gs_lvr to gt_lvr[].
+         CLEAR gs_lvr.
+
+         INSERT zleavereq FROM TABLE gt_lvr[].
+       ENDIF.
+       CLEAR : gs_final.
+       REFRESH : gt_lvr, gt_app, gt_empd.
+  ENDIF.
+
+  ENDIF.
+
+
+ENDMODULE.                 " USER_COMMAND_0202  INPUT
+
+
+*Messages
+*----------------------------------------------------------
+*
+* Message class: Hard coded
+*   ERROR: DATA ALREADY EXISTS
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

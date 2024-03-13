@@ -1,0 +1,42 @@
+*&---------------------------------------------------------------------*
+*& Report  ZDEMO_PRG
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZDEMO_PRG.
+
+
+PARAMETERS : p_file TYPE string.
+
+DATA : gt_fagl TYPE TABLE OF faglflexa,
+       gs_fagl TYPE faglflexa.
+
+START-OF-SELECTION.
+
+SELECT * FROM faglflexa
+  INTO TABLE gt_fagl.
+
+  OPEN DATASET p_file FOR OUTPUT IGNORING CONVERSION ERRORS IN LEGACY TEXT MODE.
+
+  IF sy-subrc EQ 0.
+
+   LOOP AT gt_fagl INTO gs_fagl.
+
+     TRANSFER gs_fagl to p_file.
+
+   ENDLOOP.
+
+  ENDIF.
+
+  CLOSE DATASET p_file.
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_FILE         File Name
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

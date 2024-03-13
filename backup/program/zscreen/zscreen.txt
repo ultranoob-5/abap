@@ -1,0 +1,61 @@
+*&---------------------------------------------------------------------*
+*& Report  ZSCREEN
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZSCREEN.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+
+PARAMETERS: rb_name RADIOBUTTON GROUP rad1 DEFAULT 'X' USER-COMMAND test,
+            p_fname TYPE char10 MODIF ID rb1,
+            p_sname TYPE char10 MODIF ID rb1,
+            rb_add RADIOBUTTON GROUP rad1,
+            p_city TYPE char10 MODIF ID rb2,
+            p_state TYPE char10 MODIF ID rb2,
+            rb_phone RADIOBUTTON GROUP rad1,
+            p_home TYPE char10 MODIF ID rb3,
+            p_office TYPE char10 MODIF ID rb3.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+AT SELECTION-SCREEN OUTPUT.
+
+  LOOP AT SCREEN.
+    IF rb_name = 'X' AND SCREEN-group1 = 'RB1'.
+      SCREEN-ACTIVE = 1.
+      MODIFY SCREEN.
+      CONTINUE.
+    ELSEIF rb_add = 'X' AND SCREEN-group1 = 'RB2' .
+      SCREEN-ACTIVE = 1.
+      MODIFY SCREEN.
+      CONTINUE.
+    ELSEIF rb_phone = 'X' AND SCREEN-group1 = 'RB3' .
+      SCREEN-ACTIVE = 1.
+      MODIFY SCREEN.
+      CONTINUE.
+    ELSEIF rb_name = 'X' AND SCREEN-group1 = 'RB1'.
+      SCREEN-ACTIVE = 1.
+      MODIFY SCREEN.
+      CONTINUE.
+    ELSEIF rb_name = ' ' AND SCREEN-group1 = 'RB1'.
+      SCREEN-ACTIVE = 0.
+      MODIFY SCREEN.
+      CONTINUE.
+    ELSEIF rb_add = ' ' AND SCREEN-group1 = 'RB2' .
+      SCREEN-ACTIVE = 0.
+      MODIFY SCREEN.
+      CONTINUE.
+    ELSEIF rb_phone = ' ' AND SCREEN-group1 = 'RB3' .
+      SCREEN-ACTIVE = 0.
+      MODIFY SCREEN.
+      CONTINUE.
+
+    ENDIF.
+  ENDLOOP.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

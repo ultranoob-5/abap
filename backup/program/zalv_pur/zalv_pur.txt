@@ -1,0 +1,32 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_PUR
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zalv_pur.
+
+DATA : lt TYPE ZTT_CLFINAL.
+
+PARAMETERS : e_ebeln TYPE ebeln.
+
+START-OF-SELECTION.
+
+  DATA(obj) = NEW zcl_data_ekko( ).
+
+  obj->extract(
+    EXPORTING
+      e_ebeln = e_ebeln     " table type structure
+    IMPORTING
+      lt_final = lt     " table type structure
+  ).
+
+  zcl_data_ekko=>display(
+    IMPORTING
+      lt_final = lt   " table type structure
+  ).
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

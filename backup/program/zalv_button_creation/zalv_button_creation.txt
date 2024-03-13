@@ -1,0 +1,225 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_BUTTON_CREATION
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zalv_button_creation.
+
+TABLES : ekko.
+
+DATA : gt_ekko TYPE TABLE OF ekko,
+       gs_ekko TYPE ekko,
+*       GT_FCAT TYPE SLIS_T_FIELDCAT_ALV,
+*       GS_FCAT TYPE SLIS_FIELDCAT_ALV,
+       lv_ebeln TYPE ebeln,
+       v_repid TYPE sy-repid.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME.
+
+SELECT-OPTIONS : s_ebeln FOR lv_ebeln.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+START-OF-SELECTION.
+
+  v_repid = sy-repid.
+
+************Clear - Delete the data in workarea.
+************Refresh - Delete the data in Internal Table.
+
+  SELECT * FROM ekko INTO TABLE gt_ekko
+           WHERE ebeln IN s_ebeln[].
+
+*CLEAR gs_fcat.
+*  gs_fcat-col_pos = '1'.
+*  gs_fcat-fieldname = 'Ebeln'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+*     I_INTERFACE_CHECK        = ' '
+*     I_BYPASSING_BUFFER       = ' '
+*     I_BUFFER_ACTIVE          = ' '
+      i_callback_program       = v_repid
+      i_callback_pf_status_set = 'PF_BTN'
+      i_callback_user_command  = 'USER_CMD'
+*     I_CALLBACK_TOP_OF_PAGE   = ' '
+*     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*     I_CALLBACK_HTML_END_OF_LIST       = ' '
+*     I_STRUCTURE_NAME         =
+*     I_BACKGROUND_ID          = ' '
+*     I_GRID_TITLE             =
+*     I_GRID_SETTINGS          =
+      is_layout                = VALUE slis_layout_alv( colwidth_optimize = 'X'
+                                                        zebra = 'X' )
+      it_fieldcat              = VALUE slis_t_fieldcat_alv( ( col_pos = '1'
+                                                              fieldname = 'Ebeln'
+                                                              tabname = 'gt_ekko'
+                                                              seltext_m = 'Purchase.Doc' )
+                                                             ( col_pos = '2'
+                                                              fieldname = 'Bukrs'
+                                                              tabname = 'gt_ekko'
+                                                              seltext_m = 'Company Code' )
+                                                               ( col_pos = '3'
+                                                              fieldname = 'Bsart'
+                                                              tabname = 'gt_ekko'
+                                                              seltext_m = 'Purchase.Doc Type' ) )
+*     IT_EXCLUDING             =
+*     IT_SPECIAL_GROUPS        =
+*     IT_SORT                  =
+*     IT_FILTER                =
+*     IS_SEL_HIDE              =
+*     I_DEFAULT                = 'X'
+*     I_SAVE                   = ' '
+*     IS_VARIANT               =
+*     IT_EVENTS                =
+*     IT_EVENT_EXIT            =
+*     IS_PRINT                 =
+*     IS_REPREP_ID             =
+*     I_SCREEN_START_COLUMN    = 0
+*     I_SCREEN_START_LINE      = 0
+*     I_SCREEN_END_COLUMN      = 0
+*     I_SCREEN_END_LINE        = 0
+*     I_HTML_HEIGHT_TOP        = 0
+*     I_HTML_HEIGHT_END        = 0
+*     IT_ALV_GRAPHICS          =
+*     IT_HYPERLINK             =
+*     IT_ADD_FIELDCAT          =
+*     IT_EXCEPT_QINFO          =
+*     IR_SALV_FULLSCREEN_ADAPTER        =
+*  IMPORTING
+*     E_EXIT_CAUSED_BY_CALLER  =
+*     ES_EXIT_CAUSED_BY_USER   =
+    TABLES
+      t_outtab                 = gt_ekko
+*  EXCEPTIONS
+*     PROGRAM_ERROR            = 1
+*     OTHERS                   = 2
+    .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+FORM pf_btn USING extab TYPE slis_t_extab. " To capture the button's Function code eg: '&IC1'
+
+  SET PF-STATUS 'ZSTANDARD'. " Status Name
+
+ENDFORM.
+
+FORM user_cmd USING ucomm TYPE sy-ucomm
+                    r_field TYPE slis_selfield.
+*
+* CASE ucomm.
+*   WHEN '&BTN'.
+*
+*    CALL TRANSACTION 'SE37'.
+*
+**   WHEN .
+**   WHEN OTHERS.
+* ENDCASE.
+
+  IF ucomm EQ '&BTN'.
+
+    DATA : gt_ekpo TYPE TABLE OF ekpo,
+           gs_ekpo TYPE ekpo.
+
+
+
+    SELECT * FROM ekpo INTO TABLE gt_ekpo.
+
+
+
+    CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+      EXPORTING
+*       I_INTERFACE_CHECK        = ' '
+*       I_BYPASSING_BUFFER       =
+*       I_BUFFER_ACTIVE          = ' '
+        i_callback_program       = v_repid
+        i_callback_pf_status_set = 'SET_PF1'
+        i_callback_user_command  = 'USER_CMD1'
+*       I_STRUCTURE_NAME         =
+*       IS_LAYOUT                =
+        it_fieldcat              = VALUE slis_t_fieldcat_alv( ( col_pos = '1'
+                                                                    fieldname = 'Ebeln'
+                                                                    tabname = 'gt_ekpo'
+                                                                    seltext_m = 'Purchase.Doc' )
+                                                                   ( col_pos = '2'
+                                                                    fieldname = 'Ebelp'
+                                                                    tabname = 'gt_ekpo'
+                                                                    seltext_m = 'Purchase Item.No' )
+                                                                     ( col_pos = '3'
+                                                                    fieldname = 'Matnr'
+                                                                    tabname = 'gt_ekpo'
+                                                                    seltext_m = 'Material.No' )
+                                                                    ( col_pos = '4'
+                                                                    fieldname = 'Werks'
+                                                                    tabname = 'gt_ekpo'
+                                                                    seltext_m = 'Plant' )
+                                                                      ( col_pos = '5'
+                                                                    fieldname = 'Matkl'
+                                                                    tabname = 'gt_ekpo'
+                                                                    seltext_m = 'Material.grp' ) )
+*       IT_EXCLUDING             =
+*       IT_SPECIAL_GROUPS        =
+*       IT_SORT                  =
+*       IT_FILTER                =
+*       IS_SEL_HIDE              =
+*       I_DEFAULT                = 'X'
+*       I_SAVE                   = ' '
+*       IS_VARIANT               =
+*       IT_EVENTS                =
+*       IT_EVENT_EXIT            =
+*       IS_PRINT                 =
+*       IS_REPREP_ID             =
+*       I_SCREEN_START_COLUMN    = 0
+*       I_SCREEN_START_LINE      = 0
+*       I_SCREEN_END_COLUMN      = 0
+*       I_SCREEN_END_LINE        = 0
+*       IR_SALV_LIST_ADAPTER     =
+*       IT_EXCEPT_QINFO          =
+*       I_SUPPRESS_EMPTY_DATA    = ABAP_FALSE
+* IMPORTING
+*       E_EXIT_CAUSED_BY_CALLER  =
+*       ES_EXIT_CAUSED_BY_USER   =
+      TABLES
+        t_outtab                 = gt_ekpo
+* EXCEPTIONS
+*       PROGRAM_ERROR            = 1
+*       OTHERS                   = 2
+      .
+    IF sy-subrc <> 0.
+* Implement suitable error handling here
+    ENDIF.
+
+ENDIF.
+
+ENDFORM.
+
+FORM set_pf1 USING extab TYPE slis_t_extab.
+
+  SET PF-STATUS 'ZSTANDARD'.
+
+ENDFORM.
+
+FORM user_cmd1 USING ucomm TYPE sy-ucomm
+                     r_self TYPE slis_selfield.
+
+  IF ucomm EQ '&THR'.
+
+*    MESSAGE : '3rd Screen Creation Inprogress' TYPE 'I'.
+
+SUBMIT ZINTERACTIVE_ALV_ASSIGNMENT.
+
+  ENDIF.
+
+ENDFORM.
+
+
+*Selection texts
+*----------------------------------------------------------
+* S_EBELN D       .
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

@@ -1,0 +1,133 @@
+*&---------------------------------------------------------------------*
+*& Report  ZBAPI_TEST1
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zbapi_test1.
+
+TYPES: BEGIN OF ts_bapi,
+material TYPE C LENGTH 18,
+ind_sec TYPE C LENGTH 1,
+mat_type TYPE C LENGTH 4,
+mat_grp TYPE C LENGTH 9,
+uom TYPE C LENGTH 3,
+lang TYPE C LENGTH 1,
+desc TYPE C LENGTH 40,
+END OF ts_bapi.
+
+DATA: ls_bapi TYPE ts_bapi,
+      lt_bapi TYPE TABLE OF ts_bapi,
+      ls_bapihead TYPE bapimathead,
+      ls_bapimara TYPE bapi_mara,
+      ls_bapimarax TYPE bapi_marax,
+      lt_matdesc TYPE TABLE OF bapi_makt,
+      ls_matdesc TYPE bapi_makt,
+      raw_data TYPE truxs_t_text_data,
+      lt_return TYPE TABLE OF bapiret2,
+      ls_return TYPE bapiret2,
+      lv_num TYPE c LENGTH 1 VALUE '0'.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+PARAMETERS: p_file TYPE rlgrap-filename.
+SELECTION-SCREEN END OF BLOCK b1.
+
+
+START-OF-SELECTION.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+
+CALL FUNCTION 'F4_FILENAME'
+EXPORTING
+  program_name        = syst-cprog
+  dynpro_number       = syst-dynnr
+  field_name          = 'P_FILE'
+IMPORTING
+  file_name           = p_file.
+
+CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+EXPORTING
+*   i_field_seperator          = 'X'
+  i_line_header              = 'X'
+  i_tab_raw_data             = raw_data
+  i_filename                 = p_file
+TABLES
+  i_tab_converted_data       = lt_bapi
+EXCEPTIONS
+  CONVERSION_FAILED          = 1
+  OTHERS                     = 2
+  .
+
+
+LOOP AT lt_bapi INTO ls_bapi.
+
+  CONCATENATE lv_num ls_bapi-mat_grp INTO DATA(lv_matgrp).
+
+ls_bapihead-material = ls_bapi-material.
+ls_bapihead-ind_sector = ls_bapi-ind_sec.
+ls_bapihead-matl_type = ls_bapi-mat_type.
+
+ls_bapimara-base_uom = ls_bapi-uom.
+ls_bapimara-matl_group = lv_matgrp.
+
+ls_bapimarax-matl_group = abap_true.
+ls_bapimarax-base_uom = abap_true.
+
+ls_matdesc-langu = ls_bapi-lang.
+ls_matdesc-matl_desc = ls_bapi-desc.
+
+APPEND ls_matdesc TO lt_matdesc.
+
+CALL FUNCTION 'BAPI_MATERIAL_SAVEDATA'
+EXPORTING
+  headdata                   = ls_bapihead
+  clientdata                 = ls_bapimara
+  clientdatax                = ls_bapimarax
+IMPORTING
+  RETURN                     =  ls_return
+TABLES
+  materialdescription        = lt_matdesc.
+
+IF ls_return-TYPE = 'S'.
+
+CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+EXPORTING
+  WAIT          = 'X'.
+
+IF sy-subrc IS INITIAL.
+
+DATA(lv_text) = 'material successfully created in DB table'.
+
+CONCATENATE ls_bapi-material lv_text INTO DATA(msg) SEPARATED BY ' '.
+
+WRITE : / msg.
+
+ENDIF.
+
+ELSEIF ls_return-TYPE = 'E'.
+
+CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.
+WRITE : / 'unable to create entries in db table',ls_bapi-material.
+
+ENDIF.
+
+CLEAR :  ls_matdesc,ls_bapimara,ls_bapimarax,ls_bapihead,ls_return,lv_matgrp.
+
+REFRESH : lt_matdesc.
+
+
+ENDLOOP.
+
+*Text elements
+*----------------------------------------------------------
+* 001 Enter file Path
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_FILE         Upload File
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

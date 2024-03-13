@@ -1,0 +1,46 @@
+**************************************************************************
+*   Class attributes.                                                    *
+**************************************************************************
+Instantiation: Public
+Message class:
+State: Implemented
+Final Indicator:
+R/3 Release: 740
+
+**************************************************************************
+*   Public section of class.                                             *
+**************************************************************************
+class ZCL_DATA_EKKO definition
+  public
+  create public .
+
+public section.
+
+  methods EXTRACT
+    importing
+      E_EBELN type EBELN
+    exporting
+      LT_FINAL type ZTT_CLFINAL .
+  class-methods DISPLAY
+    exporting
+      LT_FINAL type ZTT_CLFINAL .
+
+**************************************************************************
+*   Private section of class.                                            *
+**************************************************************************
+private section.
+
+**************************************************************************
+*   Protected section of class.                                          *
+**************************************************************************
+protected section.
+
+**************************************************************************
+*   Types section of class.                                              *
+**************************************************************************
+*"* dummy include to reduce generation dependencies between
+*"* class ZCL_DATA_EKKO and it's users.
+*"* touched if any type reference has been changed
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

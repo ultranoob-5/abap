@@ -1,0 +1,104 @@
+*&---------------------------------------------------------------------*
+*& Report  ZVBAK_VBAP
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZVBAK_VBAP.
+*&---------------------------------------------------------------------*
+
+
+
+TYPES : BEGIN OF ts_vbak,
+        VBELN TYPE  VBELN_VA,
+        ERDAT type  ERDAT,
+        ERZET TYPE  ERZET,
+        ERNAM	TYPE ERNAM,
+        END OF ts_vbak.
+
+TYPES : BEGIN OF ts_vbap,
+        VBELN	 TYPE VBELN_VA,
+        POSNR TYPE  POSNR_VA,
+        MATNR TYPE  MATNR,
+        MATWA TYPE  MATWA,
+        END OF ts_vbap.
+
+TYPES : BEGIN OF ts_final,
+        VBELN TYPE  VBELN_VA,
+        ERDAT type  ERDAT,
+        ERZET TYPE  ERZET,
+        ERNAM	TYPE ERNAM,
+        POSNR TYPE  POSNR_VA,
+        MATNR TYPE  MATNR,
+        MATWA TYPE  MATWA,
+        END OF ts_final.
+
+DATA : lt_vbak TYPE TABLE OF ts_vbak,
+       ls_vbak TYPE ts_vbak,
+       lt_vbap TYPE TABLE OF ts_vbap,
+       ls_vbap TYPE  ts_vbap,
+       lt_final TYPE TABLE OF ts_final,
+       ls_final TYPE ts_final.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+PARAMETERS : p_vbeln TYPE vbak-vbeln.
+SELECTION-SCREEN END OF BLOCK b1.
+
+START-OF-SELECTION.
+
+IF p_vbeln IS INITIAL.
+
+MESSAGE: text-001 TYPE 'E'.
+
+ELSEIF P_VBELN IS NOT INITIAL.
+
+    SELECT vbeln erdat erzet ernam
+      FROM vbak
+      INTO TABLE lt_vbak
+      WHERE vbeln = p_vbeln.
+
+ENDIF.
+IF LT_VBAK IS NOT INITIAL .
+      SELECT vbeln posnr matnr matwa
+      FROM vbap
+      INTO TABLE lt_vbap
+      FOR ALL ENTRIES IN LT_VBAK
+      WHERE vbeln = lT_vbak-vbeln.
+ENDIF.
+
+  LOOP AT lt_vbap INTO ls_vbap.
+    ls_final-vbeln = ls_vbap-vbeln.
+    ls_final-posnr = ls_vbap-posnr.
+    ls_final-matnr = ls_vbap-matnr.
+    ls_final-matwa = ls_vbap-matwa.
+    READ TABLE lt_vbak INTO ls_vbak WITH KEY vbeln = ls_vbap-vbeln BINARY SEARCH.
+    IF SY-SUBRC IS INITIAL.
+    ls_final-erdat = ls_vbak-erdat.
+    ls_final-erzet = ls_vbak-erzet.
+    ls_final-ernam = ls_vbak-ernam.
+     ENDIF.
+    append ls_final to lt_final.
+    CLEAR : ls_final,ls_vbak,ls_vbap.
+  ENDLOOP.
+
+cl_salv_table=>factory(
+*  EXPORTING
+*    list_display   = IF_SALV_C_BOOL_SAP=>FALSE    " ALV Displayed in List Mode
+*    r_container    =     " Abstract Container for GUI Controls
+*    container_name =
+  IMPORTING
+    r_salv_table   = data(lo_alv)     " Basis Class Simple ALV Tables
+  CHANGING
+    t_table        =  lt_final
+).
+*  CATCH cx_salv_msg.    "
+lo_alv->display( ).
+
+*Text elements
+*----------------------------------------------------------
+* 001 Input VBELN
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

@@ -1,0 +1,179 @@
+REPORT zret_puf
+NO STANDARD PAGE HEADING LINE-SIZE 255.
+
+*include bdcrecx1.
+TYPES: BEGIN OF ts_app,
+material TYPE C LENGTH 18,
+industrial_sector TYPE C LENGTH 1,
+material_type TYPE C LENGTH 4,
+material_desc TYPE C LENGTH 40,
+uot TYPE C LENGTH 3,
+END OF ts_app.
+
+DATA: lt_app TYPE TABLE OF ts_app,
+      ls_app TYPE ts_app,
+      lt_bdcdata TYPE TABLE OF bdcdata,
+      ls_bdcdata TYPE bdcdata,
+      lv_rawdata TYPE truxs_t_text_data,
+      lt_mess TYPE TABLE OF bdcmsgcoll,
+      ls_mess TYPE bdcmsgcoll.
+
+*DATA:   BDCDATA LIKE BDCDATA    OCCURS 0 WITH HEADER LINE.
+*       messages of call transaction
+*DATA:   MESSTAB LIKE BDCMSGCOLL OCCURS 0 WITH HEADER LINE.
+*       error session opened (' ' or 'X')
+
+PARAMETERS: p_file TYPE rlgrap-filename.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+
+CALL FUNCTION 'F4_FILENAME'
+EXPORTING
+  program_name  = syst-cprog
+  dynpro_number = syst-dynnr
+  field_name    = 'P_FILE'
+IMPORTING
+  file_name     = p_file.
+
+CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+EXPORTING
+  i_field_seperator    = 'X'
+  i_line_header        = 'X'
+  i_tab_raw_data       = lv_rawdata
+  i_filename           = p_file
+TABLES
+  i_tab_converted_data = lt_app.
+
+START-OF-SELECTION.
+
+LOOP AT lt_app INTO ls_app.
+
+PERFORM bdc_dynpro      USING 'SAPLMGMM' '0060'.
+PERFORM bdc_field       USING 'BDC_CURSOR'
+      'RMMG1-MATNR'.
+PERFORM bdc_field       USING 'BDC_OKCODE'
+      '=ENTR'.
+PERFORM bdc_field       USING 'RMMG1-MATNR'
+      "'MAT-77090'.
+      ls_app-material.
+PERFORM bdc_field       USING 'RMMG1-MBRSH'
+      "'W'.
+      ls_app-industrial_sector.
+PERFORM bdc_field       USING 'RMMG1-MTART'
+      "'MODE'.
+      ls_app-material_type.
+PERFORM bdc_dynpro      USING 'SAPLMGMM' '0070'.
+PERFORM bdc_field       USING 'BDC_CURSOR'
+      'MSICHTAUSW-DYTXT(01)'.
+PERFORM bdc_field       USING 'BDC_OKCODE'
+      '=ENTR'.
+PERFORM bdc_field       USING 'MSICHTAUSW-KZSEL(01)'
+      'X'.
+PERFORM bdc_dynpro      USING 'SAPLMGMM' '4004'.
+PERFORM bdc_field       USING 'BDC_OKCODE'
+      '=BU'.
+PERFORM bdc_field       USING 'MAKT-MAKTX'
+      "'All weather jacket'.
+      ls_app-material_desc.
+PERFORM bdc_field       USING 'BDC_CURSOR'
+      'MARA-MEINS'.
+PERFORM bdc_field       USING 'MARA-MEINS'
+      "'EA'.
+      ls_app-uot.
+PERFORM bdc_field       USING 'MARA-MTPOS_MARA'
+      'NORM'.
+
+CALL TRANSACTION 'MM01' USING lt_bdcdata MODE 'N' UPDATE 'A' MESSAGES INTO lt_mess.
+  IF sy-subrc = 0.
+    WRITE: / 'Material Created Successfully:', ls_app-material.
+  ELSE.
+    WRITE: / 'Error Creating Material:', ls_app-material.
+  ENDIF.
+CLEAR: ls_app.
+REFRESH: lt_bdcdata.
+
+ENDLOOP.
+
+*cl_salv_table=>factory(
+**  EXPORTING
+**    list_display   = IF_SALV_C_BOOL_SAP=>FALSE    " ALV Displayed in List Mode
+**    r_container    =     " Abstract Container for GUI Controls
+**    container_name =
+*IMPORTING
+*r_salv_table   =  DATA(alv)   " Basis Class Simple ALV Tables
+*CHANGING
+*  t_table        =  lt_mess
+*  ).
+**  CATCH cx_salv_msg.    "
+*
+*alv->display( ).
+
+*LOOP AT lt_mess INTO ls_mess.
+*
+*  IF ls_mess-msgtyp EQ 'S'.
+*
+*    DATA(lv_text) = 'Material Number has been Created Successfully'.
+*
+*    CONCATENATE ls_mess-msgv1 lv_text INTO DATA(lv_final) SEPARATED BY ' '.
+*
+*    WRITE : / lv_final.
+*
+*ELSEIF ls_mess-msgtyp = 'E'.
+*
+*    WRITE : 'Material Not Created and it contains Error'.
+*
+*  ENDIF.
+*
+*ENDLOOP.
+
+
+*----------------------------------------------------------------------*
+*        Start new screen                                              *
+*----------------------------------------------------------------------*
+FORM bdc_dynpro USING PROGRAM DYNPRO.
+CLEAR ls_bdcdata.
+ls_bdcdata-PROGRAM  = PROGRAM.
+ls_bdcdata-DYNPRO   = DYNPRO.
+ls_bdcdata-dynbegin = 'X'.
+APPEND ls_bdcdata TO lt_bdcdata.
+ENDFORM.
+
+*----------------------------------------------------------------------*
+*        Insert field                                                  *
+*----------------------------------------------------------------------*
+FORM bdc_field USING fnam fval.
+CLEAR ls_bdcdata.
+ls_bdcdata-fnam = fnam.
+ls_bdcdata-fval = fval.
+APPEND ls_bdcdata TO lt_bdcdata.
+ENDFORM.
+
+*Text elements
+*----------------------------------------------------------
+* 101 Material Number has been Created Successfully
+* E00 Error opening dataset, return code:
+* I01 Session name
+* I02 Open session
+* I03 Insert transaction
+* I04 Close Session
+* I05 Return code =
+* I06 Error session created
+* S01 Session name
+* S02 User
+* S03 Keep session
+* S04 Lock date
+* S05 Processing Mode
+* S06 Update Mode
+* S07 Generate session
+* S08 Call transaction
+* S09 Error sessn
+* S10 Nodata indicator
+* S11 Short log
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_FILE         SELECT FILE
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

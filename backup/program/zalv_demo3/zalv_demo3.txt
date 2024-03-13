@@ -1,0 +1,172 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_DEMO3
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZALV_DEMO3.
+
+TABLES : mara, makt.
+
+TYPES : BEGIN OF ts_mara,
+        matnr TYPE matnr,
+        ernam TYPE ernam,
+        mtart TYPE mtart,
+        END OF ts_mara,
+
+        BEGIN OF ts_makt,
+        matnr TYPE matnr,
+        spras TYPE spras,
+        maktx TYPE maktx,
+        END OF ts_makt,
+
+        BEGIN OF ts_final,
+        matnr TYPE matnr,
+        ernam TYPE ernam,
+        mtart TYPE mtart,
+        spras TYPE spras,
+        maktx TYPE maktx,
+        END OF ts_final.
+
+DATA : gt_mara TYPE TABLE OF ts_mara,
+       gs_mara TYPE ts_mara,
+       gt_makt TYPE TABLE OF ts_makt,
+       gs_makt LIKE LINE OF gt_makt,
+       gt_final TYPE TABLE OF ts_final,
+       gs_final TYPE ts_final,
+       gt_fcat TYPE SLIS_T_FIELDCAT_ALV,
+       gs_fcat TYPE SLIS_FIELDCAT_ALV,
+       lv_matnr TYPE mara-MATNR.
+
+SELECT-OPTIONS : s_matnr for lv_matnr.
+
+INITIALIZATION.
+
+s_matnr-LOW = '1'.
+s_matnr-HIGH = '1000'.
+APPEND s_matnr.
+
+START-OF-SELECTION.
+
+SELECT * FROM mara INTO CORRESPONDING FIELDS OF TABLE gt_mara WHERE matnr in s_matnr[].
+
+  if gt_mara is NOT INITIAL.  "if the table has the value
+
+    SELECT * from makt INTO CORRESPONDING FIELDS OF TABLE gt_makt
+             FOR ALL ENTRIES IN gt_mara
+             WHERE matnr = gt_mara-MATNR.
+
+ELSE.
+  MESSAGE 'Does not have matching records' TYPE 'I'.
+
+  ENDIF.
+
+LOOP AT gt_mara into gs_mara.
+
+  gs_final-MATNR = gs_mara-MATNR.
+  gs_final-ERNAM = gs_mara-ERNAM.
+  gs_final-MTART = gs_mara-MTART.
+
+  READ TABLE gt_makt INTO gs_makt WITH KEY matnr = gs_makt-MATNR.
+
+  gs_final-SPRAS = gs_makt-SPRAS.
+  gs_final-MAKTX = gs_makt-MAKTX.
+
+  APPEND gs_final TO gt_final.
+
+ENDLOOP.
+
+gs_fcat-COL_POS = 1.
+gs_fcat-FIELDNAME = 'matnr'.
+gs_fcat-TABNAME = 'gt_final'.
+gs_fcat-SELTEXT_M = 'Material Number'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = 2.
+gs_fcat-FIELDNAME = 'ernam'.
+gs_fcat-TABNAME = 'gt_final'.
+gs_fcat-SELTEXT_M = 'Name of person'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = 3.
+gs_fcat-FIELDNAME = 'mtart'.
+gs_fcat-TABNAME = 'gt_final'.
+gs_fcat-SELTEXT_M = 'Material Type'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = 4.
+gs_fcat-FIELDNAME = 'spras'.
+gs_fcat-TABNAME = 'gt_final'.
+gs_fcat-SELTEXT_M = 'Language Key'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = 5.
+gs_fcat-FIELDNAME = 'maktx'.
+gs_fcat-TABNAME = 'gt_final'.
+gs_fcat-SELTEXT_M = 'Material Description'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+ EXPORTING
+*   I_INTERFACE_CHECK              = ' '
+*   I_BYPASSING_BUFFER             =
+*   I_BUFFER_ACTIVE                = ' '
+*   I_CALLBACK_PROGRAM             = ' '
+*   I_CALLBACK_PF_STATUS_SET       = ' '
+*   I_CALLBACK_USER_COMMAND        = ' '
+*   I_STRUCTURE_NAME               =
+*   IS_LAYOUT                      =
+   IT_FIELDCAT                    = gt_fcat
+*   IT_EXCLUDING                   =
+*   IT_SPECIAL_GROUPS              =
+*   IT_SORT                        =
+*   IT_FILTER                      =
+*   IS_SEL_HIDE                    =
+*   I_DEFAULT                      = 'X'
+*   I_SAVE                         = ' '
+*   IS_VARIANT                     =
+*   IT_EVENTS                      =
+*   IT_EVENT_EXIT                  =
+*   IS_PRINT                       =
+*   IS_REPREP_ID                   =
+*   I_SCREEN_START_COLUMN          = 0
+*   I_SCREEN_START_LINE            = 0
+*   I_SCREEN_END_COLUMN            = 0
+*   I_SCREEN_END_LINE              = 0
+*   IR_SALV_LIST_ADAPTER           =
+*   IT_EXCEPT_QINFO                =
+*   I_SUPPRESS_EMPTY_DATA          = ABAP_FALSE
+* IMPORTING
+*   E_EXIT_CAUSED_BY_CALLER        =
+*   ES_EXIT_CAUSED_BY_USER         =
+  TABLES
+    T_OUTTAB                       = gt_final
+* EXCEPTIONS
+*   PROGRAM_ERROR                  = 1
+*   OTHERS                         = 2
+          .
+IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+
+*Selection texts
+*----------------------------------------------------------
+* S_MATNR D       .
+
+
+*Messages
+*----------------------------------------------------------
+*
+* Message class: Hard coded
+*   Does not have matching records
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

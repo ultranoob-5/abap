@@ -1,0 +1,98 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_DEMO1
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZALV_DEMO1.
+
+TABLES : kna1.
+
+TYPES : BEGIN OF ts_kna,
+        kunnr TYPE kunnr,
+        land1 TYPE land1_gp,
+        ort01 TYPE ort01_gp,
+        pstlz TYPE pstlz,
+        END OF ts_kna.
+
+
+DATA : gt_kna TYPE TABLE OF ts_kna,
+      gs_kna TYPE ts_kna,
+      gt_fcat TYPE SLIS_T_FIELDCAT_ALV,
+      gs_fcat TYPE slis_fieldcat_alv,
+      gs_layo TYPE SLIS_LAYOUT_ALV,
+      lv_kunnr TYPE kna1-KUNNR.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+
+
+SELECT-OPTIONS : s_kunnr FOR lv_kunnr.
+
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+INITIALIZATION.
+
+s_kunnr-LOW = 1.
+s_kunnr-HIGH = 10000.
+APPEND s_kunnr.
+
+START-OF-SELECTION.
+
+SELECT * FROM kna1 into CORRESPONDING FIELDS OF TABLE gt_kna WHERE kunnr in s_kunnr[].
+
+END-OF-SELECTION.
+
+gs_fcat-COL_POS = 1.
+gs_fcat-FIELDNAME = 'kunnr'.
+gs_fcat-TABNAME = 'gt_fcat'.
+gs_fcat-SELTEXT_M = 'Customer Number'.
+gs_fcat-EMPHASIZE = 'C601'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = 2.
+gs_fcat-FIELDNAME = 'land1'.
+gs_fcat-TABNAME = 'gt_fcat'.
+gs_fcat-SELTEXT_M = 'Country'.
+gs_fcat-HOTSPOT = 'X'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = 3.
+gs_fcat-FIELDNAME = 'ort01'.
+gs_fcat-TABNAME = 'gt_fcat'.
+gs_fcat-SELTEXT_M = 'City'.
+gs_fcat-EDIT = 'X'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+
+gs_fcat-COL_POS = 4.
+gs_fcat-FIELDNAME = 'pstlz'.
+gs_fcat-TABNAME = 'gt_fcat'.
+gs_fcat-SELTEXT_M = 'Postal code'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_layo-COLWIDTH_OPTIMIZE = 'X'.
+gs_layo-ZEBRA = 'X'.
+
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+ EXPORTING
+
+   IS_LAYOUT                         = gs_layo
+   IT_FIELDCAT                       = gt_fcat
+
+  TABLES
+    T_OUTTAB                          = gt_kna
+ EXCEPTIONS
+   PROGRAM_ERROR                     = 1
+   OTHERS                            = 2
+          .
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

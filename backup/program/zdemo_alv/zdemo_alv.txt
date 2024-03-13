@@ -1,0 +1,103 @@
+*&---------------------------------------------------------------------*
+*& Report  ZDEMO_ALV
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zdemo_alv.
+
+TYPE-POOLS : slis.
+
+
+DATA : lt_book TYPE TABLE OF zcarbook,
+      ls_book TYPE zcarbook,
+      lt_fcat TYPE  slis_t_fieldcat_alv,
+      ls_fcat TYPE slis_fieldcat_alv.
+
+
+      START-OF-SELECTION.
+
+      SELECT * FROM zcarbook
+      INTO TABLE lt_book.
+
+
+CLEAR ls_fcat.
+
+ls_fcat-col_pos = '1'.
+ls_fcat-tabname = 'LT_BOOK'.
+ls_fcat-seltext_l = 'License Register Number'.
+ls_fcat-seltext_m = 'License Reg No'.
+ls_fcat-seltext_s = 'License No'.
+ls_fcat-fieldname = 'LICENSE_NO'.
+
+APPEND ls_fcat to lt_fcat.
+
+CLEAR ls_fcat.
+
+ls_fcat-col_pos = '2'.
+ls_fcat-tabname = 'LT_BOOK'.
+ls_fcat-seltext_l = 'Car Category Type'.
+ls_fcat-seltext_m = 'Car Category'.
+ls_fcat-seltext_s = 'Car Type'.
+ls_fcat-fieldname = 'LICENSE_NO'.
+
+APPEND ls_fcat TO lt_fcat.
+
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+ EXPORTING
+*   I_INTERFACE_CHECK                 = ' '
+*   I_BYPASSING_BUFFER                = ' '
+*   I_BUFFER_ACTIVE                   = ' '
+*   I_CALLBACK_PROGRAM                = ' '
+*   I_CALLBACK_PF_STATUS_SET          = ' '
+*   I_CALLBACK_USER_COMMAND           = ' '
+*   I_CALLBACK_TOP_OF_PAGE            = ' '
+*   I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*   I_CALLBACK_HTML_END_OF_LIST       = ' '
+*   I_STRUCTURE_NAME                  =
+*   I_BACKGROUND_ID                   = ' '
+*   I_GRID_TITLE                      =
+*   I_GRID_SETTINGS                   =
+*   IS_LAYOUT                         =
+   IT_FIELDCAT                       = lt_fcat
+*   IT_EXCLUDING                      =
+*   IT_SPECIAL_GROUPS                 =
+*   IT_SORT                           =
+*   IT_FILTER                         =
+*   IS_SEL_HIDE                       =
+*   I_DEFAULT                         = 'X'
+*   I_SAVE                            = ' '
+*   IS_VARIANT                        =
+*   IT_EVENTS                         =
+*   IT_EVENT_EXIT                     =
+*   IS_PRINT                          =
+*   IS_REPREP_ID                      =
+*   I_SCREEN_START_COLUMN             = 0
+*   I_SCREEN_START_LINE               = 0
+*   I_SCREEN_END_COLUMN               = 0
+*   I_SCREEN_END_LINE                 = 0
+*   I_HTML_HEIGHT_TOP                 = 0
+*   I_HTML_HEIGHT_END                 = 0
+*   IT_ALV_GRAPHICS                   =
+*   IT_HYPERLINK                      =
+*   IT_ADD_FIELDCAT                   =
+*   IT_EXCEPT_QINFO                   =
+*   IR_SALV_FULLSCREEN_ADAPTER        =
+* IMPORTING
+*   E_EXIT_CAUSED_BY_CALLER           =
+*   ES_EXIT_CAUSED_BY_USER            =
+  TABLES
+    t_outtab                          = lt_book
+* EXCEPTIONS
+*   PROGRAM_ERROR                     = 1
+*   OTHERS                            = 2
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

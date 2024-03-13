@@ -1,0 +1,553 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+<title>Dictionary object- ZGSR_VBFA</title>
+<style type="text/css">
+  th{text-align:left}
+  .cell{
+     font-family:"Courier New", Courier, monospace;
+     color:#000;
+     font-size:12px;
+     background-color:#F2F4F7;
+  }
+  .cell td { border: thin solid #ccc; }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+  <table class="outerTable">
+    <tr>
+      <td><h2>Table: ZGSR_VBFA</h2>
+  <h3>Description: GLOBAL STR FOR ALV</h3></td>
+    </tr>
+    <tr>
+      <td><!--This is where our main table begins  -->
+<table class="innerTable">
+<tr>
+  <th>Row</th>
+  <th>Field name</th>
+  <th>Position</th>
+  <th>Key</th>
+  <th>Data element</th>
+  <th>Domain</th>
+  <th>Datatype</th>
+  <th>Length</th>
+  <th>Lowercase</th>
+  <th>Domain text</th>
+</tr>
+<tr class="cell">
+  <td> 1</td>
+  <td>VBELN</td>
+  <td>1</td>
+  <td>&nbsp;</td>
+  <td>VBELN_NACH</td>
+  <td>VBELN</td>
+  <td>CHAR</td>
+  <td>10</td>
+  <td>&nbsp;</td>
+  <td>Subsequent sales and distribution document</td>
+</tr>
+<tr class="cell">
+  <td> 2</td>
+  <td>POSNN</td>
+  <td>2</td>
+  <td>&nbsp;</td>
+  <td>POSNR_NACH</td>
+  <td>POSNR</td>
+  <td>NUMC</td>
+  <td>6</td>
+  <td>&nbsp;</td>
+  <td>Subsequent item of an SD document</td>
+</tr>
+<tr class="cell">
+  <td> 3</td>
+  <td>VBTYP_N</td>
+  <td>3</td>
+  <td>&nbsp;</td>
+  <td>VBTYP_N</td>
+  <td>VBTYP</td>
+  <td>CHAR</td>
+  <td>1</td>
+  <td>X</td>
+  <td>Document category of subsequent document</td>
+</tr>
+<tr class="cell">
+  <td> 4</td>
+  <td>RFMNG</td>
+  <td>4</td>
+  <td>&nbsp;</td>
+  <td>RFMNG</td>
+  <td>MENG15</td>
+  <td>QUAN</td>
+  <td>15</td>
+  <td>&nbsp;</td>
+  <td>Referenced quantity in base unit of measure</td>
+</tr>
+      </table>
+     </td>
+   </tr>
+<br/>
+  <table class="outerTable">
+    <tr>
+      <td><h2>Fixed Domain Values </h2>
+    </tr>
+    <tr>
+      <td><!--This is where our main table begins  -->
+<table class="innerTable">
+<tr>
+  <th>Domain Name</th>
+  <th>Value Low</th>
+  <th>Value High</th>
+  <th>Text</th>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>A</td>
+  <td>&nbsp;</td>
+  <td>Inquiry</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>B</td>
+  <td>&nbsp;</td>
+  <td>Quotation</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>C</td>
+  <td>&nbsp;</td>
+  <td>Order</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>D</td>
+  <td>&nbsp;</td>
+  <td>Item proposal</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>E</td>
+  <td>&nbsp;</td>
+  <td>Scheduling agreement</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>F</td>
+  <td>&nbsp;</td>
+  <td>Scheduling agreement with external service agent</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>G</td>
+  <td>&nbsp;</td>
+  <td>Contract</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>H</td>
+  <td>&nbsp;</td>
+  <td>Returns</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>I</td>
+  <td>&nbsp;</td>
+  <td>Order w/o charge</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>J</td>
+  <td>&nbsp;</td>
+  <td>Delivery</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>K</td>
+  <td>&nbsp;</td>
+  <td>Credit memo request</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>L</td>
+  <td>&nbsp;</td>
+  <td>Debit memo request</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>M</td>
+  <td>&nbsp;</td>
+  <td>Invoice</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>N</td>
+  <td>&nbsp;</td>
+  <td>Invoice cancellation</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>O</td>
+  <td>&nbsp;</td>
+  <td>Credit memo</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>P</td>
+  <td>&nbsp;</td>
+  <td>Debit memo</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>Q</td>
+  <td>&nbsp;</td>
+  <td>WMS transfer order</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>R</td>
+  <td>&nbsp;</td>
+  <td>Goods movement</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>S</td>
+  <td>&nbsp;</td>
+  <td>Credit memo cancellation</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>T</td>
+  <td>&nbsp;</td>
+  <td>Returns delivery for order</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>U</td>
+  <td>&nbsp;</td>
+  <td>Pro forma invoice</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>V</td>
+  <td>&nbsp;</td>
+  <td>Purchase Order</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>W</td>
+  <td>&nbsp;</td>
+  <td>Independent reqts plan</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>Handling unit</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>0</td>
+  <td>&nbsp;</td>
+  <td>Master contract</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>1</td>
+  <td>&nbsp;</td>
+  <td>Sales activities (CAS)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>2</td>
+  <td>&nbsp;</td>
+  <td>External transaction</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>3</td>
+  <td>&nbsp;</td>
+  <td>Invoice list</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>4</td>
+  <td>&nbsp;</td>
+  <td>Credit memo list</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>5</td>
+  <td>&nbsp;</td>
+  <td>Intercompany invoice</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>6</td>
+  <td>&nbsp;</td>
+  <td>Intercompany credit memo</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>7</td>
+  <td>&nbsp;</td>
+  <td>Delivery/shipping notification</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>8</td>
+  <td>&nbsp;</td>
+  <td>Shipment</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>a</td>
+  <td>&nbsp;</td>
+  <td>Shipment costs</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>b</td>
+  <td>&nbsp;</td>
+  <td>CRM Opportunity</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>c</td>
+  <td>&nbsp;</td>
+  <td>Unverified delivery</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>d</td>
+  <td>&nbsp;</td>
+  <td>Trading Contract</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>e</td>
+  <td>&nbsp;</td>
+  <td>Allocation table</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>f</td>
+  <td>&nbsp;</td>
+  <td>Additional Billing Documents</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>g</td>
+  <td>&nbsp;</td>
+  <td>Rough Goods Receipt (only IS-Retail)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>h</td>
+  <td>&nbsp;</td>
+  <td>Cancel Goods Issue</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>i</td>
+  <td>&nbsp;</td>
+  <td>Goods receipt</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>j</td>
+  <td>&nbsp;</td>
+  <td>JIT call</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>n</td>
+  <td>&nbsp;</td>
+  <td>Reserved</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>o</td>
+  <td>&nbsp;</td>
+  <td>Reserved</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>p</td>
+  <td>&nbsp;</td>
+  <td>Goods Movement (Documentation)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>q</td>
+  <td>&nbsp;</td>
+  <td>Reserved</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>r</td>
+  <td>&nbsp;</td>
+  <td>TD Transport (only IS-Oil)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>s</td>
+  <td>&nbsp;</td>
+  <td>Load Confirmation, Reposting (Only IS-Oil)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>t</td>
+  <td>&nbsp;</td>
+  <td>Gain    /  Loss    (Only IS-Oil)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>u</td>
+  <td>&nbsp;</td>
+  <td>Reentry into Storage (Only IS-Oil)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>v</td>
+  <td>&nbsp;</td>
+  <td>Data Collation (only IS-Oil)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>w</td>
+  <td>&nbsp;</td>
+  <td>Reservation (Only IS-Oil)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>x</td>
+  <td>&nbsp;</td>
+  <td>Load Confirmation, Goods Receipt (Only IS-Oil)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>$</td>
+  <td>&nbsp;</td>
+  <td>(AFS)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>+</td>
+  <td>&nbsp;</td>
+  <td>Accounting Document (Temporary)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>-</td>
+  <td>&nbsp;</td>
+  <td>Accounting Document (Temporary)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>#</td>
+  <td>&nbsp;</td>
+  <td>Revenue Recognition (Temporary)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>~</td>
+  <td>&nbsp;</td>
+  <td>Revenue Cancellation (Temporary)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>§</td>
+  <td>&nbsp;</td>
+  <td>Revenue Recognition/New View (Temporary)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>Revenue Cancellation/New View (Temporary)</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>:</td>
+  <td>&nbsp;</td>
+  <td>Service Order</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>.</td>
+  <td>&nbsp;</td>
+  <td>Service Notification</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>&</td>
+  <td>&nbsp;</td>
+  <td>Warehouse Document</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>*</td>
+  <td>&nbsp;</td>
+  <td>Pick Order</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>,</td>
+  <td>&nbsp;</td>
+  <td>Shipment Document</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>^</td>
+  <td>&nbsp;</td>
+  <td>Reserved</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>|</td>
+  <td>&nbsp;</td>
+  <td>Reserved</td>
+</tr>
+<tr class="cell">
+  <td>VBTYP</td>
+  <td>k</td>
+  <td>&nbsp;</td>
+  <td>Agency Document</td>
+</tr>
+      </table>
+     </td>
+   </tr>
+   <tr>
+<td class="footer">Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740</td>
+   </tr>
+</table>
+</body>
+</html>

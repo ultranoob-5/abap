@@ -1,0 +1,38 @@
+FUNCTION ZBAPI_DATA_CUST.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     VALUE(P_SALESDOCNO) TYPE  ZBAPI_SALES_DOC-ZSALESDOC_NO OPTIONAL
+*"  EXPORTING
+*"     VALUE(RETURN) TYPE  BAPIRET2
+*"  TABLES
+*"      LT_SALESDOC STRUCTURE  ZBAPI_SALES_DOC
+*"----------------------------------------------------------------------
+IF P_SALESDOCNO IS INITIAL.
+  return-TYPE = 'E'.
+  RETURN-MESSAGE = 'WRITE SOMETHING IN THE FIELD'.
+ELSE.
+  SELECT ZSALESDOC_NO
+ZCREATED_DATE
+ZDOC_CAT
+ZCUST_NO
+ZNET_VALUE
+ZCURRENCY FROM ZSALES_DOC
+    INTO TABLE LT_SALESDOC
+    WHERE zsalesdoc_no = P_SALESDOCNO.
+
+    IF SY-SUBRC = 0.
+      RETURN = 'S'.
+      RETURN-MESSAGE = 'SALES DOC NO HAS BEEN EXTRACTED.'.
+    ELSE.
+      return-TYPE = 'E'.
+      RETURN-MESSAGE = 'SALES DOC NO HAS NOT BEEN EXTRACTED.'.
+    ENDIF.
+ENDIF.
+
+
+
+ENDFUNCTION.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

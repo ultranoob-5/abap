@@ -1,0 +1,230 @@
+*&---------------------------------------------------------------------*
+*& Report  ZINTERACTIVE_REPORT
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZINTERACTIVE_REPORT.
+
+
+************************************************************************************************************************************************
+
+*********structure decalartion
+
+types : begin of ty_sales, "Structure from VBAK Table.
+        vbeln type vbeln_va,
+        erdat type erdat,
+        erzet type erzet,
+        ernam type ernam,
+        audat type audat,
+***********vbak table
+        posnr type posnr_va,
+        matnr type matnr,
+        matkl type matkl,
+        charg type charg_d,
+**********vbap table
+        END OF ty_sales,
+
+        BEGIN OF ty_vbep, "Structure from VBEP Table (Schedule Line Data).
+        vbeln type vbeln_va,
+        posnr type posnr_va,
+        etenr type etenr,
+        ettyp type ettyp,
+        END OF ty_vbep.
+
+
+**********internal table and work area
+
+DATA : gt_sales type TABLE OF ty_sales,
+       gs_sales type ty_sales,
+       gt_vbep type TABLE OF ty_vbep,
+       gs_vbep type ty_vbep,
+       lv_vbeln type vbak-vbeln.
+
+***************selection screen design
+
+ SELECTION-SCREEN begin of block b1 WITH FRAME.
+
+ SELECT-OPTIONS : s_vbeln for lv_vbeln.
+
+ SELECTION-SCREEN END OF block b1.
+
+ INITIALIZATION.
+
+ s_vbeln-low = '4950'.
+ s_vbeln-high = '5000'.
+ APPEND s_vbeln.
+
+
+START-OF-SELECTION.
+
+SELECT  vbak~vbeln
+        vbak~erdat
+        vbak~erzet
+        vbak~ernam
+        vbak~audat
+        vbap~posnr
+        vbap~matnr
+        vbap~matkl
+        vbap~charg FROM VBAK INNER JOIN VBAP on vbap~vbeln = vbak~vbeln
+        INTO TABLE GT_SALES WHERE vbak~vbeln in s_vbeln.
+
+**********field catalog
+********alv function module
+
+LOOP AT gt_sales INTO gs_sales.
+
+  write : / gs_sales-vbeln,
+            gs_sales-erdat,
+            gs_sales-erzet,
+            gs_sales-ernam,
+            gs_sales-audat,
+            gs_sales-posnr,
+            gs_sales-matnr,
+            gs_sales-matkl,
+            gs_sales-charg.
+
+  HIDE : gs_sales-vbeln.
+
+ENDLOOP.
+
+TOP-OF-PAGE.
+
+WRITE : 'Sales Header And Item Details Report' COLOR 5.
+
+AT LINE-SELECTION. " To call/create Secondary List ...upto 20 lists.
+
+    select vbeln
+           posnr
+           etenr
+           ettyp FROM vbep into TABLE gt_vbep
+           FOR ALL ENTRIES IN gt_sales WHERE vbeln = gt_sales-vbeln.
+
+**********field catalog
+********alv function module
+
+  loop at gt_vbep INTO gs_vbep.
+
+    write : / gs_vbep-vbeln,
+              gs_vbep-posnr,
+              gs_vbep-etenr,
+              gs_vbep-ettyp.
+
+
+    ENDLOOP.
+
+TOP-OF-PAGE DURING LINE-SELECTION. "Header for Secondary List
+
+    WRITE : 'Sales Schedule Line Data Details' COLOR 3.
+
+************************************************************************************************************************************************
+
+**
+***********structure decalartion
+**
+**types : begin of ty_sales,
+**        vbeln type vbeln_va,
+**        erdat type erdat,
+**        erzet type erzet,
+**        ernam type ernam,
+**        audat type audat,
+**        posnr type posnr_va,
+**        matnr type matnr,
+**        matkl type matkl,
+**        charg type charg_d,
+**        END OF ty_sales,
+**
+**        BEGIN OF ty_vbep,
+**        vbeln type vbeln_va,
+**        posnr type posnr_va,
+**        etenr type etenr,
+**        ettyp type ettyp,
+**        END OF ty_vbep.
+**
+************internal table and work area
+**
+**DATA : it_sales type TABLE OF ty_sales,
+**       wa_sales type ty_sales,
+**       it_vbep type TABLE OF ty_vbep,
+**       wa_vbep type ty_vbep,
+**       lv_vbeln type vbak-vbeln.
+**
+*****************selection screen design
+**
+** SELECTION-SCREEN begin of block b1 WITH FRAME.
+**
+** SELECT-OPTIONS : s_vbeln for lv_vbeln.
+**
+** SELECTION-SCREEN END OF block b1.
+**
+**
+**START-OF-SELECTION.
+**
+*************fetching data
+**
+** Select vbak~vbeln
+**        vbak~erdat
+**        vbak~erzet
+**        vbak~ernam
+**        vbak~audat
+**        vbap~posnr
+**        vbap~matnr
+**        vbap~matkl
+**        vbap~charg FROM vbak INNER JOIN vbap on vbap~vbeln = vbak~vbeln
+**        into TABLE it_sales WHERE vbak~vbeln in s_vbeln.
+**
+*********displaying data
+**
+**loop at it_sales INTO wa_sales.
+**
+**  write : / wa_sales-vbeln,
+**            wa_sales-erdat,
+**            wa_sales-erzet,
+**            wa_sales-ernam,
+**            wa_sales-audat,
+**            wa_sales-posnr,
+**            wa_sales-matnr,
+**            wa_sales-matkl,
+**            wa_sales-charg.
+**  HIDE : wa_sales-vbeln.
+**
+**  ENDLOOP.
+**
+***********header declaration
+**
+**   TOP-OF-PAGE.
+**
+**     WRITE: 'Sales Data Detail Of Sales Document:' COLOR 6.
+**
+***********secondary list
+**
+**      AT LINE-SELECTION.
+**
+**    select vbeln
+**           posnr
+**           etenr
+**           ettyp FROM vbep into TABLE it_vbep FOR ALL ENTRIES IN it_sales WHERE vbeln = it_sales-vbeln.
+**
+**  loop at it_vbep INTO wa_vbep.
+**
+**    write : / wa_vbep-vbeln,
+**              wa_vbep-posnr,
+**              wa_vbep-etenr,
+**              wa_vbep-ettyp.
+**
+**
+**    ENDLOOP.
+**
+**    TOP-OF-PAGE DURING LINE-SELECTION.
+**
+**     WRITE: 'Schedule Line Detail Of Sales Document:' COLOR 6.
+
+
+*Selection texts
+*----------------------------------------------------------
+* S_VBELN         Sales Document
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

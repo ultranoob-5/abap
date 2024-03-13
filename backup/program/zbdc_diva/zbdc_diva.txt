@@ -1,0 +1,176 @@
+report ZBDC_DIVA
+       no standard page heading line-size 255.
+
+*include bdcrecx1.
+
+TYPES : BEGIN OF ts_mara,
+        matnr TYPE matnr,
+        mbrsh TYPE mbrsh,
+        mtart TYPE mtart,
+        maktx TYPE maktx,     "doubt
+        meins TYPE meins,
+        matkl TYPE matkl,
+        END OF ts_mara.
+
+
+DATA : gt_mara TYPE TABLE OF ts_mara,
+      g_text TYPE TRUXS_T_TEXT_DATA,
+      gs_mara TYPE ts_mara.
+
+*   data definition
+*----------------------------------------------------------------------*
+*       Batchinputdata of single transaction
+DATA:   BDCDATA LIKE BDCDATA    OCCURS 0 WITH HEADER LINE.
+*       messages of call transaction
+DATA:   MESSTAB LIKE BDCMSGCOLL OCCURS 0 WITH HEADER LINE.
+*       error session opened (' ' or 'X')
+
+
+PARAMETERS : P_file TYPE rlgrap-filename.
+
+at SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+
+CALL FUNCTION 'F4_FILENAME'
+ EXPORTING
+*   PROGRAM_NAME        = SYST-CPROG
+*   DYNPRO_NUMBER       = SYST-DYNNR
+   FIELD_NAME          = 'P_file'
+ IMPORTING
+   FILE_NAME           = p_file
+          .
+
+start-of-selection.
+
+CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+  EXPORTING
+*   I_FIELD_SEPERATOR          =
+*   I_LINE_HEADER              =
+    i_tab_raw_data             = g_text   "doubt
+    i_filename                 = p_file
+  TABLES
+    i_tab_converted_data       = gt_mara
+* EXCEPTIONS
+*   CONVERSION_FAILED          = 1
+*   OTHERS                     = 2
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+LOOP AT gt_mara into gs_mara.
+
+
+*perform open_group.
+
+perform bdc_dynpro      using 'SAPLMGMM' '0060'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'RMMG1-MATNR'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=AUSW'.
+perform bdc_field       using 'RMMG1-MATNR'
+                               gs_mara-matnr.          "'MAT-0002'.
+perform bdc_field       using 'RMMG1-MBRSH'
+                               gs_mara-mbrsh.          "'C'.
+perform bdc_field       using 'RMMG1-MTART'
+                               gs_mara-mtart.         "'FGTR'.
+perform bdc_dynpro      using 'SAPLMGMM' '0070'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'MSICHTAUSW-DYTXT(01)'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=ENTR'.
+perform bdc_field       using 'MSICHTAUSW-KZSEL(01)'
+                              'X'.
+perform bdc_dynpro      using 'SAPLMGMM' '4004'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=BU'.
+perform bdc_field       using 'MAKT-MAKTX'
+                               gs_mara-maktx.           "'Test1'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'MARA-MATKL'.
+perform bdc_field       using 'MARA-MEINS'
+                               gs_mara-meins.          "'H'.
+perform bdc_field       using 'MARA-MATKL'
+                               gs_mara-matkl.        "'00200'.
+perform bdc_field       using 'MARA-MTPOS_MARA'
+                              'NORM'.
+*perform bdc_transaction using 'MM01'.
+
+*perform close_group.
+
+ CALL TRANSACTION 'MM01' USING BDCDATA
+                     MODE 'N'
+                     UPDATE 'A'
+                     MESSAGES INTO MESSTAB.
+
+ IF  sy-subrc eq 0.
+
+   WRITE : / 'Material NO : ', gs_mara-matnr, ' uploaded.'.
+
+   ELSE.
+     MESSAGE : 'Error in Data' TYPE 'E'.
+
+ ENDIF.
+
+CLEAR gs_mara.
+
+ENDLOOP.
+
+
+*----------------------------------------------------------------------*
+*        Start new screen                                              *
+*----------------------------------------------------------------------*
+FORM BDC_DYNPRO USING PROGRAM DYNPRO.
+  CLEAR BDCDATA.
+  BDCDATA-PROGRAM  = PROGRAM.
+  BDCDATA-DYNPRO   = DYNPRO.
+  BDCDATA-DYNBEGIN = 'X'.
+  APPEND BDCDATA.
+ENDFORM.
+
+*----------------------------------------------------------------------*
+*        Insert field                                                  *
+*----------------------------------------------------------------------*
+FORM BDC_FIELD USING FNAM FVAL.
+*  IF FVAL <> NODATA.
+    CLEAR BDCDATA.
+    BDCDATA-FNAM = FNAM.
+    BDCDATA-FVAL = FVAL.
+    APPEND BDCDATA.
+*  ENDIF.
+ENDFORM.
+
+*Text elements
+*----------------------------------------------------------
+* E00 Error opening dataset, return code:
+* I01 Session name
+* I02 Open session
+* I03 Insert transaction
+* I04 Close Session
+* I05 Return code =
+* I06 Error session created
+* S01 Session name
+* S02 User
+* S03 Keep session
+* S04 Lock date
+* S05 Processing Mode
+* S06 Update Mode
+* S07 Generate session
+* S08 Call transaction
+* S09 Error sessn
+* S10 Nodata indicator
+* S11 Short log
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_FILE         XL File path
+
+
+*Messages
+*----------------------------------------------------------
+*
+* Message class: Hard coded
+*   Error in Data
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

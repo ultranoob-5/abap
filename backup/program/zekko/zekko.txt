@@ -1,0 +1,101 @@
+REPORT zekko.
+
+TYPES: BEGIN OF ts_ekko,
+                 ebeln TYPE ebeln,
+                 bukrs TYPE bukrs,
+                 bstyp TYPE ebstyp,
+                 bsart TYPE esart,
+             END OF ts_ekko.
+
+TYPES: BEGIN OF ts_ekpo,
+                 ebeln TYPE ebeln,
+                 aedat TYPE paedt,
+                 txz01 TYPE txz01,
+             END OF ts_ekpo.
+
+DATA: lt_ekko TYPE TABLE OF ts_ekko,
+            ls_ekko TYPE ts_ekko,
+            lt_ekpo TYPE TABLE OF ts_ekpo,
+            ls_ekpo TYPE ts_ekpo.
+
+CLASS alv DEFINITION.
+    PUBLIC SECTION.
+        METHODS on_double_click FOR EVENT double_click OF cl_salv_events_table
+            IMPORTING row column.
+ENDCLASS.
+
+CLASS alv IMPLEMENTATION.
+
+    METHOD on_double_click.
+
+        IF column EQ 'EBELN'.
+
+            READ TABLE lt_ekko INTO ls_ekko INDEX row.
+
+            IF sy-subrc IS INITIAL.
+
+                REFRESH lt_ekpo.
+
+                SELECT ebeln aedat txz01
+                    FROM ekpo
+                    INTO TABLE lt_ekpo
+                    WHERE ebeln = ls_ekko-ebeln.
+
+                IF sy-subrc IS INITIAL.
+                    cl_salv_table=>factory(
+                      IMPORTING
+                        r_salv_table   =   DATA(lo_alv1)  " Basis Class Simple ALV Tables
+                      CHANGING
+                        t_table        =  lt_ekpo
+                    ).
+                ENDIF.
+
+                lo_alv1->display( ).
+
+            ENDIF.
+        ENDIF.
+    ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+    PERFORM retrieve_data.
+    PERFORM display.
+
+FORM retrieve_data.
+    SELECT ebeln bukrs bstyp bsart
+        FROM ekko
+        INTO TABLE lt_ekko.
+ENDFORM.
+
+FORM display.
+    DATA: lo_zebra TYPE REF TO cl_salv_display_settings,
+                lo_columns TYPE REF TO cl_salv_columns,
+                lo_selection TYPE REF TO cl_salv_selections,
+                lo_event_handler TYPE REF TO alv,
+                lo_event TYPE REF TO cl_salv_events_table.
+
+    cl_salv_table=>factory(
+        IMPORTING
+            r_salv_table = DATA(lo_alv)
+        CHANGING
+            t_table = lt_ekko
+    ).
+
+    lo_columns = lo_alv->get_columns( ).
+    lo_columns->set_optimize( 'X' ).
+
+    lo_zebra = lo_alv->get_display_settings( ).
+    lo_zebra->set_striped_pattern( cl_salv_display_settings=>true ).
+
+    lo_event = lo_alv->get_event( ).
+    CREATE OBJECT lo_event_handler.
+    SET HANDLER lo_event_handler->on_double_click FOR lo_event.
+
+    lo_selection = lo_alv->get_selections( ).
+    lo_selection->set_selection_mode( if_salv_c_selection_mode=>row_column ).
+
+    lo_alv->display( ).
+ENDFORM.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

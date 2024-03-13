@@ -1,0 +1,51 @@
+*&---------------------------------------------------------------------*
+*& Report  ZACCOUNT_DETAILS
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zaccount_details.
+DATA : lt_emp TYPE TABLE OF zemp_mast,
+       ls_emp TYPE zemp_mast,
+       lt_dept TYPE TABLE OF zdept_data,
+       ls_dept TYPE zdept_data,
+       lv_emp TYPE zemp_no .
+
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+ PARAMETERS : p_emp TYPE zemp_no.
+ SELECT-OPTIONS :s_emp for lv_emp.
+SELECTION-SCREEN END OF BLOCK b1.
+
+INITIALIZATION.
+
+p_emp ='10001'.
+s_emp-low = '1'.
+s_emp-high = '11000'.
+s_emp-option ='BT'.
+s_emp-sign ='I'.
+
+APPEND s_emp.
+
+START-OF-SELECTION.
+  IF s_emp IS INITIAL.
+    SELECT * FROM zemp_mast INTO TABLE lt_emp.
+  ELSEIF s_emp IS NOT INITIAL.
+    SELECT * FROM zemp_mast INTO TABLE lt_emp WHERE employee_number IN s_emp.
+  ENDIF.
+  END-of-SELECTION.
+  WRITE : / 'empno',
+            30 'FNAME',
+            80 'LNAME',
+            100 'deptno'.
+  LOOP AT lt_emp INTO ls_emp.
+    WRITE : / ls_emp-employee_number,
+              30 ls_emp-employee_firstname,
+              80 ls_emp-employee_lastname,
+              100 ls_emp-department_id.
+  CLEAR : ls_emp.
+  ENDLOOP.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

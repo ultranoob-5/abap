@@ -1,0 +1,368 @@
+*&---------------------------------------------------------------------*
+*& Report  ZDP_SALESDOC
+*&---------------------------------------------------------------------*
+REPORT zdp_summa.
+
+DATA: lt_vbak  TYPE TABLE OF zstr_vbak_salesdoc,   " Internal table for VBAK data
+      ls_vbak  TYPE zstr_vbak_salesdoc,           " Structure for VBAK data
+      lt_vbap  TYPE TABLE OF zstr_vbap_salesdoc,   " Internal table for VBAP data
+      ls_vbap  TYPE zstr_vbap_salesdoc,           " Structure for VBAP data
+      lt_final TYPE TABLE OF zstr_final_salesdoc,  " Internal table for final data
+      ls_final TYPE zstr_final_salesdoc,          " Structure for final data
+      lo_alv   TYPE REF TO cl_salv_table,         " ALV object reference
+      lo_events TYPE REF TO cl_salv_events_table, " ALV events object reference
+      ls_control_parameters TYPE ssfctrlop,
+      ls_output_options TYPE ssfcompop,
+      ls_job_output_info TYPE ssfcrescl,
+      lt_pdf_lines TYPE TABLE OF tline,
+      lv_bin_filesize TYPE i.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-002.
+PARAMETERS: p_vbeln TYPE vbak-vbeln.  " Selection screen parameter for sales document number
+SELECTION-SCREEN END OF BLOCK b1.
+
+CLASS cl_vend DEFINITION.
+  PUBLIC SECTION.
+    METHODS : fetchdata,    " Method to fetch data from tables
+              displaydata,  " Method to display data using ALV
+              gui_click FOR EVENT added_function OF cl_salv_events_table  " Event handler for ALV button click
+                  IMPORTING e_salv_function.
+ENDCLASS.
+
+CLASS cl_vend IMPLEMENTATION.
+  METHOD fetchdata.
+    IF p_vbeln IS INITIAL.
+      MESSAGE: text-001 TYPE 'E'. " Display error message if sales document number is not provided
+    ELSEIF p_vbeln IS NOT INITIAL.
+      SELECT vbeln erdat erzet ernam
+        FROM vbak
+        INTO TABLE lt_vbak
+        WHERE vbeln = p_vbeln. " Fetch VBAK data based on sales document number
+    ENDIF.
+
+    IF lt_vbak IS NOT INITIAL.
+      SELECT vbeln posnr matnr matwa
+        FROM vbap
+        INTO TABLE lt_vbap
+        FOR ALL ENTRIES IN lt_vbak
+        WHERE vbeln = lt_vbak-vbeln. " Fetch VBAP data based on VBAK data
+    ENDIF.
+
+    LOOP AT lt_vbap INTO ls_vbap.
+      ls_final-vbeln = ls_vbap-vbeln.
+      ls_final-posnr = ls_vbap-posnr.
+      ls_final-matnr = ls_vbap-matnr.
+      ls_final-matwa = ls_vbap-matwa.
+      READ TABLE lt_vbak INTO ls_vbak WITH KEY vbeln = ls_vbap-vbeln BINARY SEARCH. " Read corresponding VBAK data
+      IF sy-subrc IS INITIAL.
+        ls_final-erdat = ls_vbak-erdat.
+        ls_final-erzet = ls_vbak-erzet.
+        ls_final-ernam = ls_vbak-ernam.
+      ENDIF.
+      APPEND ls_final TO lt_final. " Append final data to internal table
+      CLEAR: ls_final, ls_vbak, ls_vbap.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD displaydata.
+    " Create ALV object
+    TRY .
+      cl_salv_table=>factory(
+        IMPORTING
+          r_salv_table = lo_alv
+        CHANGING
+          t_table      = lt_final
+      ).
+    CATCH cx_salv_msg.
+
+    ENDTRY.
+
+    " Set PF-STATUS for ALV
+    SET PF-STATUS 'ZSALESBT'.
+
+    " Set screen status for ALV
+    lo_alv->set_screen_status(
+      EXPORTING
+        report        =  sy-repid   " ABAP Program: Current Main Program
+        pfstatus      =   'ZSALESBT'  " Screens, Current GUI Status
+        set_functions = lo_alv->c_functions_all    " ALV: Data Element for Constants
+    ).
+
+    " Get event handler for ALV
+    lo_events = lo_alv->get_event( ).
+
+    " Create event handler object
+    DATA: lo_event_handler TYPE REF TO cl_vend.
+    CREATE OBJECT lo_event_handler.
+
+    " Set event handler for GUI click event
+    SET HANDLER lo_event_handler->gui_click FOR lo_events.
+
+    " Get columns object for ALV
+    DATA lo_columns TYPE REF TO cl_salv_columns.
+    lo_columns = lo_alv->get_columns( ).
+
+    " Optimize column settings
+    lo_columns->set_optimize( 'X' ).
+
+    " Get display settings object for ALV
+    DATA lo_zebra TYPE REF TO cl_salv_display_settings.
+    lo_zebra = lo_alv->get_display_settings( ).
+
+    " Set striped pattern for display settings
+    lo_zebra->set_striped_pattern( cl_salv_display_settings=>true ).
+
+    " Create objects for logo, grid, labels, and content
+    DATA: lo_logo   TYPE REF TO cl_salv_form_layout_logo,
+          lo_grid   TYPE REF TO cl_salv_form_layout_grid,
+          lv_title  TYPE string,
+          lv_row    TYPE string,
+          lo_label  TYPE REF TO cl_salv_form_label,
+          lo_content TYPE REF TO cl_salv_form_element.
+
+    CREATE OBJECT lo_grid.
+    CREATE OBJECT lo_logo.
+
+    " Get number of rows in the table
+    CLEAR: lv_row.
+    DESCRIBE TABLE lt_final LINES lv_row.
+
+    " Set right logo for the layout
+    lo_logo->set_right_logo( 'CP22A' ).
+
+    " Create label for Sales Document
+    lo_label = lo_grid->create_label(
+      EXPORTING
+        row         =   1
+        column      =   1
+        text        =  text-003
+        tooltip     =  text-003
+    ).
+
+    " Create label for No of Records
+    lo_grid->create_label(
+      EXPORTING
+        row         =   2
+        column      =   1
+        text        =  text-004
+        tooltip     =  text-004
+    ).
+
+    " Create text field for displaying number of records
+    lo_grid->create_text(
+      EXPORTING
+        row         =   2
+        column      =   2
+        text        =  lv_row
+        tooltip     =  lv_row
+    ).
+
+    " Create label for Date
+    lo_grid->create_label(
+      EXPORTING
+        row         =  3
+        column      =  1
+        text        = text-005
+        tooltip     = text-005
+    ).
+
+    " Create text field for displaying current date
+    lo_grid->create_text(
+      EXPORTING
+        row         =  3
+        column      =  2
+        text        = sy-datum
+        tooltip     = sy-datum
+    ).
+
+    " Create label for Program Name
+    lo_grid->create_label(
+      EXPORTING
+        row         =  4
+        column      =  1
+        text        = text-006
+        tooltip     = text-006
+    ).
+
+    " Create text field for displaying program name
+    lo_grid->create_text(
+      EXPORTING
+        row         =  4
+        column      =  2
+        text        = sy-cprog
+        tooltip     = sy-cprog
+    ).
+
+    " Set left content for the logo layout
+    lo_logo->set_left_content( lo_grid ).
+
+    " Set top of list content for ALV
+    lo_content = lo_logo.
+    lo_alv->set_top_of_list( lo_content ).
+
+    " Display ALV
+    lo_alv->display( ).
+  ENDMETHOD.
+
+  METHOD gui_click.
+    " This method is triggered when a button is clicked in the GUI.
+    " It generates a PDF document based on a specific form and displays it using ALV grid.
+    " If the PDF generation fails, an error message is displayed.
+    " Finally, the ALV grid is refreshed.
+    IF e_salv_function = 'PDF'.
+      DATA: sfname TYPE rs38l_fnam.
+      CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+        EXPORTING
+          formname            = 'ZSF_SALESDOC'  " Specify the name of the form for PDF generation
+        IMPORTING
+          fm_name             = sfname
+        EXCEPTIONS
+          no_form             = 1
+          no_function_module  = 2
+          OTHERS              = 3.
+
+
+      IF sy-subrc = 0.
+
+        ls_control_parameters-no_dialog = 'X'.
+        ls_control_parameters-preview = 'X'.
+        ls_output_options-tddest = 'LP01'.
+
+        CALL FUNCTION sfname
+         EXPORTING
+            control_parameters         = ls_control_parameters
+            output_options             = ls_output_options
+            user_settings              = ' '
+         IMPORTING
+            job_output_info            = ls_job_output_info
+          TABLES
+            final = lt_final.  " Pass the table containing data for PDF generation
+      ENDIF.
+
+    ELSEIF e_salv_function = 'DWN'.
+
+      CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+        EXPORTING
+          formname            = 'ZSF_SALESDOC'  " Specify the name of the form for PDF generation
+        IMPORTING
+          fm_name             = sfname
+        EXCEPTIONS
+          no_form             = 1
+          no_function_module  = 2
+          OTHERS              = 3.
+
+
+      IF sy-subrc = 0.
+
+        ls_control_parameters-no_dialog = 'X'.
+        ls_control_parameters-preview = 'X'.
+        ls_control_parameters-getotf = 'X'.
+        ls_output_options-tddest = 'LP01'.
+
+        CALL FUNCTION sfname
+         EXPORTING
+            control_parameters         = ls_control_parameters
+            output_options             = ls_output_options
+            user_settings              = ' '
+         IMPORTING
+            job_output_info            = ls_job_output_info
+          TABLES
+            final = lt_final.  " Pass the table containing data for PDF generation
+      ENDIF.
+
+      CALL FUNCTION 'CONVERT_OTF'
+       EXPORTING
+         format                      = 'PDF'
+        TABLES
+          otf                         = ls_job_output_info-otfdata
+          lines                       = lt_pdf_lines.
+       DATA lv_path TYPE string.
+
+*       CALL METHOD cl_gui_frontend_services=>directory_browse
+*        CHANGING
+*          selected_folder      = lv_path
+*        EXCEPTIONS
+*          cntl_error           = 1
+*          error_no_gui         = 2
+*          not_supported_by_gui = 3
+*          OTHERS               = 4.
+*
+*      IF sy-subrc EQ 0.
+*        EXPORT lv_path = lv_path TO MEMORY ID 'Location'.   " Path data
+*      ENDIF.
+
+*       CALL FUNCTION 'GUI_DOWNLOAD'
+*         EXPORTING
+*           filename                        = lv_path
+*           filetype                        = 'BIN'
+*         TABLES
+*           data_tab                        = lt_pdf_lines.
+*
+      DATA: lv_filename TYPE string,
+            lv_path1 TYPE string,
+            lv_fullpath TYPE string.
+
+      CALL METHOD cl_gui_frontend_services=>file_save_dialog
+        EXPORTING
+          window_title              =   'SAVE'  " Window Title
+          default_extension         =  'PDF'   " Default Extension
+*          default_file_name         =     " Default File Name
+*          with_encoding             =
+*          file_filter               =     " File Type Filter Table
+*          initial_directory         =  'C:\'   " Initial Directory
+*          prompt_on_overwrite       = 'X'
+        CHANGING
+          filename                  =  lv_filename   " File Name to Save
+          path                      = lv_path1    " Path to File
+          fullpath                  = lv_fullpath    " Path + File Name
+*          user_action               =     " User Action (C Class Const ACTION_OK, ACTION_OVERWRITE etc)
+*          file_encoding             =
+*        EXCEPTIONS
+*          cntl_error                = 1
+*          error_no_gui              = 2
+*          not_supported_by_gui      = 3
+*          invalid_default_file_name = 4
+*          others                    = 5
+        .
+      IF sy-subrc <> 0.
+*       MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+*                  WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+      ENDIF.
+
+      CALL METHOD cl_gui_frontend_services=>gui_download
+      EXPORTING
+        filename                = lv_fullpath
+        filetype                = 'BIN'
+        show_transfer_status    = ' '
+        append                  = 'X'
+      CHANGING
+        data_tab                = lt_pdf_lines.
+
+
+    ENDIF.
+    lo_alv->refresh( ).  " Refresh the ALV grid
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+  DATA : obj TYPE REF TO cl_vend.
+  CREATE OBJECT obj.
+  obj->fetchdata( ).
+  obj->displaydata( ).
+
+*Text elements
+*----------------------------------------------------------
+* 001 ENTER A VALID SALES DOCUMENT NUMBER
+* 002 ENTER THE SALES DOCUMENT NUMBER
+* 003 Sales Document
+* 004 No of Records:
+* 005 Date :
+* 006 Program Name :
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_VBELN         SALES DOCUMENT NUMBER
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

@@ -1,0 +1,275 @@
+*&---------------------------------------------------------------------*
+*& Report  ZINTERACTIVE_DEMO
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZINTERACTIVE_DEMO.
+
+
+TABLES : EKKO, EKPO, EKET.
+
+TYPES : BEGIN OF ts_pur,           "Join two tables
+        ebeln TYPE ebeln, "Document Number
+        bukrs TYPE bukrs, "Company Code
+        aedat TYPE erdat, "Date on that recored was created
+        matnr TYPE matnr,  "Material Number
+        lgort TYPE lgort_d,  "Stroage location
+        END OF ts_pur,
+
+        "secondary table declaration
+        BEGIN OF ts_eket,
+        ebeln TYPE ebeln,
+        eindt TYPE eindt, "Item delivey date
+        wamng TYPE wamng, "Issued Quatity
+        END OF ts_eket.
+
+DATA : gt_pur TYPE TABLE OF ts_pur,
+       gs_pur TYPE ts_pur,
+       gt_eket TYPE TABLE OF ts_eket,
+       gs_eket TYPE ts_eket,
+       gt_fcat TYPE SLIS_T_FIELDCAT_ALV,
+       gs_fcat TYPE SLIS_FIELDCAT_ALV,
+       gt_fcat1 TYPE SLIS_T_FIELDCAT_ALV,
+       gs_fcat1 TYPE SLIS_FIELDCAT_ALV,
+       gt_fcat2 TYPE SLIS_T_FIELDCAT_ALV,
+       gs_fcat2 TYPE SLIS_FIELDCAT_ALV,
+       lv_ebeln TYPE ekko-EBELN,
+       gt_ekbe TYPE ZTTR_EKBE, "Table type
+       gs_ekbe TYPE ZSTR_EKBE.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+
+  SELECT-OPTIONS : s_ebeln for lv_ebeln.
+
+  SELECTION-SCREEN END OF BLOCK b1.
+
+  START-OF-SELECTION.
+
+  SELECT ekko~ebeln
+         ekko~bukrs
+         ekko~aedat
+         ekpo~matnr
+         ekpo~lgort from ekko INNER JOIN ekpo on ekko~EBELN = ekpo~EBELN
+         INTO TABLE gt_pur WHERE ekko~ebeln in S_EBELN.
+
+    gs_fcat-COL_POS = 1.
+    gs_fcat-FIELDNAME = 'ebeln'.
+    gs_fcat-TABNAME = 'gt_pur'.
+    gs_fcat-SELTEXT_M = 'Document Number'.
+    APPEND gs_fcat to gt_fcat.
+    clear gs_fcat.
+
+
+    gs_fcat-COL_POS = 2.
+    gs_fcat-FIELDNAME = 'bukrs'.
+    gs_fcat-TABNAME = 'gt_pur'.
+    gs_fcat-SELTEXT_M = 'Company Code'.
+    APPEND gs_fcat to gt_fcat.
+    clear gs_fcat.
+
+
+    gs_fcat-COL_POS = 3.
+    gs_fcat-FIELDNAME = 'aedat'.
+    gs_fcat-TABNAME = 'gt_pur'.
+    gs_fcat-SELTEXT_M = 'Record created Date '.
+    APPEND gs_fcat to gt_fcat.
+    clear gs_fcat.
+
+    gs_fcat-COL_POS = 4.
+    gs_fcat-FIELDNAME = 'matnr'.
+    gs_fcat-TABNAME = 'gt_pur'.
+    gs_fcat-SELTEXT_M = 'Material Number'.
+    APPEND gs_fcat to gt_fcat.
+    clear gs_fcat.
+
+    gs_fcat-COL_POS = 5.
+    gs_fcat-FIELDNAME = 'lgort'.
+    gs_fcat-TABNAME = 'gt_pur'.
+    gs_fcat-SELTEXT_M = 'Storage Location'.
+    APPEND gs_fcat to gt_fcat.
+    clear gs_fcat.
+
+
+    CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+     EXPORTING
+       I_CALLBACK_PROGRAM                = sy-repid
+*       I_CALLBACK_PF_STATUS_SET          = ' '
+       I_CALLBACK_USER_COMMAND           = 'USER_COMMAND'
+*       IS_LAYOUT                         =
+       IT_FIELDCAT                       = gt_fcat
+      TABLES
+        T_OUTTAB                          = gt_pur
+*     EXCEPTIONS
+*       PROGRAM_ERROR                     = 1
+*       OTHERS                            = 2
+              .
+    IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+    ENDIF.
+
+FORM USER_COMMAND USING COMMAND LIKE SY-UCOMM
+                        R_SELF TYPE SLIS_SELFIELD.
+
+  CASE COMMAND.
+    WHEN '&IC1'.
+
+      READ TABLE gt_pur INTO gs_pur INDEX r_self-TABINDEX.
+
+
+      SELECT * from eket INTO CORRESPONDING FIELDS OF TABLE gt_eket
+                FOR ALL ENTRIES IN gt_pur WHERE ebeln = gt_pur-EBELN.
+
+    gs_fcat1-COL_POS = 1.
+    gs_fcat1-FIELDNAME = 'ebeln'.
+    gs_fcat1-TABNAME = 'gt_eket'.
+    gs_fcat1-SELTEXT_M = 'Document Number'.
+    APPEND gs_fcat1 to gt_fcat1.
+    clear gs_fcat1.
+
+    gs_fcat1-COL_POS = 2.
+    gs_fcat1-FIELDNAME = 'eindt'.
+    gs_fcat1-TABNAME = 'gt_eket'.
+    gs_fcat1-SELTEXT_M = 'Delivery Date'.
+    APPEND gs_fcat1 to gt_fcat1.
+    clear gs_fcat1.
+
+    gs_fcat1-COL_POS = 3.
+    gs_fcat1-FIELDNAME = 'wamng'.
+    gs_fcat1-TABNAME = 'gt_eket'.
+    gs_fcat1-SELTEXT_M = 'Quanttity'.
+    APPEND gs_fcat1 to gt_fcat1.
+    clear gs_fcat1.
+
+    CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+     EXPORTING
+       I_CALLBACK_PROGRAM                = sy-repid
+*       I_CALLBACK_PF_STATUS_SET          = ' '
+       I_CALLBACK_USER_COMMAND           = 'THIRD_LIST'
+       IT_FIELDCAT                       = gt_fcat1
+      TABLES
+        T_OUTTAB                          = gt_eket
+*     EXCEPTIONS
+*       PROGRAM_ERROR                     = 1
+*       OTHERS                            = 2
+              .
+    IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+    ENDIF.
+
+    ENDCASE.
+    ENDFORM.
+
+
+  FORM THIRD_LIST USING USRC LIKE SY-UCOMM
+                  SELFV3 TYPE SLIS_SELFIELD.
+
+    CASE USRC.
+      WHEN '&IC1'.
+
+        READ TABLE gt_eket INTO gs_eket INDEX selfv3-TABINDEX.
+
+        SELECT * FROM ekbe INTO CORRESPONDING FIELDS OF TABLE gt_ekbe
+                           FOR ALL ENTRIES IN gt_eket WHERE ebeln = gt_eket-EBELN.
+
+
+    gs_fcat2-COL_POS = 1.
+    gs_fcat2-FIELDNAME = 'ebeln'.
+    gs_fcat2-TABNAME = 'gt_ekbe'.
+    gs_fcat2-SELTEXT_M = 'Document Number'.
+    APPEND gs_fcat2 to gt_fcat2.
+    clear gs_fcat2.
+
+    gs_fcat2-COL_POS = 2.
+    gs_fcat2-FIELDNAME = 'ebelp'.
+    gs_fcat2-TABNAME = 'gt_ekbe'.
+    gs_fcat2-SELTEXT_M = 'Document Item'.
+    APPEND gs_fcat2 to gt_fcat2.
+    clear gs_fcat2.
+
+    gs_fcat2-COL_POS = 3.
+    gs_fcat2-FIELDNAME = 'zekkn'.
+    gs_fcat2-TABNAME = 'gt_ekbe'.
+    gs_fcat2-SELTEXT_M = 'Sequence Number'.
+    APPEND gs_fcat2 to gt_fcat2.
+    clear gs_fcat2.
+
+    gs_fcat2-COL_POS = 4.
+    gs_fcat2-FIELDNAME = 'dmbtr'.
+    gs_fcat2-TABNAME = 'gt_ekbe'.
+    gs_fcat2-SELTEXT_M = 'Local Amount'.
+    APPEND gs_fcat2 to gt_fcat2.
+    clear gs_fcat2.
+
+    gs_fcat2-COL_POS = 4.
+    gs_fcat2-FIELDNAME = 'wrbtr'.
+    gs_fcat2-TABNAME = 'gt_ekbe'.
+    gs_fcat2-SELTEXT_M = 'Doc. Amount'.
+    APPEND gs_fcat2 to gt_fcat2.
+    clear gs_fcat2.
+
+
+    gs_fcat2-COL_POS = 4.
+    gs_fcat2-FIELDNAME = 'waers'.
+    gs_fcat2-TABNAME = 'gt_ekbe'.
+    gs_fcat2-SELTEXT_M = 'Currency Key'.
+    APPEND gs_fcat2 to gt_fcat2.
+    clear gs_fcat2.
+
+
+    CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+     EXPORTING
+*       I_INTERFACE_CHECK              = ' '
+*       I_BYPASSING_BUFFER             =
+*       I_BUFFER_ACTIVE                = ' '
+       I_CALLBACK_PROGRAM             = sy-repid
+*       I_CALLBACK_PF_STATUS_SET       = ' '
+*       I_CALLBACK_USER_COMMAND        = ' '
+*       I_STRUCTURE_NAME               =
+*       IS_LAYOUT                      =
+       IT_FIELDCAT                    = gt_fcat2
+*       IT_EXCLUDING                   =
+*       IT_SPECIAL_GROUPS              =
+*       IT_SORT                        =
+*       IT_FILTER                      =
+*       IS_SEL_HIDE                    =
+*       I_DEFAULT                      = 'X'
+*       I_SAVE                         = ' '
+*       IS_VARIANT                     =
+*       IT_EVENTS                      =
+*       IT_EVENT_EXIT                  =
+*       IS_PRINT                       =
+*       IS_REPREP_ID                   =
+*       I_SCREEN_START_COLUMN          = 0
+*       I_SCREEN_START_LINE            = 0
+*       I_SCREEN_END_COLUMN            = 0
+*       I_SCREEN_END_LINE              = 0
+*       IR_SALV_LIST_ADAPTER           =
+*       IT_EXCEPT_QINFO                =
+*       I_SUPPRESS_EMPTY_DATA          = ABAP_FALSE
+*     IMPORTING
+*       E_EXIT_CAUSED_BY_CALLER        =
+*       ES_EXIT_CAUSED_BY_USER         =
+      TABLES
+        T_OUTTAB                       = gt_ekbe
+*     EXCEPTIONS
+*       PROGRAM_ERROR                  = 1
+*       OTHERS                         = 2
+              .
+    IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+    ENDIF.
+
+
+    ENDCASE.
+    ENDFORM.
+
+
+*Selection texts
+*----------------------------------------------------------
+* S_EBELN D       .
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

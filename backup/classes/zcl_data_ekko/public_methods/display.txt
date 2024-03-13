@@ -1,0 +1,23 @@
+**************************************************************************
+*   Method attributes.                                                   *
+**************************************************************************
+Instantiation: Public
+**************************************************************************
+
+  method DISPLAY.
+    cl_salv_table=>factory(
+*      EXPORTING
+*        list_display   = IF_SALV_C_BOOL_SAP=>FALSE    " ALV Displayed in List Mode
+*        r_container    =     " Abstract Container for GUI Controls
+*        container_name =
+      IMPORTING
+        r_salv_table   =  DATA(lo_alv)   " Basis Class Simple ALV Tables
+      CHANGING
+        t_table        =  lt_final
+    ).
+    lo_alv->display( ).
+
+  endmethod.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

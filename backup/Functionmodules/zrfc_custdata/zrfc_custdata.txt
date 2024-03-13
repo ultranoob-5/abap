@@ -1,0 +1,37 @@
+FUNCTION ZRFC_CUSTDATA.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     VALUE(IP_EMPLOYEE) TYPE  ZEMPLOYEEID DEFAULT '00001'
+*"  EXPORTING
+*"     VALUE(IP_VALUE) TYPE  ZEMPDET
+*"     VALUE(IP_MSG) TYPE  STRING
+*"  TABLES
+*"      LT_CUST STRUCTURE  ZEMPDET OPTIONAL
+*"----------------------------------------------------------------------
+
+DATA: ls_cust TYPE ZEMPDET,
+      lt_cust1 TYPE TABLE OF ZEMPDET.
+
+IF IP_EMPLOYEE IS INITIAL.
+
+SELECT * FROM ZEMPDET INTO TABLE LT_CUST1.
+
+  LT_CUST[] = LT_CUST1[].
+
+ELSEIF IP_EMPLOYEE IS NOT INITIAL.
+
+  DATA(lv_cust) = ip_employee.
+
+  SELECT SINGLE * FROM ZEMPDET INTO ls_cust WHERE employee_id = lv_cust.
+
+  ip_value = ls_cust.
+
+ENDIF.
+
+
+
+ENDFUNCTION.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

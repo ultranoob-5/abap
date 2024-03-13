@@ -1,0 +1,66 @@
+*&---------------------------------------------------------------------*
+*& Report  ZECOMM_DISPLAY
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZECOMM_DISPLAY.
+
+DATA: lt_customer TYPE STANDARD TABLE OF zecomm_customer,
+      ls_customer TYPE zecomm_customer,
+      lt_product TYPE STANDARD TABLE OF zecomm_product,
+      ls_product TYPE zecomm_product,
+      lt_order TYPE STANDARD TABLE OF zecomm_order,
+      ls_order TYPE zecomm_order,
+      lt_final TYPE STANDARD TABLE OF zstr_ecomm_final,
+      ls_final TYPE zstr_ecomm_final.
+DATA : ls_layout TYPE slis_layout_alv.
+
+PARAMETERS : p_order TYPE zecomm_order_id.
+
+START-OF-SELECTION.
+
+IF p_order IS NOT INITIAL.
+  SELECT * FROM zecomm_order INTO TABLE lt_order WHERE order_id = p_order.
+ELSE.
+  SELECT * FROM zecomm_order INTO TABLE lt_order.
+ENDIF.
+
+IF lt_order IS NOT INITIAL.
+  SELECT * FROM zecomm_customer
+    INTO TABLE lt_customer
+    FOR ALL ENTRIES IN lt_order
+    WHERE customer_id = lt_order-customer_id.
+
+  SELECT * FROM zecomm_product
+    INTO TABLE lt_product
+    FOR ALL ENTRIES IN lt_order
+    WHERE product_id = lt_order-product_id.
+ENDIF.
+
+LOOP AT lt_order INTO ls_order.
+  ls_final-customer_id = ls_order-customer_id.
+  ls_final-product_id = ls_order-product_id.
+  ls_final-order_id = ls_order-order_id.
+  ls_final-order_date = ls_order-order_date.
+  ls_final-order_status = ls_order-order_status.
+  READ TABLE lt_customer INTO ls_customer WITH KEY customer_id  = ls_order-customer_id.
+  READ TABLE lt_product INTO ls_product WITH KEY product_id = ls_order-product_id.
+  ls_final-product_name = ls_product-product_name.
+  ls_final-state = ls_customer-state.
+
+  APPEND ls_final TO lt_final.
+ENDLOOP.
+ls_layout-colwidth_optimize = 'X'.
+ls_layout-zebra = 'X'.
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      I_STRUCTURE_NAME = 'ZSTR_ECOMM_FINAL'
+      IS_LAYOUT        = ls_layout
+    TABLES
+      t_outtab         = lt_final.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

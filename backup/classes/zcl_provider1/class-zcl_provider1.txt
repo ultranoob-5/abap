@@ -1,0 +1,42 @@
+**************************************************************************
+*   Class attributes.                                                    *
+**************************************************************************
+Instantiation: Public
+Message class:
+State: Implemented
+Final Indicator: X
+R/3 Release: 740
+
+**************************************************************************
+*   Public section of class.                                             *
+**************************************************************************
+class ZCL_PROVIDER1 definition
+  public
+  inheriting from CL_REST_RESOURCE
+  final
+  create public .
+
+public section.
+
+  methods IF_REST_RESOURCE~GET
+    redefinition .
+
+**************************************************************************
+*   Private section of class.                                            *
+**************************************************************************
+private section.
+
+**************************************************************************
+*   Protected section of class.                                          *
+**************************************************************************
+protected section.
+
+**************************************************************************
+*   Types section of class.                                              *
+**************************************************************************
+*"* dummy include to reduce generation dependencies between
+*"* class ZCL_PROVIDER1 and it's users.
+*"* touched if any type reference has been changed
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

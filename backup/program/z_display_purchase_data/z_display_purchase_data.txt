@@ -1,0 +1,87 @@
+*&---------------------------------------------------------------------*
+*& Report  Z_DISPLAY_PURCHASE_DATA.
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT z_display_purchase_data.
+
+TYPES :
+BEGIN OF ts_final,
+ebeln TYPE ekko-ebeln,
+bukrs TYPE ekko-bukrs,
+ebelp TYPE ekpo-ebelp,
+matnr TYPE ekpo-matnr,
+etens TYPE ekes-etens,
+END OF ts_final.
+
+
+DATA:
+      lt_final TYPE TABLE OF ts_final,
+      ls_final TYPE ts_final,
+      ls_layout TYPE slis_layout_alv,
+      lt_fcat TYPE slis_t_fieldcat_alv,
+      ls_fcat TYPE slis_fieldcat_alv.
+
+PARAMETERS : p_ebeln TYPE ebeln.
+
+START-OF-SELECTION.
+
+CALL FUNCTION 'ZRFC_DATA_01'
+ EXPORTING
+   PURCHASE_DOC       = p_ebeln
+* IMPORTING
+*   RETURN             =
+ TABLES
+   LT_FINAL           = lt_final
+          .
+
+ls_layout-colwidth_optimize = 'X'.
+ls_layout-zebra = 'X'.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '1'.
+ls_fcat-fieldname = 'EBELN'.
+ls_fcat-seltext_m = 'Purchase Document Number'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '2'.
+ls_fcat-fieldname = 'BUKRS'.
+ls_fcat-seltext_m = 'Company Code'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '3'.
+ls_fcat-fieldname = 'EBELP'.
+ls_fcat-seltext_m = 'Item Number'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '4'.
+ls_fcat-fieldname = 'MATNR'.
+ls_fcat-seltext_m = 'Material Number'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '5'.
+ls_fcat-fieldname = 'ETENS'.
+ls_fcat-seltext_m = 'Vendor Confirmation'.
+ls_fcat-tabname = 'LT_FINAL'.
+APPEND ls_fcat TO lt_fcat.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+EXPORTING
+  is_layout                = ls_layout
+  it_fieldcat              = lt_fcat
+TABLES
+  t_outtab                 = lt_final[].
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

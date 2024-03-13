@@ -1,0 +1,204 @@
+*&---------------------------------------------------------------------*
+*& Report  ZCSA
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zcsa.
+
+* Local Structure for Data
+TYPES: BEGIN OF ts_final,
+        zcust_no     TYPE zcust_no,
+        zcust_name   TYPE zcust_nam,
+        zcity        TYPE zcust_city,
+        zregion      TYPE zcust_region,
+        zaddress     TYPE zcust_addres,
+        zpostcode    TYPE zcust_postcode,
+        zsalesdoc_no TYPE zsalesdoc_no,
+        zcreated_date TYPE zcreated_date,
+        zdoc_cat     TYPE zdoc_cat,
+        znet_value   TYPE znet_value,
+        zcurrency    TYPE zsales_curr,
+        zitem_no     TYPE zitem_no,
+        zmat_no      TYPE zmatr_no,
+        zquantity    TYPE zquantity,
+        zunit        TYPE zunit,
+      END OF ts_final.
+
+* Data Declarations
+DATA: gt_final TYPE TABLE OF ts_final,
+      gs_final TYPE ts_final,
+      gt_cust TYPE TABLE OF ZCUSTOMER_DOC,
+      gs_cust TYPE ZCUSTOMER_DOC,
+      gt_sales TYPE TABLE OF ZSALES_DOC,
+      gs_sales TYPE ZSALES_DOC,
+      gt_doc TYPE TABLE OF ZSALESDOC_ITEM,
+      gs_doc TYPE ZSALESDOC_ITEM,
+      wa_screen TYPE SCREEN.
+
+START-OF-SELECTION.
+  CALL SCREEN '201'.
+
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0201  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE status_0201 OUTPUT.
+  SET PF-STATUS 'ZTITLE'.
+ENDMODULE.                 " STATUS_0201  OUTPUT
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0201  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0201 INPUT.
+
+  if sy-ucomm = 'BACK'.
+    LEAVE PROGRAM.
+  ELSEIF sy-ucomm = 'BT'.
+    DATA: cust_no TYPE ZCUSTOMER_DOC-ZCUST_NO.
+    CLEAR: gs_cust.
+    IF cust_no IS INITIAL.
+      MESSAGE 'Customer ID Not entered!' TYPE 'E'.
+    ELSE.
+      SELECT SINGLE * FROM ZCUSTOMER_DOC INTO gs_cust WHERE ZCUST_NO = cust_no.
+*       IF sy-subrc = 0.
+        IF gs_cust-zcust_no IS NOT INITIAL.
+          MESSAGE 'Customer already exists!' TYPE 'E'.
+        ELSEIF gs_cust-zcust_no IS INITIAL.
+          CALL SCREEN '202'.
+        ENDIF.
+    ENDIF.
+  ENDIF.
+
+ENDMODULE.                 " USER_COMMAND_0201  INPUT
+
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0202  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE status_0202 OUTPUT.
+  SET PF-STATUS 'ZCREATE'.
+ENDMODULE.                 " STATUS_0202  OUTPUT
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0202  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0202 INPUT.
+  IF sy-ucomm = 'BACK'.
+
+    LEAVE TO SCREEN '201'.
+
+  ELSEIF sy-ucomm = 'BT2'.
+
+    DATA : lv_cust_id TYPE ZCUSTOMER_DOC-zcust_no,
+           lv_sales_id TYPE ZSALES_DOC-zsalesdoc_no,
+           lv_sales_doc TYPE ZSALESDOC_ITEM-zitem_no.
+
+    SELECT SINGLE zcust_no
+      FROM zcustomer_doc
+      INTO lv_cust_id
+      WHERE zcust_no = gs_final-zcust_no.
+
+    SELECT SINGLE zsalesdoc_no
+      FROM zsales_doc
+      INTO lv_sales_id
+      WHERE zsalesdoc_no = gs_final-zsalesdoc_no.
+
+    IF lv_cust_id IS INITIAL AND lv_sales_id IS INITIAL.
+
+      gs_cust = CORRESPONDING #( gs_final ).
+      gs_cust-mandt = sy-mandt.
+      APPEND gs_cust TO gt_cust[].
+      CLEAR gs_cust.
+      INSERT zcustomer_doc FROM TABLE gt_cust[].
+
+      gs_sales = CORRESPONDING #( gs_final ).
+      gs_sales-mandt = sy-mandt.
+      APPEND gs_sales TO gt_sales[].
+      CLEAR gs_sales.
+      INSERT zsales_doc FROM TABLE gt_sales[].
+
+      SELECT SINGLE zitem_no
+        FROM ZSALESDOC_ITEM
+        INTO lv_sales_doc
+        WHERE zitem_no = gs_final-zitem_no.
+
+      IF lv_sales_doc IS NOT INITIAL.
+
+        MESSAGE : 'Order ID Already Exist in DB Table' TYPE 'I'.
+
+      ELSEIF lv_sales_doc IS INITIAL.
+
+        gs_doc = CORRESPONDING #( gs_final ).
+        gs_doc-mandt = sy-mandt.
+        APPEND gs_doc TO gt_doc[].
+        CLEAR gs_doc.
+        INSERT ZSALESDOC_ITEM FROM TABLE gt_doc[].
+
+      ENDIF.
+
+      CLEAR : gs_final.
+      REFRESH : gt_doc, gt_sales, gt_cust.
+
+    ELSEIF lv_cust_id IS NOT INITIAL AND lv_sales_id IS NOT INITIAL.
+
+      gs_cust = CORRESPONDING #( gs_final ).
+      gs_cust-mandt  =  sy-mandt.
+      APPEND gs_cust TO gt_cust[].
+      CLEAR gs_cust.
+      MODIFY zcustomer_doc FROM TABLE gt_cust[].
+
+      gs_sales = CORRESPONDING #( gs_final ).
+      gs_sales-mandt = sy-mandt.
+      APPEND gs_sales TO gt_sales[].
+      CLEAR gs_sales.
+      MODIFY zsales_doc FROM TABLE gt_sales[].
+
+      SELECT SINGLE zitem_no
+        FROM ZSALESDOC_ITEM
+        INTO lv_sales_doc
+        WHERE zitem_no = gs_final-zitem_no.
+
+      IF lv_sales_doc IS NOT INITIAL.
+
+        gs_doc = CORRESPONDING #( gs_final ).
+        gs_doc-mandt = sy-mandt.
+        APPEND gs_doc TO gt_doc[].
+        CLEAR gs_doc.
+        MODIFY ZSALESDOC_ITEM FROM TABLE gt_doc[].
+
+      ELSEIF lv_sales_doc IS INITIAL.
+
+        gs_doc = CORRESPONDING #( gs_final ).
+        gs_doc-mandt = sy-mandt.
+        APPEND gs_doc TO gt_doc[].
+        CLEAR gs_doc.
+        INSERT ZSALESDOC_ITEM FROM TABLE gt_doc[].
+
+      ENDIF.
+
+      CLEAR : gs_final.
+      REFRESH : gt_doc, gt_sales, gt_cust.
+    ENDIF.
+
+  ENDIF.
+
+ENDMODULE.                 " USER_COMMAND_0202  INPUT
+
+
+*Messages
+*----------------------------------------------------------
+*
+* Message class: Hard coded
+*   Customer ID Not entered!
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

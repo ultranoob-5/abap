@@ -1,0 +1,38 @@
+*****           Implementation of object type ZSALDOC              *****
+INCLUDE <OBJECT>.
+BEGIN_DATA OBJECT. " Do not change.. DATA is generated
+* only private members may be inserted into structure private
+DATA:
+" begin of private,
+"   to declare private attributes remove comments and
+"   insert private attributes here ...
+" end of private,
+      KEY LIKE SWOTOBJID-OBJKEY.
+END_DATA OBJECT. " Do not change.. DATA is generated
+
+BEGIN_METHOD ZBAPICUST CHANGING CONTAINER.
+DATA:
+      PSALESDOCNO TYPE ZBAPI_SALES_DOC-ZSALESDOC_NO,
+      RETURN LIKE BAPIRET2,
+      LTSALESDOC LIKE ZBAPI_SALES_DOC OCCURS 0.
+  SWC_GET_ELEMENT CONTAINER 'PSalesdocno' PSALESDOCNO.
+  SWC_GET_TABLE CONTAINER 'LtSalesdoc' LTSALESDOC.
+  CALL FUNCTION 'ZBAPI_DATA_CUST'
+    EXPORTING
+      P_SALESDOCNO = PSALESDOCNO
+    IMPORTING
+      RETURN = RETURN
+    TABLES
+      LT_SALESDOC = LTSALESDOC
+    EXCEPTIONS
+      OTHERS = 01.
+  CASE SY-SUBRC.
+    WHEN 0.            " OK
+    WHEN OTHERS.       " to be implemented
+  ENDCASE.
+  SWC_SET_ELEMENT CONTAINER 'Return' RETURN.
+  SWC_SET_TABLE CONTAINER 'LtSalesdoc' LTSALESDOC.
+END_METHOD.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

@@ -1,0 +1,214 @@
+REPORT zmaterial_bdc_creation
+       NO STANDARD PAGE HEADING LINE-SIZE 255.
+
+*INCLUDE bdcrecx1.
+
+TYPES : BEGIN OF ts_str,
+        matnr(18) TYPE c,
+        mbrsh TYPE c,
+        mtart(4) TYPE c,
+        maktx(40) TYPE c,
+        meins(10) TYPE c,
+       END OF ts_str.
+
+DATA : gt_str TYPE TABLE OF ts_str,
+       gs_str TYPE ts_str,
+       g_text TYPE truxs_t_text_data,
+       gt_bdcdata TYPE TABLE OF bdcdata,
+       gs_bdcdata TYPE bdcdata,
+       gt_msg TYPE TABLE OF bdcmsgcoll,
+       gs_msg TYPE bdcmsgcoll.
+
+PARAMETERS : p_file TYPE rlgrap-filename,
+             p_status TYPE rlgrap-filename DEFAULT 'C:\Users\jawah\OneDrive\Documents\return\r1.xlsx'.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+
+  CALL FUNCTION 'F4_FILENAME'
+    EXPORTING
+      program_name  = syst-cprog
+      dynpro_number = syst-dynnr
+      field_name    = 'P_FILE'
+    IMPORTING
+      file_name     = p_file.
+
+
+START-OF-SELECTION.
+
+
+  CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+    EXPORTING
+*     I_FIELD_SEPERATOR    =
+*     I_LINE_HEADER        =
+      i_tab_raw_data       = g_text
+      i_filename           = p_file
+    TABLES
+      i_tab_converted_data = gt_str
+    EXCEPTIONS
+      conversion_failed    = 1
+      OTHERS               = 2.
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+*  PERFORM open_group.
+
+  LOOP AT gt_str INTO gs_str.
+
+
+    PERFORM bdc_dynpro      USING 'SAPLMGMM' '0060'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'RMMG1-MTART'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=AUSW'.
+    PERFORM bdc_field       USING 'RMMG1-MATNR'
+                                   gs_str-matnr.    "'MATR-0001'.
+    PERFORM bdc_field       USING 'RMMG1-MBRSH'
+                                   gs_str-mbrsh. "'C'.
+    PERFORM bdc_field       USING 'RMMG1-MTART'
+                                   gs_str-mtart. "'FGTR'.
+    PERFORM bdc_dynpro      USING 'SAPLMGMM' '0070'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'MSICHTAUSW-DYTXT(01)'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=ENTR'.
+    PERFORM bdc_field       USING 'MSICHTAUSW-KZSEL(01)'
+                                  'X'.
+    PERFORM bdc_dynpro      USING 'SAPLMGMM' '4004'.
+    PERFORM bdc_field       USING 'BDC_OKCODE'
+                                  '=BU'.
+    PERFORM bdc_field       USING 'MAKT-MAKTX'
+                                  gs_str-maktx. "'Test data for Material Creation 001'.
+    PERFORM bdc_field       USING 'BDC_CURSOR'
+                                  'MARA-MEINS'.
+    PERFORM bdc_field       USING 'MARA-MEINS'
+                                  gs_str-meins. "'KG'.
+    PERFORM bdc_field       USING 'MARA-MTPOS_MARA'
+                                  'NORM'.
+*  PERFORM bdc_transaction USING 'MM01'.
+
+*  PERFORM close_group.
+
+    CALL TRANSACTION 'MM01' USING gt_bdcdata
+                               MODE 'N'
+                               UPDATE 'A'
+                               MESSAGES INTO gt_msg.
+
+    IF  sy-subrc EQ 0.
+
+*data : lv_v1 TYPE string VALUE 'Material'.
+      DATA(lv_v1) = 'Material No.'.
+      DATA(lv_v2) = gs_str-matnr.
+      DATA(lv_v3) = 'Uploaded in DB Table'.
+
+      CONCATENATE lv_v1 lv_v2 lv_v3 INTO DATA(lv_output) SEPARATED BY ' '.
+
+      WRITE : / lv_output.
+
+    ELSE.
+
+      MESSAGE : 'Error in Data' TYPE 'E'.
+
+    ENDIF.
+
+    CLEAR gs_str.
+    REFRESH gt_bdcdata.
+
+  ENDLOOP.
+
+
+  IF gt_msg[] IS NOT INITIAL.
+
+CALL FUNCTION 'MS_EXCEL_OLE_STANDARD_DAT'
+  EXPORTING
+    file_name                       = p_status
+*   CREATE_PIVOT                    = 0
+*   DATA_SHEET_NAME                 = ' '
+*   PIVOT_SHEET_NAME                = ' '
+*   PASSWORD                        = ' '
+*   PASSWORD_OPTION                 = 0
+ TABLES
+*   PIVOT_FIELD_TAB                 =
+   DATA_TAB                        = gt_msg
+*   FIELDNAMES                      =
+ EXCEPTIONS
+   FILE_NOT_EXIST                  = 1
+   FILENAME_EXPECTED               = 2
+   COMMUNICATION_ERROR             = 3
+   OLE_OBJECT_METHOD_ERROR         = 4
+   OLE_OBJECT_PROPERTY_ERROR       = 5
+   INVALID_PIVOT_FIELDS            = 6
+   DOWNLOAD_PROBLEM                = 7
+   OTHERS                          = 8
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+
+
+  ENDIF.
+
+
+
+
+*----------------------------------------------------------------------*
+*        Start new screen                                              *
+*----------------------------------------------------------------------*
+FORM bdc_dynpro USING program dynpro.
+  CLEAR gs_bdcdata.
+  gs_bdcdata-program  = program.
+  gs_bdcdata-dynpro   = dynpro.
+  gs_bdcdata-dynbegin = 'X'.
+  APPEND gs_bdcdata TO gt_bdcdata.
+ENDFORM.
+
+*----------------------------------------------------------------------*
+*        Insert field                                                  *
+*----------------------------------------------------------------------*
+FORM bdc_field USING fnam fval.
+*  IF FVAL <> NODATA.
+  CLEAR gs_bdcdata.
+  gs_bdcdata-fnam = fnam.
+  gs_bdcdata-fval = fval.
+  APPEND gs_bdcdata TO gt_bdcdata.
+*  ENDIF.
+ENDFORM.
+
+*Text elements
+*----------------------------------------------------------
+* 001 Material
+* E00 Error opening dataset, return code:
+* I01 Session name
+* I02 Open session
+* I03 Insert transaction
+* I04 Close Session
+* I05 Return code =
+* I06 Error session created
+* S01 Session name
+* S02 User
+* S03 Keep session
+* S04 Lock date
+* S05 Processing Mode
+* S06 Update Mode
+* S07 Generate session
+* S08 Call transaction
+* S09 Error sessn
+* S10 Nodata indicator
+* S11 Short log
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_FILE         XLS File Path
+* P_STATUS         Return Msg File Path
+
+
+*Messages
+*----------------------------------------------------------
+*
+* Message class: Hard coded
+*   Error in Data
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

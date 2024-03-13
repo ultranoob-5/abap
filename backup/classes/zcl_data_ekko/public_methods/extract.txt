@@ -1,0 +1,54 @@
+**************************************************************************
+*   Method attributes.                                                   *
+**************************************************************************
+Instantiation: Public
+**************************************************************************
+
+  METHOD extract.
+
+    TYPES : BEGIN OF ts_ekko,
+               ebeln  TYPE ebeln,
+               bukrs  TYPE bukrs,
+               bstyp  TYPE ebstyp,
+            END OF ts_ekko,
+            BEGIN OF ts_ekpo,
+              ebeln TYPE ebeln,
+              ebelp TYPE ebelp,
+              aedat TYPE paedt,
+            END OF ts_ekpo.
+
+    DATA : lt_ekko TYPE TABLE OF ts_ekko,
+           ls_ekko TYPE ts_ekko,
+           lt_ekpo TYPE TABLE OF ts_ekpo,
+           ls_ekpo TYPE ts_ekpo,
+           ls_final TYPE ZSTR_EKKO.
+
+    SELECT ebeln bukrs bstyp FROM ekko
+      INTO TABLE lt_ekko
+      WHERE ebeln = e_ebeln.
+
+    IF sy-subrc IS INITIAL.
+      SELECT ebeln ebelp aedat FROM ekpo
+        INTO TABLE lt_ekpo
+        FOR ALL ENTRIES IN lt_ekko
+        WHERE ebeln = lt_ekko-ebeln.
+    ENDIF.
+
+    LOOP AT lt_ekpo INTO ls_ekpo.
+      ls_final-ebeln = ls_ekpo-ebeln.
+      ls_final-ebelp = ls_ekpo-ebelp.
+      ls_final-aedat = ls_ekpo-aedat.
+
+      READ TABLE lt_ekko INTO ls_ekko WITH KEY ebeln = ls_ekpo-ebeln.
+      ls_final-ebeln = ls_ekko-ebeln.
+      ls_final-bukrs = ls_ekko-bukrs.
+      ls_final-bstyp = ls_ekko-bstyp.
+
+      APPEND ls_final to lt_final.
+      clear : ls_final,ls_ekko,ls_ekpo.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

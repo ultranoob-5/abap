@@ -1,0 +1,126 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_INR
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZALV_INR.
+
+TYPES : BEGIN OF ts_ekko,
+ebeln TYPE ekko-ebeln,
+bukrs TYPE ekko-bukrs,
+END OF ts_ekko,
+
+BEGIN OF ts_ekpo,
+ebeln TYPE ekpo-ebeln,
+ebelp TYPE ekpo-ebelp,
+matnr TYPE ekpo-matnr,
+END OF ts_ekpo.
+
+DATA: lt_ekko TYPE TABLE OF ts_ekko,
+      ls_ekko TYPE ts_ekko,
+      lt_ekpo TYPE TABLE OF ts_ekpo,
+      ls_ekpo TYPE ts_ekpo,
+      ls_layout TYPE slis_layout_alv,
+      lt_fcat TYPE slis_t_fieldcat_alv,
+      ls_fcat TYPE slis_fieldcat_alv,
+      lt_fcat1 TYPE slis_t_fieldcat_alv,
+      ls_fcat1 TYPE slis_fieldcat_alv.
+
+START-OF-SELECTION.
+
+SELECT ebeln bukrs FROM ekko INTO TABLE lt_ekko.
+
+ls_layout-colwidth_optimize = 'X'.
+ls_layout-zebra = 'X'.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '1'.
+ls_fcat-fieldname = 'EBELN'.
+ls_fcat-seltext_m = 'Purchase Document Number'.
+ls_fcat-tabname = 'LT_EKKO'.
+APPEND ls_fcat TO lt_fcat.
+
+CLEAR ls_fcat.
+ls_fcat-COL_POS = '2'.
+ls_fcat-fieldname = 'BUKRS'.
+ls_fcat-seltext_m = 'Company Code'.
+ls_fcat-tabname = 'LT_EKKO'.
+APPEND ls_fcat TO lt_fcat.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+EXPORTING
+  I_CALLBACK_PROGRAM                = SY-REPID
+  I_CALLBACK_USER_COMMAND           = 'USER_COMMAND'
+  is_layout                = ls_layout
+  it_fieldcat              = lt_fcat
+TABLES
+  t_outtab                 = lt_ekko[].
+
+FORM USER_COMMAND USING UCOMM LIKE SY-UCOMM
+      SEL TYPE SLIS_SELFIELD.
+
+  IF UCOMM EQ '&IC1'.
+    CLEAR ls_ekko.
+
+    READ TABLE lt_ekko INTO ls_ekko INDEX sel-TABINDEX.
+
+    SELECT ebeln ebelp matnr from ekpo INTO TABLE lt_ekpo
+      WHERE ebeln = ls_ekko-ebeln.
+
+      CLEAR ls_fcat1.
+
+      ls_fcat1-COL_POS = 1.
+      ls_fcat1-FIELDNAME = 'EBELN'.
+      ls_fcat1-TABNAME = 'LT_EKPO'.
+      ls_fcat1-SELTEXT_M = 'Purchase Document Number'.
+
+      APPEND ls_fcat1 TO lt_fcat1.
+      CLEAR ls_fcat1.
+
+      ls_fcat1-COL_POS = 2.
+      ls_fcat1-FIELDNAME = 'EBELP'.
+      ls_fcat1-TABNAME = 'LT_EKPO'.
+      ls_fcat1-SELTEXT_M = 'Item Number'.
+
+      APPEND ls_fcat1 TO lt_fcat1.
+      CLEAR ls_fcat1.
+
+      ls_fcat1-COL_POS = 3.
+      ls_fcat1-FIELDNAME = 'MATNR'.
+      ls_fcat1-TABNAME = 'LT_EKPO'.
+      ls_fcat1-SELTEXT_M = 'Material Number'.
+
+      APPEND ls_fcat1 TO lt_fcat1.
+      CLEAR ls_fcat1.
+
+      CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+      EXPORTING
+      I_CALLBACK_PROGRAM     = SY-REPID
+      I_CALLBACK_USER_COMMAND     = 'UCOMM_MARA'
+      IT_FIELDCAT                       = lt_fcat1
+      TABLES
+          T_OUTTAB                          = lt_ekpo
+      EXCEPTIONS
+          PROGRAM_ERROR                     = 1
+          OTHERS                            = 2 .
+
+      REFRESH : lt_fcat1.
+
+    ENDIF.
+ENDFORM.
+
+*Text elements
+*----------------------------------------------------------
+* 000 Enter Input
+* 001 Enter Input
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_EBELN D       .
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

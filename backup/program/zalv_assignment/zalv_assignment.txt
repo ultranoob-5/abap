@@ -1,0 +1,313 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_ASSIGNMENT
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zalv_assignment.
+
+TABLES : vbfa, vbak, vbrk, likp.
+
+TYPES : BEGIN OF ts_vbfa,
+        vbelv TYPE vbeln_von,     "Preceding sales and distribution document
+        vbeln TYPE vbeln_nach,     "Subsequent sales and distribution document
+        vbtyp_v TYPE vbtyp_v,      "Document category of preceding SD document
+        END OF ts_vbfa,
+
+        BEGIN OF ts_likp,
+         vbeln TYPE likp-vbeln,
+         erdat TYPE likp-erdat,
+        END OF ts_likp,
+
+        BEGIN OF ts_vbrk,
+          vbeln TYPE vbrk-vbeln,
+          erdat TYPE vbrk-erdat,
+          END OF ts_vbrk,
+
+        BEGIN OF ts_vbak,
+        vbeln TYPE vbeln_va,       "Sales
+        erdat TYPE erdat,           "Date on Which Record Was Created
+        kunnr TYPE kunag,           "sold to party
+        END OF ts_vbak,
+
+        BEGIN OF ts_kna1,
+        kunnr TYPE kunnr,              "Customer Number
+        name1	TYPE name1_gp,          "Name
+        END OF ts_kna1,
+
+        BEGIN OF ts_final,
+        vbelv TYPE vbeln_von, "vbfa
+        vbeln TYPE vbeln_nach,
+        vbtyp_v TYPE vbtyp_v,
+       vbeln1 TYPE likp-vbeln, "likp
+         erdat TYPE likp-erdat,
+           vbeln2 TYPE vbrk-vbeln, "vbrk
+          erdat1 TYPE vbrk-erdat,
+          vbeln3 TYPE vbeln_va, "vbak      "Sales
+        erdat2 TYPE erdat,           "Date on Which Record Was Created
+        kunnr TYPE kunag,
+        kunnr1 TYPE kunnr, "kna1             "Customer Number
+        name1	TYPE name1_gp,
+         END OF ts_final.
+
+
+DATA : gt_vbfa TYPE TABLE OF ts_vbfa,
+       gs_vbfa TYPE ts_vbfa,
+       gt_vbfa1 TYPE TABLE OF ts_vbfa,
+       gs_vbfa1 TYPE ts_vbfa,
+       gt_vbfa2 TYPE TABLE OF ts_vbfa,
+       gs_vbfa2 TYPE ts_vbfa,
+       gt_vbak TYPE TABLE OF ts_vbak,
+       gs_vbak TYPE ts_vbak,
+        gt_vbrk TYPE TABLE OF ts_vbrk,
+       gs_vbrk TYPE ts_vbrk,
+        gt_likp TYPE TABLE OF ts_likp,
+       gs_likp TYPE ts_likp,
+       gt_kna1 TYPE TABLE OF ts_kna1,
+       gs_kna1 TYPE ts_kna1,
+       gt_final TYPE TABLE OF ts_final,
+       gs_final TYPE ts_final,
+       gt_fcat TYPE slis_t_fieldcat_alv,
+       gs_fcat TYPE slis_fieldcat_alv,
+       lv_vbeln TYPE vbfa-vbeln.
+
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+
+SELECT-OPTIONS : s_vbeln FOR lv_vbeln.
+
+*PARAMETERS : p_dtype TYPE vbfa-vbtyp_v.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+START-OF-SELECTION.
+*
+*  SELECT * FROM vbfa INTO CORRESPONDING FIELDS OF TABLE gt_vbfa WHERE vbeln IN s_vbeln AND vbtyp_v = p_dtype .
+*
+*  IF gt_vbfa IS NOT INITIAL.
+*
+*    SELECT * FROM vbak INTO CORRESPONDING FIELDS OF TABLE gt_vbfa.
+*
+*  ENDIF.
+
+*VBRK
+*VBFA
+*VBAK - C
+*LIKP - J
+*KNA1
+
+
+  SELECT vbeln erdat FROM vbrk INTO TABLE gt_vbrk
+         WHERE vbeln IN s_vbeln.
+
+  IF gt_vbrk IS NOT INITIAL.
+
+    SELECT vbeln vbelv vbtyp_v FROM vbfa INTO TABLE gt_vbfa
+         FOR ALL ENTRIES IN gt_vbrk
+      WHERE vbeln = gt_vbrk-vbeln AND ( ( vbtyp_v = 'C' ) OR ( vbtyp_v = 'J' ) ).
+
+  ENDIF.
+
+
+  APPEND LINES OF gt_vbfa TO gt_vbfa1.
+
+  DELETE gt_vbfa1 WHERE vbtyp_v = 'J'.
+
+  IF gt_vbfa1 IS NOT INITIAL.
+
+    SELECT vbeln kunnr erdat FROM vbak INTO TABLE gt_vbak
+       FOR ALL ENTRIES IN gt_vbfa1
+      WHERE vbeln = gt_vbfa1-vbelv.
+
+  ENDIF.
+
+  IF gt_vbak IS NOT INITIAL.
+
+    SELECT kunnr name1 FROM kna1 INTO TABLE gt_kna1
+      FOR ALL ENTRIES IN gt_vbak
+      WHERE kunnr = gt_vbak-kunnr.
+
+  ENDIF.
+
+  APPEND LINES OF gt_vbfa TO gt_vbfa2.
+
+  DELETE gt_vbfa2 WHERE vbtyp_v = 'C'.
+
+  IF gt_vbfa2 IS NOT INITIAL.
+
+    SELECT vbeln erdat FROM likp INTO TABLE gt_likp
+      FOR ALL ENTRIES IN gt_vbfa2
+      WHERE vbeln = gt_vbfa2-vbelv.
+
+  ENDIF.
+
+
+  LOOP AT gt_vbrk INTO gs_vbrk.
+
+    gs_final-vbeln2 = gs_vbrk-vbeln.
+    gs_final-erdat1 = gs_vbrk-erdat.
+
+
+    READ TABLE gt_vbfa INTO gs_vbfa WITH KEY vbtyp_v = 'C'.
+
+    gs_final-vbelv = gs_vbfa-vbelv.
+    gs_final-vbeln = gs_vbfa-vbeln.
+    gs_final-vbtyp_v = gs_vbfa-vbtyp_v.
+
+    READ TABLE gt_vbak INTO gs_vbak WITH KEY vbeln = gs_vbfa-vbelv.
+
+    gs_final-vbeln3 = gs_vbak-vbeln.
+    gs_final-erdat2 = gs_vbak-erdat.
+    gs_final-kunnr = gs_vbak-kunnr.
+
+    READ TABLE gt_kna1 INTO gs_kna1 WITH KEY kunnr = gs_vbak-kunnr.
+
+    gs_final-kunnr1 = gs_kna1-kunnr.
+    gs_final-name1 = gs_kna1-name1.
+
+    CLEAR gs_vbfa.
+
+    READ TABLE gt_vbfa INTO gs_vbfa WITH KEY vbtyp_v = 'J'.
+
+    gs_final-vbelv = gs_vbfa-vbelv.
+    gs_final-vbeln = gs_vbfa-vbeln.
+    gs_final-vbtyp_v = gs_vbfa-vbtyp_v.
+
+    READ TABLE gt_likp INTO gs_likp WITH KEY vbeln = gs_vbfa-vbelv.
+
+    gs_final-vbeln1 = gs_likp-vbeln.
+    gs_final-erdat = gs_likp-erdat.
+
+
+    APPEND gs_final TO gt_final.
+    CLEAR gs_final.
+
+  ENDLOOP.
+
+************* CL_SALV_TABLE  - ALV
+
+
+gs_fcat-col_pos = 1.
+gs_fcat-fieldname = 'kna1-kunnr'.
+gs_fcat-tabname = 'gt_final'.
+gs_fcat-seltext_m = 'Customer Number'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-col_pos = 2.
+gs_fcat-fieldname = 'kna1-name1'.
+gs_fcat-tabname = 'gt_final'.
+gs_fcat-seltext_m = 'Customer Name'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-col_pos = 3.
+gs_fcat-fieldname = 'vbak-vbeln'.
+gs_fcat-tabname = 'gt_final'.
+gs_fcat-seltext_m = 'Sales order'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-col_pos = 4.
+gs_fcat-fieldname = 'vbak-erdat'.
+gs_fcat-tabname = 'gt_final'.
+gs_fcat-seltext_m = 'Sales Order Date'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-col_pos = 5.
+gs_fcat-fieldname = 'likp-vbeln'.
+gs_fcat-tabname = 'gt_final'.
+gs_fcat-seltext_m = 'Delivery'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-col_pos = 6.
+gs_fcat-fieldname = 'likp-erdat'.
+gs_fcat-tabname = 'gt_final'.
+gs_fcat-seltext_m = 'Delivery Date'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-col_pos = 7.
+gs_fcat-fieldname = 'vbrk-vbeln'.
+gs_fcat-tabname = 'gt_final'.
+gs_fcat-seltext_m = 'Invoice Number'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-col_pos = 8.
+gs_fcat-fieldname = 'vbrk-erdat'.
+gs_fcat-tabname = 'gt_final'.
+gs_fcat-seltext_m = 'Invoice Date'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+ EXPORTING
+*   I_INTERFACE_CHECK                 = ' '
+*   I_BYPASSING_BUFFER                = ' '
+*   I_BUFFER_ACTIVE                   = ' '
+*   I_CALLBACK_PROGRAM                = ' '
+*   I_CALLBACK_PF_STATUS_SET          = ' '
+*   I_CALLBACK_USER_COMMAND           = ' '
+*   I_CALLBACK_TOP_OF_PAGE            = ' '
+*   I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*   I_CALLBACK_HTML_END_OF_LIST       = ' '
+*   I_STRUCTURE_NAME                  =
+*   I_BACKGROUND_ID                   = ' '
+*   I_GRID_TITLE                      =
+*   I_GRID_SETTINGS                   =
+*   IS_LAYOUT                         =
+   IT_FIELDCAT                       = gt_fcat
+*   IT_EXCLUDING                      =
+*   IT_SPECIAL_GROUPS                 =
+*   IT_SORT                           =
+*   IT_FILTER                         =
+*   IS_SEL_HIDE                       =
+*   I_DEFAULT                         = 'X'
+*   I_SAVE                            = ' '
+*   IS_VARIANT                        =
+*   IT_EVENTS                         =
+*   IT_EVENT_EXIT                     =
+*   IS_PRINT                          =
+*   IS_REPREP_ID                      =
+*   I_SCREEN_START_COLUMN             = 0
+*   I_SCREEN_START_LINE               = 0
+*   I_SCREEN_END_COLUMN               = 0
+*   I_SCREEN_END_LINE                 = 0
+*   I_HTML_HEIGHT_TOP                 = 0
+*   I_HTML_HEIGHT_END                 = 0
+*   IT_ALV_GRAPHICS                   =
+*   IT_HYPERLINK                      =
+*   IT_ADD_FIELDCAT                   =
+*   IT_EXCEPT_QINFO                   =
+*   IR_SALV_FULLSCREEN_ADAPTER        =
+* IMPORTING
+*   E_EXIT_CAUSED_BY_CALLER           =
+*   ES_EXIT_CAUSED_BY_USER            =
+  TABLES
+    t_outtab                          = gt_final
+* EXCEPTIONS
+*   PROGRAM_ERROR                     = 1
+*   OTHERS                            = 2
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+*Text elements
+*----------------------------------------------------------
+* 001 Sales and Delivery details
+
+
+*Selection texts
+*----------------------------------------------------------
+* P_DTYPE         Invoice No
+* S_VBELN         Document Type
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

@@ -1,0 +1,53 @@
+*&---------------------------------------------------------------------*
+*& Report  ZVBRK_DIS
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zvbrk_dis.
+
+TYPES: BEGIN OF ts_vbrk,
+         vbeln TYPE vbrk-vbeln,
+         fkart TYPE vbrk-fkart,
+         vbtyp TYPE vbrk-vbtyp,
+       END OF ts_vbrk.
+
+DATA: lt_vbrk TYPE TABLE OF ts_vbrk,
+      ls_vbrk TYPE ts_vbrk,
+      lt_vbrk1 TYPE TABLE OF ts_vbrk,
+      lt_vbrk2 TYPE TABLE OF ts_vbrk.
+START-OF-SELECTION.
+
+  SELECT vbeln fkart vbtyp FROM vbrk INTO TABLE lt_vbrk UP TO 50 ROWS.
+
+WRITE: /    'VBELN',
+         20 'FKART',
+         30 'VBTYP'.
+
+LOOP AT lt_vbrk INTO ls_vbrk.
+    WRITE: /    ls_vbrk-vbeln,
+             20 ls_vbrk-fkart,
+             30 ls_vbrk-vbtyp.
+    CLEAR ls_vbrk.
+ENDLOOP.
+  ULINE.
+LOOP AT lt_vbrk INTO ls_vbrk FROM 1 TO 30.
+    APPEND ls_vbrk TO lt_vbrk1.
+    WRITE: /    ls_vbrk-vbeln,
+             20 ls_vbrk-fkart,
+             30 ls_vbrk-vbtyp.
+    CLEAR ls_vbrk.
+ENDLOOP.
+    ULINE.
+LOOP AT lt_vbrk INTO ls_vbrk FROM 31 TO 50.
+    APPEND ls_vbrk TO lt_vbrk2.
+    WRITE: /  ls_vbrk-vbeln,
+             20 ls_vbrk-fkart,
+             30 ls_vbrk-vbtyp.
+    CLEAR ls_vbrk.
+ENDLOOP.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

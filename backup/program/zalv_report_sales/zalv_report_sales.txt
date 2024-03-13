@@ -1,0 +1,191 @@
+*&---------------------------------------------------------------------*
+*& Report  ZALV_REPORT_SALES
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT ZALV_REPORT_SALES.
+
+TABLES : vbak,vbap.
+
+TYPES : BEGIN OF ts_vbak, " Structure for VBAK
+        VBELN	TYPE VBELN_VA,
+        VBTYP	TYPE VBTYP,
+        AUART	TYPE AUART,
+        END OF ts_vbak,
+
+        BEGIN OF ts_vbap, " Structure for VBAP
+        VBELN TYPE  VBELN_VA,
+        POSNR TYPE  POSNR_VA,
+        MATNR	TYPE MATNR,
+        MATKL	TYPE MATKL,
+        END OF ts_vbap,
+
+        BEGIN OF ts_final,
+        VBELN	TYPE VBELN_VA,
+        VBTYP	TYPE VBTYP,
+        AUART	TYPE AUART,
+        POSNR TYPE  POSNR_VA,
+        MATNR	TYPE MATNR,
+        MATKL	TYPE MATKL,
+        END OF ts_final.
+
+DATA : gt_vbak TYPE TABLE OF ts_vbak,
+       gs_vbak TYPE ts_vbak,
+       gt_vbap TYPE TABLE OF ts_vbap,
+       gs_vbap TYPE ts_vbap,
+       gt_final TYPE TABLE OF ts_final,
+       gs_final TYPE ts_final,
+       gt_fcat TYPE slis_t_fieldcat_alv,
+       gs_fcat TYPE slis_fieldcat_alv,
+       lv_vbeln TYPE vbeln.
+
+SELECT-OPTIONS : s_vbeln FOR lv_vbeln.
+
+
+INITIALIZATION.
+
+s_vbeln-low = '4900'.
+s_vbeln-high = '5000'.
+APPEND s_vbeln.
+
+START-OF-SELECTION.
+
+SELECT * FROM vbak into CORRESPONDING FIELDS OF TABLE gt_vbak
+         WHERE vbeln in s_vbeln.
+
+  IF gt_vbak[] is NOT INITIAL.  " Initial = 0. Not Initial = Have Value
+
+    SELECT * FROM vbap INTO CORRESPONDING FIELDS OF TABLE gt_vbap
+             FOR ALL ENTRIES IN gt_vbak
+             WHERE vbeln = GT_VBAK-VBELN.
+
+ELSE.
+
+  MESSAGE : 'VBAK Does not Contains Entry' TYPE 'I'.
+
+  ENDIF.
+
+LOOP AT gt_vbak INTO gs_vbak.
+
+gs_final-VBELN = gs_vbak-VBELN.
+gs_final-VBTYP = gs_vbak-VBTYP.
+gs_final-AUART = gs_vbak-AUART.
+
+READ TABLE gt_vbap INTO gs_vbap WITH KEY vbeln = gs_vbak-VBELN.
+
+gs_final-POSNR = gs_vbap-POSNR.
+gs_final-MATNR = gs_vbap-MATNR.
+gs_final-MATKL = gs_vbap-MATKL.
+
+APPEND gs_final to gt_final.
+
+ENDLOOP.
+
+if gt_final[] IS NOT INITIAL.
+
+gs_fcat-COL_POS = '1'.
+gs_fcat-FIELDNAME = 'VBELN'.
+gs_fcat-TABNAME = 'GT_FINAL'.
+gs_fcat-EDIT  = 'X'.
+gs_fcat-SELTEXT_M = 'Sales Document'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = '2'.
+gs_fcat-FIELDNAME = 'VBTYP'.
+gs_fcat-TABNAME = 'GT_FINAL'.
+gs_fcat-SELTEXT_M = 'Sales Doc Category'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = '3'.
+gs_fcat-FIELDNAME = 'AUART'.
+gs_fcat-TABNAME = 'GT_FINAL'.
+gs_fcat-SELTEXT_M = 'Sales Doc Type'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+gs_fcat-COL_POS = '4'.
+gs_fcat-FIELDNAME = 'POSNR'.
+gs_fcat-TABNAME = 'GT_FINAL'.
+gs_fcat-SELTEXT_M = 'Sales Doc Items'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+ gs_fcat-COL_POS = '5'.
+gs_fcat-FIELDNAME = 'MATNR'.
+gs_fcat-TABNAME = 'GT_FINAL'.
+gs_fcat-SELTEXT_M = 'Material No'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+ gs_fcat-COL_POS = '6'.
+gs_fcat-FIELDNAME = 'MATKL'.
+gs_fcat-TABNAME = 'GT_FINAL'.
+gs_fcat-SELTEXT_M = 'Material Group'.
+APPEND gs_fcat to gt_fcat.
+CLEAR gs_fcat.
+
+
+CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+ EXPORTING
+*   I_INTERFACE_CHECK              = ' '
+*   I_BYPASSING_BUFFER             =
+*   I_BUFFER_ACTIVE                = ' '
+*   I_CALLBACK_PROGRAM             = ' '
+*   I_CALLBACK_PF_STATUS_SET       = ' '
+*   I_CALLBACK_USER_COMMAND        = ' '
+*   I_STRUCTURE_NAME               =
+*   IS_LAYOUT                      =
+   IT_FIELDCAT                    = gt_fcat
+*   IT_EXCLUDING                   =
+*   IT_SPECIAL_GROUPS              =
+*   IT_SORT                        =
+*   IT_FILTER                      =
+*   IS_SEL_HIDE                    =
+*   I_DEFAULT                      = 'X'
+*   I_SAVE                         = ' '
+*   IS_VARIANT                     =
+*   IT_EVENTS                      =
+*   IT_EVENT_EXIT                  =
+*   IS_PRINT                       =
+*   IS_REPREP_ID                   =
+*   I_SCREEN_START_COLUMN          = 0
+*   I_SCREEN_START_LINE            = 0
+*   I_SCREEN_END_COLUMN            = 0
+*   I_SCREEN_END_LINE              = 0
+*   IR_SALV_LIST_ADAPTER           =
+*   IT_EXCEPT_QINFO                =
+*   I_SUPPRESS_EMPTY_DATA          = ABAP_FALSE
+* IMPORTING
+*   E_EXIT_CAUSED_BY_CALLER        =
+*   ES_EXIT_CAUSED_BY_USER         =
+  TABLES
+    T_OUTTAB                       = gt_final
+* EXCEPTIONS
+*   PROGRAM_ERROR                  = 1
+*   OTHERS                         = 2
+          .
+IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+ENDIF.
+
+
+*Selection texts
+*----------------------------------------------------------
+* S_VBELN D       .
+
+
+*Messages
+*----------------------------------------------------------
+*
+* Message class: Hard coded
+*   VBAK Does not Contains Entry
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740

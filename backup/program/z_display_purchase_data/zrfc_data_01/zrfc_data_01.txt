@@ -1,0 +1,63 @@
+FUNCTION ZRFC_DATA_01.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     VALUE(PURCHASE_DOC) TYPE  EBELN OPTIONAL
+*"  EXPORTING
+*"     VALUE(RETURN) TYPE  STRING
+*"  TABLES
+*"      LT_FINAL STRUCTURE  ZSTR_FINAL OPTIONAL
+*"----------------------------------------------------------------------
+
+DATA : ls_final TYPE zstr_final.
+
+      SELECT ebeln bukrs
+      FROM ekko
+      INTO TABLE lt_ekko
+      WHERE EBELN = PURCHASE_DOC.
+
+      IF lt_ekko[] IS NOT INITIAL.
+
+      SELECT ebeln ebelp matnr
+      FROM ekpo
+      INTO TABLE lt_ekpo
+      FOR ALL ENTRIES IN lt_ekko
+      WHERE ebeln = lt_ekko-ebeln.
+
+      SELECT ebeln etens
+      FROM ekes
+      INTO TABLE lt_ekes
+      FOR ALL ENTRIES IN lt_ekko
+      WHERE ebeln = lt_ekko-ebeln.
+
+      ENDIF.
+
+      SORT lt_ekko[] BY ebeln.
+      SORT lt_ekpo[] BY ebeln ebelp.
+      SORT lt_ekes[] BY ebeln.
+
+      LOOP AT lt_ekpo[] INTO ls_ekpo.
+
+      MOVE-CORRESPONDING ls_ekpo TO ls_final.
+
+      READ TABLE lt_ekko[] INTO ls_ekko  WITH KEY ebeln = ls_ekpo-EBELN BINARY SEARCH.
+
+      MOVE-CORRESPONDING ls_ekko TO ls_final.
+
+      READ TABLE lt_ekes[] INTO ls_ekes WITH KEY ebeln = ls_ekko-ebeln BINARY SEARCH.
+
+      ls_final-etens = ls_ekes-etens.
+
+* ls_final = CORRESPONDING #( ls_ekes ).
+
+      APPEND ls_final TO lt_final[].
+
+      CLEAR : ls_ekpo, ls_ekes, ls_final, ls_ekko.
+
+      ENDLOOP.
+
+
+      ENDFUNCTION.
+
+----------------------------------------------------------------------------------
+Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740
