@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+<title>Z_DISPLAY_PURCHASE_DATA</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: Z_DISPLAY_PURCHASE_DATA</h2>
+<h3> Description: Materials Management (MM) module</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;Report&nbsp;&nbsp;Z_DISPLAY_PURCHASE_DATA.<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+*&<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT z_display_purchase_data.<br />
+<br />
+TYPES :<br />
+BEGIN OF ts_final,<br />
+ebeln TYPE ekko-ebeln,<br />
+bukrs TYPE ekko-bukrs,<br />
+ebelp TYPE ekpo-ebelp,<br />
+matnr TYPE ekpo-matnr,<br />
+etens TYPE ekes-etens,<br />
+END OF ts_final.<br />
+<br />
+<br />
+DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_final&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final&nbsp;TYPE&nbsp;ts_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_layout&nbsp;TYPE&nbsp;slis_layout_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_fcat&nbsp;TYPE&nbsp;slis_t_fieldcat_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_fcat&nbsp;TYPE&nbsp;slis_fieldcat_alv.<br />
+<br />
+PARAMETERS : p_ebeln TYPE ebeln.<br />
+<br />
+START-OF-SELECTION.<br />
+<br />
+CALL FUNCTION 'ZRFC_DATA_01'<br />
+&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;PURCHASE_DOC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;p_ebeln<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;LT_FINAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_final<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+ls_layout-colwidth_optimize = 'X'.<br />
+ls_layout-zebra = 'X'.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-COL_POS = '1'.<br />
+ls_fcat-fieldname = 'EBELN'.<br />
+ls_fcat-seltext_m = 'Purchase Document Number'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-COL_POS = '2'.<br />
+ls_fcat-fieldname = 'BUKRS'.<br />
+ls_fcat-seltext_m = 'Company Code'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-COL_POS = '3'.<br />
+ls_fcat-fieldname = 'EBELP'.<br />
+ls_fcat-seltext_m = 'Item Number'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-COL_POS = '4'.<br />
+ls_fcat-fieldname = 'MATNR'.<br />
+ls_fcat-seltext_m = 'Material Number'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-COL_POS = '5'.<br />
+ls_fcat-fieldname = 'ETENS'.<br />
+ls_fcat-seltext_m = 'Vendor Confirmation'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'<br />
+EXPORTING<br />
+&nbsp;&nbsp;is_layout&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_layout<br />
+&nbsp;&nbsp;it_fieldcat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_fcat<br />
+TABLES<br />
+&nbsp;&nbsp;t_outtab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_final[].<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740</td>
+   </tr>
+</table>
+</body>
+</html>

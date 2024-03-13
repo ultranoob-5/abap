@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+<title>ZEMP_TRAINING_TRACKER1</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZEMP_TRAINING_TRACKER1</h2>
+<h3> Description: training data</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;Report&nbsp;&nbsp;ZEMP_TRAINING_TRACKER1<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+*&<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT zemp_training_tracker1.<br />
+<br />
+TYPES: BEGIN OF ts_employee,<br />
+employee_id TYPE zemployee_info-employee_id,<br />
+employee_name TYPE zemployee_info-employee_name,<br />
+END OF ts_employee.<br />
+<br />
+TYPES: BEGIN OF ts_training,<br />
+training_program_id TYPE ztraining_info-training_program_id,<br />
+training_program TYPE ztraining_info-training_program,<br />
+END OF ts_training.<br />
+<br />
+TYPES: BEGIN OF ts_trainer,<br />
+trainer_id TYPE ztrainer_info-trainer_id,<br />
+trainer_name TYPE ztrainer_info-trainer_name,<br />
+END OF ts_trainer.<br />
+<br />
+TYPES: BEGIN OF ts_training_data,<br />
+training_id TYPE ztraining_data-training_id,<br />
+training_date TYPE ztraining_data-training_date,<br />
+status TYPE ztraining_data-status,<br />
+employee_id TYPE ztraining_data-employee_id,<br />
+trainer_id TYPE ztraining_data-trainer_id,<br />
+training_program_id TYPE ztraining_data-training_program_id,<br />
+END OF ts_training_data.<br />
+<br />
+TYPES: BEGIN OF ts_final,<br />
+employee_id TYPE zemployee_info-employee_id,<br />
+employee_name TYPE zemployee_info-employee_name,<br />
+training_program_id TYPE ztraining_info-training_program_id,<br />
+training_program TYPE ztraining_info-training_program,<br />
+trainer_id TYPE ztrainer_info-trainer_id,<br />
+trainer_name TYPE ztrainer_info-trainer_name,<br />
+training_id TYPE ztraining_data-training_id,<br />
+training_date TYPE ztraining_data-training_date,<br />
+status TYPE ztraining_data-status,<br />
+END OF ts_final.<br />
+<br />
+DATA: lt_employee TYPE TABLE OF ts_employee,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_employee&nbsp;TYPE&nbsp;ts_employee,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_training&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_training,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_training&nbsp;TYPE&nbsp;ts_training,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_trainer&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_trainer,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_trainer&nbsp;TYPE&nbsp;ts_trainer,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_training_data&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_training_data,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_training_data&nbsp;TYPE&nbsp;ts_training_data,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_final&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final&nbsp;TYPE&nbsp;ts_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_fcat&nbsp;TYPE&nbsp;slis_t_fieldcat_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_fcat&nbsp;TYPE&nbsp;slis_fieldcat_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_layout&nbsp;TYPE&nbsp;slis_layout_alv.<br />
+<br />
+START-OF-SELECTION.<br />
+<br />
+SELECT training_id<br />
+training_date<br />
+status<br />
+employee_id<br />
+training_program_id<br />
+&nbsp;trainer_id<br />
+FROM ztraining_data<br />
+INTO CORRESPONDING FIELDS OF TABLE lt_training_data.<br />
+<br />
+IF lt_training_data[] IS NOT INITIAL.<br />
+<br />
+SELECT employee_id<br />
+employee_name<br />
+FROM zemployee_info<br />
+INTO TABLE lt_employee<br />
+FOR ALL ENTRIES IN lt_training_data<br />
+WHERE employee_id = lt_training_data-EMPLOYEE_ID.<br />
+<br />
+SELECT training_program_id<br />
+training_program<br />
+FROM ztraining_info<br />
+INTO TABLE lt_training<br />
+FOR ALL ENTRIES IN lt_training_data<br />
+WHERE training_program_id = lt_training_data-training_program_id.<br />
+<br />
+SELECT trainer_id trainer_name<br />
+FROM ztrainer_info<br />
+INTO TABLE lt_trainer<br />
+FOR ALL ENTRIES IN lt_training_data<br />
+WHERE trainer_id = lt_training_data-trainer_id.<br />
+<br />
+<br />
+ENDIF.<br />
+<br />
+<br />
+<br />
+LOOP AT lt_training_data INTO ls_training_data.<br />
+<br />
+ls_final-training_program_id = ls_training_data-training_program_id.<br />
+ls_final-trainer_id = ls_training_data-trainer_id.<br />
+ls_final-training_id = ls_training_data-training_id.<br />
+ls_final-training_date = ls_training_data-training_date.<br />
+ls_final-status = ls_training_data-status.<br />
+<br />
+LOOP AT lt_employee INTO ls_employee  WHERE employee_id = ls_training_data-employee_id.<br />
+<br />
+ls_final-employee_id = ls_employee-employee_id.<br />
+ls_final-employee_name = ls_employee-employee_name.<br />
+<br />
+ENDLOOP.<br />
+<br />
+READ TABLE lt_training INTO ls_training<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;training_program_id&nbsp;=&nbsp;ls_training_data-training_program_id<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+<br />
+ls_final-training_program = ls_training-training_program.<br />
+<br />
+READ TABLE lt_trainer INTO ls_trainer<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;trainer_id&nbsp;=&nbsp;ls_training_data-trainer_id<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+<br />
+ls_final-trainer_name = ls_trainer-trainer_name.<br />
+<br />
+APPEND ls_final TO lt_final[].<br />
+CLEAR: ls_final, ls_training, ls_training_data, ls_trainer, ls_employee.<br />
+<br />
+ENDLOOP.<br />
+<br />
+ls_layout-colwidth_optimize = 'X'.<br />
+ls_layout-zebra = 'X'.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '1'.<br />
+ls_fcat-fieldname = 'EMPLOYEE_ID'.<br />
+ls_fcat-seltext_m = 'Employee ID'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '2'.<br />
+ls_fcat-fieldname = 'EMPLOYEE_NAME'.<br />
+ls_fcat-seltext_m = 'Employee Name'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '3'.<br />
+ls_fcat-fieldname = 'TRAINING_PROGRAM_ID'.<br />
+ls_fcat-seltext_m = 'Training Program ID'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '4'.<br />
+ls_fcat-fieldname = 'TRAINING_PROGRAM'.<br />
+ls_fcat-seltext_m = 'Training Program'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '5'.<br />
+ls_fcat-fieldname = 'TRAINER_ID'.<br />
+ls_fcat-seltext_m = 'Trainer ID'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '6'.<br />
+ls_fcat-fieldname = 'TRAINER_NAME'.<br />
+ls_fcat-seltext_m = 'Trainer Name'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '7'.<br />
+ls_fcat-fieldname = 'TRAINING_ID'.<br />
+ls_fcat-seltext_m = 'Training ID'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '8'.<br />
+ls_fcat-fieldname = 'TRAINING_DATE'.<br />
+ls_fcat-seltext_m = 'Training Date'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+<br />
+CLEAR ls_fcat.<br />
+ls_fcat-col_pos = '9'.<br />
+ls_fcat-fieldname = 'STATUS'.<br />
+ls_fcat-seltext_m = 'Status'.<br />
+ls_fcat-tabname = 'LT_FINAL'.<br />
+APPEND ls_fcat TO lt_fcat.<br />
+CLEAR ls_fcat.<br />
+<br />
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'<br />
+EXPORTING<br />
+&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;&nbsp;=&nbsp;'BUTTON'<br />
+&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;=&nbsp;'UCOMMAND'<br />
+&nbsp;&nbsp;is_layout&nbsp;&nbsp;&nbsp;=&nbsp;ls_layout<br />
+&nbsp;&nbsp;it_fieldcat&nbsp;=&nbsp;lt_fcat<br />
+TABLES<br />
+&nbsp;&nbsp;t_outtab&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_final[].<br />
+<br />
+FORM BUTTON USING t_extab TYPE SLIS_T_EXTAB.<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZSTANDARD'.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740</td>
+   </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+<title>ZALV_DEMO2</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZALV_DEMO2</h2>
+<h3> Description: ALV_DEMO G & S Total, Header</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;Report&nbsp;&nbsp;ZALV_DEMO2<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+*&<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT ZALV_DEMO2.<br />
+<br />
+TABLES : vbak.<br />
+<br />
+<br />
+TYPES : BEGIN OF ts_vbak,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vbeln&nbsp;TYPE&nbsp;vbeln_va,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ernam&nbsp;TYPE&nbsp;ernam,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;audat&nbsp;TYPE&nbsp;audat,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;netwr&nbsp;TYPE&nbsp;netwr_ak,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ts_vbak.<br />
+<br />
+DATA : gt_vbak TYPE TABLE OF ts_vbak,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_vbak&nbsp;TYPE&nbsp;ts_vbak,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gt_fcat&nbsp;TYPE&nbsp;SLIS_T_FIELDCAT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_fcat&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;gt_fcat,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gt_sub&nbsp;TYPE&nbsp;SLIS_T_SORTINFO_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_sub&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;gt_sub,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_layo&nbsp;TYPE&nbsp;SLIS_LAYOUT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gt_head&nbsp;TYPE&nbsp;SLIS_T_LISTHEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_head&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;gt_head,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_vbeln&nbsp;TYPE&nbsp;vbak-VBELN.<br />
+<br />
+<br />
+SELECT-OPTIONS : s_vbeln for lv_vbeln.<br />
+<br />
+INITIALIZATION.<br />
+<br />
+s_vbeln-LOW = '4950'.<br />
+s_vbeln-HIGH = '4980'.<br />
+APPEND s_vbeln.<br />
+<br />
+START-OF-SELECTION.<br />
+<br />
+PERFORM fetch_data.<br />
+PERFORM fieldcat.<br />
+PERFORM sub_total.<br />
+PERFORM display_data.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FETCH_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FETCH_DATA .<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;vbak&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;gt_vbak&nbsp;WHERE&nbsp;vbeln&nbsp;in&nbsp;s_vbeln.<br />
+<br />
+ENDFORM.                    " FETCH_DATA<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FIELDCAT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FIELDCAT .<br />
+<br />
+&nbsp;&nbsp;gs_fcat-COL_POS&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;gs_fcat-FIELDNAME&nbsp;=&nbsp;'vbeln'.<br />
+&nbsp;&nbsp;gs_fcat-TABNAME&nbsp;=&nbsp;'gt_fcat'.<br />
+&nbsp;&nbsp;gs_fcat-SELTEXT_M&nbsp;=&nbsp;'Sales'.<br />
+&nbsp;&nbsp;APPEND&nbsp;gs_fcat&nbsp;to&nbsp;gt_fcat.<br />
+&nbsp;&nbsp;CLEAR&nbsp;gs_fcat.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_fcat-COL_POS&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;gs_fcat-FIELDNAME&nbsp;=&nbsp;'ernam'.<br />
+&nbsp;&nbsp;gs_fcat-TABNAME&nbsp;=&nbsp;'gt_fcat'.<br />
+&nbsp;&nbsp;gs_fcat-SELTEXT_M&nbsp;=&nbsp;'Name&nbsp;of&nbsp;the&nbsp;person'.<br />
+&nbsp;&nbsp;APPEND&nbsp;gs_fcat&nbsp;to&nbsp;gt_fcat.<br />
+&nbsp;&nbsp;CLEAR&nbsp;gs_fcat.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_fcat-COL_POS&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;gs_fcat-FIELDNAME&nbsp;=&nbsp;'audat'.<br />
+&nbsp;&nbsp;gs_fcat-TABNAME&nbsp;=&nbsp;'gt_fcat'.<br />
+&nbsp;&nbsp;gs_fcat-SELTEXT_M&nbsp;=&nbsp;'Document&nbsp;date'.<br />
+&nbsp;&nbsp;APPEND&nbsp;gs_fcat&nbsp;to&nbsp;gt_fcat.<br />
+&nbsp;&nbsp;CLEAR&nbsp;gs_fcat.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_fcat-COL_POS&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;gs_fcat-FIELDNAME&nbsp;=&nbsp;'netwr'.<br />
+&nbsp;&nbsp;gs_fcat-TABNAME&nbsp;=&nbsp;'gt_fcat'.<br />
+&nbsp;&nbsp;gs_fcat-SELTEXT_M&nbsp;=&nbsp;'Net&nbsp;value&nbsp;of&nbsp;the&nbsp;sales'.<br />
+&nbsp;&nbsp;gs_fcat-DO_SUM&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;gs_fcat&nbsp;to&nbsp;gt_fcat.<br />
+&nbsp;&nbsp;CLEAR&nbsp;gs_fcat.<br />
+<br />
+&nbsp;&nbsp;gs_layo-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;gs_layo-ZEBRA&nbsp;=&nbsp;'X'.<br />
+<br />
+<br />
+ENDFORM.                    " FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;DISPLAY_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM DISPLAY_DATA .<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_TOP_OF_PAGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'FORM_TOP_PAGE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gs_layo<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_fcat<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_SORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_sub<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_vbak.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Implement&nbsp;suitable&nbsp;error&nbsp;handling&nbsp;here<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.                    " DISPLAY_DATA<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SUB_TOTAL<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SUB_TOTAL .<br />
+<br />
+&nbsp;&nbsp;gs_sub-FIELDNAME&nbsp;&nbsp;=&nbsp;'vbeln'.<br />
+&nbsp;&nbsp;gs_sub-DOWN&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;gs_sub-SUBTOT&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;gs_sub&nbsp;to&nbsp;gt_sub.<br />
+<br />
+ENDFORM.                    " SUB_TOTAL<br />
+<br />
+FORM FORM_Top_PAGE.<br />
+<br />
+&nbsp;&nbsp;gs_head-TYP&nbsp;=&nbsp;'H'.<br />
+&nbsp;&nbsp;gs_head-INFO&nbsp;=&nbsp;'ALV&nbsp;DEMO&nbsp;REPORT'.<br />
+&nbsp;&nbsp;APPEND&nbsp;gs_head&nbsp;to&nbsp;gt_head.<br />
+&nbsp;&nbsp;clear&nbsp;gs_head.<br />
+<br />
+&nbsp;&nbsp;gs_head-TYP&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;gs_head-KEY&nbsp;=&nbsp;'User&nbsp;Name&nbsp;:'.<br />
+&nbsp;&nbsp;gs_head-INFO&nbsp;=&nbsp;sy-UNAME.<br />
+&nbsp;&nbsp;&nbsp;APPEND&nbsp;gs_head&nbsp;to&nbsp;gt_head.<br />
+&nbsp;&nbsp;clear&nbsp;gs_head.<br />
+<br />
+&nbsp;&nbsp;gs_head-TYP&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;gs_head-KEY&nbsp;=&nbsp;'Report&nbsp;:'.<br />
+&nbsp;&nbsp;gs_head-INFO&nbsp;=&nbsp;sy-REPID.<br />
+&nbsp;&nbsp;&nbsp;APPEND&nbsp;gs_head&nbsp;to&nbsp;gt_head.<br />
+&nbsp;&nbsp;clear&nbsp;gs_head.<br />
+<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;sy-DATUM+6(2)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-DATUM+4(2)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-DATUM+0(4)&nbsp;INTO&nbsp;DATA(lv_date)&nbsp;SEPARATED&nbsp;BY&nbsp;'-'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_head-TYP&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;gs_head-KEY&nbsp;=&nbsp;'Date&nbsp;:'.<br />
+&nbsp;&nbsp;gs_head-INFO&nbsp;=&nbsp;lv_date.<br />
+&nbsp;&nbsp;&nbsp;APPEND&nbsp;gs_head&nbsp;to&nbsp;gt_head.<br />
+&nbsp;&nbsp;clear&nbsp;gs_head.<br />
+<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_COMMENTARY_WRITE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_LIST_COMMENTARY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_head<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_LOGO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'GOOGLE'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_END_OF_LIST_GRID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_ALV_FORM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sales<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740</td>
+   </tr>
+</table>
+</body>
+</html>

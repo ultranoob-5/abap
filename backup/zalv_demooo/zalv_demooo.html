@@ -1,0 +1,642 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+<title>ZALV_DEMOOO</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZALV_DEMOOO</h2>
+<h3> Description: demo</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;Report&nbsp;&nbsp;ZALV_DEMOOO<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+*&<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT ZALV_DEMOOO.<br />
+<br />
+CLASS lcl_salv DEFINITION.<br />
+<br />
+&nbsp;&nbsp;PUBLIC&nbsp;SECTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;ty_data,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;icon&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;icon_d,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reason&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;string,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_resdrop&nbsp;TYPE&nbsp;salv_t_int4_column,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkbox&nbsp;&nbsp;TYPE&nbsp;sap_bool,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matnr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ersda&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ersda,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ernam&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ernam,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;laeda&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;laeda,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aenam&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;aenam,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vpsta&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;vpsta,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pstat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;pstat_d,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lvorm&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;lvoma,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtart&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;mtart,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mbrsh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;mbrsh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matkl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;matkl,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bismt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;bismt,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;meins&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;meins,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bstme&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;bstme,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zeinr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;dzeinr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fkimg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;fkimg,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cellcolor&nbsp;TYPE&nbsp;lvc_t_scol,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;celltype&nbsp;&nbsp;TYPE&nbsp;salv_t_int4_column,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ty_data.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;t_data&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ty_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"-ALV&nbsp;Declarations<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;o_alv&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_table.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS:&nbsp;init.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS&nbsp;get_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS&nbsp;display_alv.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS&nbsp;build_columns&nbsp;CHANGING&nbsp;lo_columns&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_columns_table.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS&nbsp;set_text&nbsp;IMPORTING&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;lvc_fname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_text&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;scrtext_s<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m_text&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;scrtext_m<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_text&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;scrtext_l<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;&nbsp;lo_columns&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_columns_table.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS&nbsp;set_color&nbsp;IMPORTING&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;lvc_fname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;col&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;lvc_col<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;lvc_int<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inv&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;lvc_inv<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;&nbsp;lo_columns&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_columns_table.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS&nbsp;create_top_of_page.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------EVENTS-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS&nbsp;on_link_click&nbsp;FOR&nbsp;EVENT&nbsp;link_click&nbsp;OF&nbsp;cl_salv_events_table<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING&nbsp;row&nbsp;column.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS:&nbsp;on_user_command&nbsp;FOR&nbsp;EVENT&nbsp;added_function&nbsp;OF&nbsp;cl_salv_events<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING&nbsp;e_salv_function.<br />
+&nbsp;&nbsp;PROTECTED&nbsp;SECTION.<br />
+&nbsp;&nbsp;PRIVATE&nbsp;SECTION.<br />
+<br />
+ENDCLASS.<br />
+<br />
+CLASS lcl_salv IMPLEMENTATION.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;init.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;get_data(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;display_alv(&nbsp;).<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;get_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;data&gt;&nbsp;TYPE&nbsp;ty_data.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;mara&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;t_data&nbsp;UP&nbsp;TO&nbsp;100&nbsp;ROWS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Insert&nbsp;dropdown&nbsp;data&nbsp;for&nbsp;reason-------------------------*<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;ls_dropdown&nbsp;TYPE&nbsp;salv_s_int4_column,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_dropdown&nbsp;TYPE&nbsp;salv_t_int4_column.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;t_data&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;data&gt;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;data&gt;-reason&nbsp;=&nbsp;|Reason{&nbsp;&lt;data&gt;-ersda&nbsp;}|.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-tabix&nbsp;&lt;&nbsp;3.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_dropdown-columnname&nbsp;=&nbsp;'REASON'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_dropdown-value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-tabix.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_dropdown&nbsp;TO&nbsp;lt_dropdown.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;data&gt;-t_resdrop&nbsp;=&nbsp;lt_dropdown.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;ls_dropdown,&nbsp;lt_dropdown.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Cell&nbsp;Coloring-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;ls_color&nbsp;TYPE&nbsp;lvc_s_scol,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_color&nbsp;TYPE&nbsp;lvc_t_scol.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;t_data&nbsp;ASSIGNING&nbsp;&lt;data&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-tabix&nbsp;MOD&nbsp;2&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-fname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'AENAM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-col&nbsp;=&nbsp;6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-int&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-inv&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_color&nbsp;TO&nbsp;lt_color.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;sy-tabix&nbsp;MOD&nbsp;3&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-fname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PSTAT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-col&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-int&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-inv&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_color&nbsp;TO&nbsp;lt_color.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;sy-tabix&nbsp;MOD&nbsp;5&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"sat#r&nbsp;renklendirmek&nbsp;için&nbsp;fname&nbsp;alan#n#&nbsp;bo#&nbsp;b#rak<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-col&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-int&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_color-color-inv&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_color&nbsp;TO&nbsp;lt_color.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;data&gt;-cellcolor&nbsp;=&nbsp;lt_color.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"icon<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;data&gt;-icon&nbsp;=&nbsp;'@0V@'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;ls_color,&nbsp;lt_color.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"change&nbsp;layout&nbsp;of&nbsp;alv&nbsp;clickable&nbsp;cells<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;t_data&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;alv_line&gt;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;alv_line&gt;-matnr&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;VALUE&nbsp;#(&nbsp;columnname&nbsp;=&nbsp;'DELIVERY_SD'&nbsp;value&nbsp;=&nbsp;if_salv_c_cell_type=&gt;text&nbsp;)&nbsp;TO&nbsp;&lt;alv_line&gt;-celltype.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;display_alv.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;lo_functions&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_functions_list.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;lo_display&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_display_settings.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lo_columns&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_columns_table.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;ls_key&nbsp;TYPE&nbsp;salv_s_layout_key&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;cl_salv_table=&gt;factory<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R_CONTAINER&nbsp;&nbsp;=&nbsp;calv_const_post<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r_salv_table&nbsp;=&nbsp;o_alv<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_table&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;t_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_msg&nbsp;INTO&nbsp;DATA(lo_err).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;lo_err-&gt;msgid&nbsp;TYPE&nbsp;lo_err-&gt;msgty&nbsp;NUMBER&nbsp;lo_err-&gt;msgno&nbsp;WITH&nbsp;lo_err-&gt;msgv1&nbsp;lo_err-&gt;msgv1&nbsp;lo_err-&gt;msgv1&nbsp;lo_err-&gt;msgv1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Toolbar&nbsp;Design-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_key-report&nbsp;=&nbsp;sy-repid.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;get_layout(&nbsp;)-&gt;set_key(&nbsp;value&nbsp;=&nbsp;ls_key&nbsp;).<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;get_layout(&nbsp;)-&gt;set_save_restriction(&nbsp;if_salv_c_layout=&gt;restrict_none&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;lo_functions&nbsp;=&nbsp;o_alv-&gt;get_functions(&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;lo_functions-&gt;set_default(&nbsp;abap_true&nbsp;).&nbsp;"Alternatif<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;lo_functions-&gt;set_all(&nbsp;abap_true&nbsp;).<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"Alternatif2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"E#er&nbsp;özel&nbsp;pf&nbsp;status&nbsp;tasarlad#ysan&nbsp;üstteki&nbsp;lo_functions&nbsp;kodlar#n#&nbsp;kapat&nbsp;ve&nbsp;alta&nbsp;pf&nbsp;statusun&nbsp;ad#n#&nbsp;ver<br />
+&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;set_screen_status(&nbsp;report&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-repid"'SAPLSLVC_FULLSCREEN'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pfstatus&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'STATUS_MAIN'&nbsp;"STANDARD_FULLSCREEN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set_functions&nbsp;=&nbsp;o_alv-&gt;c_functions_all&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Layout-Display&nbsp;Settings-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_display&nbsp;=&nbsp;o_alv-&gt;get_display_settings(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_display-&gt;set_striped_pattern(&nbsp;cl_salv_display_settings=&gt;true&nbsp;).&nbsp;"zebra<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_display-&gt;set_list_header(&nbsp;'SALV&nbsp;Full&nbsp;Template'&nbsp;).&nbsp;"gui_title<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_display-&gt;set_horizontal_lines(&nbsp;cl_salv_display_settings=&gt;false&nbsp;).&nbsp;"yatay&nbsp;çerçeve&nbsp;çizgisi<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_display-&gt;set_vertical_lines(&nbsp;cl_salv_display_settings=&gt;true&nbsp;).&nbsp;"dikey&nbsp;çerçeve&nbsp;çizgisi<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_display-&gt;set_list_header(&nbsp;|Number&nbsp;of&nbsp;displayed&nbsp;rows:&nbsp;{&nbsp;lines(&nbsp;t_data&nbsp;)&nbsp;}|&nbsp;).&nbsp;"üstte&nbsp;sat#r&nbsp;say#s#n#&nbsp;göster<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------TOP-OF-PAGE-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;me-&gt;create_top_of_page(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Columns&nbsp;-&nbsp;Fieldcatalog-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_columns&nbsp;=&nbsp;o_alv-&gt;get_columns(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_columns-&gt;set_optimize(&nbsp;abap_true&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_columns-&gt;set_key_fixation(&nbsp;abap_true&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;build_columns(&nbsp;CHANGING&nbsp;lo_columns&nbsp;=&nbsp;lo_columns&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Dropdown-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"fullscreen'de&nbsp;çal##maz.&nbsp;Grid'de&nbsp;çal###r<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lr_dropdowns&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_dropdowns,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_values&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;salv_t_value.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lr_functional_settings&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_functional_settings.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;lr_functional_settings&nbsp;=&nbsp;o_alv-&gt;get_functional_settings(&nbsp;).<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;lr_dropdowns&nbsp;=&nbsp;lr_functional_settings-&gt;get_dropdowns(&nbsp;).<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_dropdowns-&gt;add_dropdown(<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handle&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_values&nbsp;=&nbsp;lt_values&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_existing.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NO_HANDLER<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Color&nbsp;Column-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_columns-&gt;set_color_column(&nbsp;'CELLCOLOR'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_data_error.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NO_HANDLER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_columns-&gt;set_cell_type_column(&nbsp;'CELLTYPE'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_data_error.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Register&nbsp;Events-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lr_events&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_events_table.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lr_events&nbsp;=&nbsp;o_alv-&gt;get_event(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;HANDLER&nbsp;me-&gt;on_link_click&nbsp;FOR&nbsp;lr_events.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;HANDLER&nbsp;me-&gt;on_user_command&nbsp;FOR&nbsp;lr_events.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Selection-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lo_selections&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_selections.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_selections&nbsp;=&nbsp;o_alv-&gt;get_selections(&nbsp;).<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;lo_selections-&gt;set_selection_mode(&nbsp;if_salv_c_selection_mode=&gt;multiple&nbsp;).&nbsp;"çoklu&nbsp;seçime&nbsp;izin&nbsp;verir&nbsp;ama&nbsp;solda&nbsp;seçim&nbsp;görünümü&nbsp;olmaz<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;lo_selections-&gt;set_selection_mode(&nbsp;if_salv_c_selection_mode=&gt;row_column&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Display-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;display(&nbsp;).<br />
+<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;build_columns.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;lo_column&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_column_table.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"----Alternate"<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DEFINE&nbsp;set_text.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRY&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;&1&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&2&nbsp;NE&nbsp;space.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_column-&gt;set_short_text(&nbsp;conv&nbsp;#(&nbsp;&2&nbsp;)&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&3&nbsp;NE&nbsp;space.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_column-&gt;set_medium_text(&nbsp;conv&nbsp;#(&nbsp;&3&nbsp;)&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&4&nbsp;NE&nbsp;space.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_column-&gt;set_long_text(&nbsp;conv&nbsp;#(&nbsp;&4&nbsp;)&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_not_found.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NO_HANDLER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END-OF-DEFINITION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"----Alternate"<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Set&nbsp;Column&nbsp;Texts-------------------------*<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;set_text(&nbsp;EXPORTING&nbsp;name&nbsp;=&nbsp;&nbsp;s_text&nbsp;=&nbsp;m_text&nbsp;=&nbsp;&nbsp;l_text&nbsp;=&nbsp;&nbsp;CHANGING&nbsp;lo_columns&nbsp;=&nbsp;&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;set_text(&nbsp;EXPORTING&nbsp;name&nbsp;=&nbsp;'ERSDA'&nbsp;s_text&nbsp;=&nbsp;'Tarih'&nbsp;m_text&nbsp;=&nbsp;'Tarih'&nbsp;l_text&nbsp;=&nbsp;'Tarih'&nbsp;CHANGING&nbsp;lo_columns&nbsp;=&nbsp;lo_columns&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;set_text(&nbsp;EXPORTING&nbsp;name&nbsp;=&nbsp;'MATNR'&nbsp;s_text&nbsp;=&nbsp;'Malzeme'&nbsp;m_text&nbsp;=&nbsp;'Malzeme'&nbsp;l_text&nbsp;=&nbsp;'Malzeme'&nbsp;CHANGING&nbsp;lo_columns&nbsp;=&nbsp;lo_columns&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;set_text:&nbsp;'BSD_SURE'&nbsp;text-012&nbsp;text-012&nbsp;text-012.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Set&nbsp;Color-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;set_color(&nbsp;EXPORTING&nbsp;name&nbsp;=&nbsp;'ERSDA'&nbsp;&nbsp;col&nbsp;=&nbsp;5&nbsp;int&nbsp;=&nbsp;0&nbsp;inv&nbsp;=&nbsp;0&nbsp;CHANGING&nbsp;lo_columns&nbsp;=&nbsp;lo_columns&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;set_color(&nbsp;EXPORTING&nbsp;name&nbsp;=&nbsp;'ERNAM'&nbsp;&nbsp;col&nbsp;=&nbsp;6&nbsp;int&nbsp;=&nbsp;1&nbsp;inv&nbsp;=&nbsp;0&nbsp;CHANGING&nbsp;lo_columns&nbsp;=&nbsp;lo_columns&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Colum&nbsp;Design-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;tech_fields&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;lvc_fname&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;tech_fields&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;'CELLSTYLE'&nbsp;)&nbsp;(&nbsp;'CELLCOLOR'&nbsp;)&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'T_RESDROP'&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_technical(&nbsp;).&nbsp;"technical<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'ICON'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_icon(&nbsp;).&nbsp;"icon<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'REASON'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_visible(&nbsp;abap_false&nbsp;).&nbsp;"no_out,&nbsp;statusteki&nbsp;layout&nbsp;ile&nbsp;görünüme&nbsp;eklenebilir<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'CHECKBOX'&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_cell_type(&nbsp;if_salv_c_cell_type=&gt;checkbox&nbsp;).&nbsp;"checkbox<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'CHECKBOX'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_cell_type(&nbsp;if_salv_c_cell_type=&gt;checkbox_hotspot&nbsp;).&nbsp;"editable&nbsp;checkbox<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_long_text(&nbsp;'Checkbox'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'MATNR'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_cell_type(&nbsp;if_salv_c_cell_type=&gt;hotspot&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'FKIMG'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_zero(&nbsp;'&nbsp;'&nbsp;).&nbsp;"de#er&nbsp;s#f#r&nbsp;oldu#unda&nbsp;bo#luk&nbsp;olsun<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'CELLTYPE'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_technical(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;tech_fields&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;field&gt;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;&lt;field&gt;&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_technical(&nbsp;).&nbsp;"technical<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA(asd)&nbsp;=&nbsp;lo_column-&gt;get_cell_type(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_not_found&nbsp;INTO&nbsp;DATA(err).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------Dropdown-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"fullscreen'de&nbsp;çal##maz.&nbsp;Grid'de&nbsp;çal###r<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;'REASON'&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_cell_type(&nbsp;if_salv_c_cell_type=&gt;dropdown&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_dropdown_entry(&nbsp;value&nbsp;=&nbsp;1&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_not_found.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;set_text.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;lo_column&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_column_table.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;name&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;s_text&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_short_text(&nbsp;s_text&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;m_text&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_medium_text(&nbsp;m_text&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;l_text&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_long_text(&nbsp;l_text&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_not_found&nbsp;INTO&nbsp;DATA(err).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;set_color.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;lo_column&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_column_table.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;ls_col&nbsp;TYPE&nbsp;lvc_s_colo&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column&nbsp;?=&nbsp;lo_columns-&gt;get_column(&nbsp;name&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_column-&gt;set_color(&nbsp;value&nbsp;=&nbsp;VALUE&nbsp;lvc_s_colo(&nbsp;col&nbsp;=&nbsp;col&nbsp;int&nbsp;=&nbsp;int&nbsp;inv&nbsp;=&nbsp;inv&nbsp;)&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_not_found&nbsp;INTO&nbsp;DATA(err).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;on_link_click.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;t_data&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;line&gt;)&nbsp;INDEX&nbsp;row.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;column&nbsp;=&nbsp;'MATNR'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PARAMETER&nbsp;ID&nbsp;'MAT'&nbsp;FIELD&nbsp;&lt;line&gt;-matnr&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PARAMETER&nbsp;ID&nbsp;'MXX'&nbsp;FIELD&nbsp;'K'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;TRANSACTION&nbsp;'MM03'&nbsp;AND&nbsp;SKIP&nbsp;FIRST&nbsp;SCREEN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;column&nbsp;=&nbsp;'CHECKBOX'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;line&gt;-checkbox&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;line&gt;-checkbox&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;&lt;line&gt;-checkbox.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;refresh(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;on_user_command.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lt_rows&nbsp;TYPE&nbsp;salv_t_row,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_cols&nbsp;TYPE&nbsp;salv_t_column,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_cell&nbsp;TYPE&nbsp;salv_s_cell.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lr_selections&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_selections.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;e_salv_function.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SHOW_SEL'."show&nbsp;selection<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"display&nbsp;selections<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_selections&nbsp;=&nbsp;o_alv-&gt;get_selections(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_rows&nbsp;=&nbsp;lr_selections-&gt;get_selected_rows(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_cols&nbsp;=&nbsp;lr_selections-&gt;get_selected_columns(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_cell&nbsp;=&nbsp;lr_selections-&gt;get_current_cell(&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SET_ROWS'.&nbsp;"set&nbsp;selected&nbsp;rows<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;4&nbsp;TO&nbsp;lt_rows.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;5&nbsp;TO&nbsp;lt_rows.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;6&nbsp;TO&nbsp;lt_rows.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_selections&nbsp;=&nbsp;o_alv-&gt;get_selections(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_selections-&gt;set_selected_rows(&nbsp;lt_rows&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SET_COLS'.&nbsp;"set&nbsp;selected&nbsp;cols<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;'PRICE'&nbsp;TO&nbsp;lt_cols.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_selections&nbsp;=&nbsp;o_alv-&gt;get_selections(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_selections-&gt;set_selected_columns(&nbsp;lt_cols&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SET_CELL'."&nbsp;set&nbsp;selected&nbsp;cell<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_cell-columnname&nbsp;=&nbsp;'PLANETYPE'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_cell-row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_selections&nbsp;=&nbsp;o_alv-&gt;get_selections(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lr_selections-&gt;set_current_cell(&nbsp;ls_cell&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SUBTOTAL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lo_aggregations&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_aggregations.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lo_groups&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_sorts&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_aggregations&nbsp;=&nbsp;o_alv-&gt;get_aggregations(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_aggregations-&gt;clear(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_groups&nbsp;=&nbsp;o_alv-&gt;get_sorts(&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_groups-&gt;clear(&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_groups-&gt;add_sort(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;columnname&nbsp;=&nbsp;'STOK_KODU'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subtotal&nbsp;&nbsp;&nbsp;=&nbsp;abap_true<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sequence&nbsp;&nbsp;&nbsp;=&nbsp;if_salv_c_sort=&gt;sort_up&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_not_found&nbsp;cx_salv_data_error&nbsp;cx_salv_existing.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_aggregations-&gt;add_aggregation(&nbsp;columnname&nbsp;=&nbsp;'TEORIK_GEREKLI'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;cx_salv_not_found&nbsp;cx_salv_data_error&nbsp;cx_salv_existing.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;refresh(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_stable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;value&nbsp;lvc_s_stbl(&nbsp;row&nbsp;=&nbsp;'X'&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;ALV&nbsp;Control:&nbsp;Refresh&nbsp;Stability<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;refresh_mode&nbsp;=&nbsp;if_salv_c_refresh=&gt;full&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;ALV:&nbsp;Data&nbsp;Element&nbsp;for&nbsp;Constants<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+&nbsp;&nbsp;METHOD&nbsp;create_top_of_page.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lo_top_element&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_layout_grid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_end_element&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_layout_flow,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_grid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_layout_grid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_header&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_header_info,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_action&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_action_info,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_textview1&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_text,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_textview2&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_text,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_textview3&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_text,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_textview4&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_text,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_icon&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_icon,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid1&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_layout_data_grid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid2&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_layout_data_grid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid3&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_layout_data_grid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid4&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_layout_data_grid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lo_logo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_layout_logo.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;lo_top_element<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;columns&nbsp;=&nbsp;2.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"Büyük&nbsp;harfli&nbsp;sayfa&nbsp;ba#l###<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_top_element-&gt;create_header_information(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BA#LIK'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tooltip&nbsp;&nbsp;=&nbsp;'Alv&nbsp;Ba#l###'&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"italik&nbsp;küçük&nbsp;harfli&nbsp;bilgi&nbsp;metnü<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_top_element-&gt;create_action_information(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;Natural&nbsp;Number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;&nbsp;=&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;Natural&nbsp;Number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'Action&nbsp;Info'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tooltip&nbsp;=&nbsp;'Italik&nbsp;Text'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"yeni&nbsp;bir&nbsp;grid&nbsp;yarat.&nbsp;Giri#&nbsp;parametleri&nbsp;grid'in&nbsp;pozisyonudur<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_grid&nbsp;=&nbsp;lo_top_element-&gt;create_grid(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;&nbsp;=&nbsp;1&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_textview1&nbsp;=&nbsp;lo_grid-&gt;create_text(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'New&nbsp;Grid&nbsp;Row&nbsp;1&nbsp;Column&nbsp;1'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tooltip&nbsp;=&nbsp;'Tooltip'&nbsp;).&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_textview2&nbsp;=&nbsp;lo_grid-&gt;create_text(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'New&nbsp;Grid&nbsp;Row&nbsp;1&nbsp;Column&nbsp;2'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tooltip&nbsp;=&nbsp;'Tooltip'&nbsp;).&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"Label&nbsp;&&nbsp;Text<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"Label&nbsp;bold&nbsp;text&nbsp;normal<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_grid-&gt;create_label(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;Natural&nbsp;Number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;Natural&nbsp;Number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'Ad:'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tooltip&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'Label'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r_label_for&nbsp;=&nbsp;lo_textview3&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;Text<br />
+&nbsp;&nbsp;&nbsp;&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_textview3&nbsp;=&nbsp;lo_grid-&gt;create_text(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'Özkan&nbsp;Ç#nar'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tooltip&nbsp;=&nbsp;'Labell#&nbsp;TextView'&nbsp;).&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"Set&nbsp;alignment<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid1&nbsp;?=&nbsp;lo_textview1-&gt;get_layout_data(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid2&nbsp;?=&nbsp;lo_textview2-&gt;get_layout_data(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid3&nbsp;?=&nbsp;lo_textview3-&gt;get_layout_data(&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid1-&gt;set_h_align(&nbsp;if_salv_form_c_h_align=&gt;left&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid2-&gt;set_h_align(&nbsp;if_salv_form_c_h_align=&gt;right&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_layout_grid3-&gt;set_h_align(&nbsp;if_salv_form_c_h_align=&gt;left&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"insert&nbsp;icon<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;lo_icon<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;icon&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'@0A@'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tooltip&nbsp;=&nbsp;'Air'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lo_grid-&gt;set_element(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r_element&nbsp;=&nbsp;lo_icon&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"logosuz<br />
+&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;set_top_of_list(&nbsp;value&nbsp;=&nbsp;lo_top_element&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"insert&nbsp;logo<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;create&nbsp;OBJECT&nbsp;lo_logo.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;lo_logo-&gt;set_left_content(&nbsp;value&nbsp;=&nbsp;lo_top_element&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;lo_logo-&gt;set_right_logo(&nbsp;value&nbsp;=&nbsp;'ALV_BACKGROUND'&nbsp;).<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;set_top_of_list(&nbsp;value&nbsp;=&nbsp;lo_logo&nbsp;).<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"*-----------------FOOTER-------------------------*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;lr_eol&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_salv_form_header_info.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;lr_eol<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;'This&nbsp;is&nbsp;my&nbsp;Footer'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"#EC&nbsp;NOTEXT<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;o_alv-&gt;set_end_of_list(&nbsp;lr_eol&nbsp;).<br />
+<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+<br />
+ENDCLASS.<br />
+<br />
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;DATA(lo_salv)&nbsp;=&nbsp;NEW&nbsp;lcl_salv(&nbsp;).<br />
+&nbsp;&nbsp;lo_salv-&gt;init(&nbsp;).<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740</td>
+   </tr>
+</table>
+</body>
+</html>

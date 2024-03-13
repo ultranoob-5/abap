@@ -1,0 +1,439 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+<title>ZVENDOR_PAYMENT_STATUS</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZVENDOR_PAYMENT_STATUS</h2>
+<h3> Description: Vendor Payment Status Report</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;Report&nbsp;&nbsp;ZVENDOR_PAYMENT_STATUS<br />
+*&---------------------------------------------------------------------*<br />
+*&Author&nbsp;Name:<br />
+*&Purpose&nbsp;:<br />
+*&Transport&nbsp;:<br />
+*&&nbsp;Date&nbsp;:<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT zvendor_payment_status.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Data&nbsp;Declaraction<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF ts_lfa1,<br />
+lifnr TYPE lfa1-lifnr,<br />
+name1 TYPE lfa1-name1,<br />
+END OF ts_lfa1,<br />
+<br />
+BEGIN OF ts_lfb1,<br />
+lifnr TYPE lfb1-lifnr,<br />
+bukrs TYPE lfb1-bukrs,<br />
+erdat TYPE lfa1-erdat,<br />
+END OF ts_lfb1,<br />
+<br />
+BEGIN OF ts_bkpf,<br />
+bukrs TYPE bkpf-bukrs,<br />
+belnr TYPE bkpf-belnr,<br />
+gjahr TYPE bkpf-gjahr,<br />
+bktxt TYPE bkpf-bktxt,<br />
+bldat TYPE bkpf-bldat,<br />
+budat TYPE bkpf-budat,<br />
+END OF ts_bkpf,<br />
+<br />
+BEGIN OF ts_bseg,<br />
+belnr TYPE bseg-belnr,<br />
+gjahr TYPE bseg-gjahr,<br />
+bukrs TYPE bseg-bukrs,<br />
+lifnr TYPE bseg-lifnr,<br />
+wrbtr TYPE bseg-wrbtr,<br />
+END OF ts_bseg,<br />
+<br />
+BEGIN OF ts_bsik,<br />
+bukrs TYPE bsik-bukrs,<br />
+lifnr TYPE bsik-lifnr,<br />
+augdt TYPE bsik-augdt,<br />
+augbl TYPE bsik-augbl,<br />
+xblnr TYPE bsik-xblnr,<br />
+END OF ts_bsik,<br />
+<br />
+BEGIN OF ts_final,<br />
+belnr TYPE bkpf-belnr,<br />
+bukrs TYPE lfb1-bukrs,<br />
+gjahr TYPE bkpf-gjahr,<br />
+lifnr TYPE lfa1-lifnr,<br />
+budat TYPE bkpf-budat,<br />
+wrbtr TYPE bseg-wrbtr,<br />
+augbl TYPE bsik-augbl,<br />
+xblnr TYPE bsik-xblnr,<br />
+bktxt TYPE bkpf-bktxt,<br />
+augdt TYPE bsik-augdt,<br />
+END OF ts_final.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Internal&nbsp;Table&nbsp;Declaration<br />
+   </div>
+   <div class="code">
+DATA: lt_lfa1   TYPE TABLE OF ts_lfa1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_lfa1&nbsp;&nbsp;&nbsp;TYPE&nbsp;ts_lfa1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_lfb1&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_lfb1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_lfb1&nbsp;&nbsp;&nbsp;TYPE&nbsp;ts_lfb1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_bkpf&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_bkpf,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_bkpf&nbsp;&nbsp;&nbsp;TYPE&nbsp;ts_bkpf,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_bseg&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_bseg,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_bseg&nbsp;&nbsp;&nbsp;TYPE&nbsp;ts_bseg,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_bsik&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_bsik,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_bsik&nbsp;&nbsp;&nbsp;TYPE&nbsp;ts_bsik,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_final&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final&nbsp;&nbsp;TYPE&nbsp;ts_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_layout&nbsp;TYPE&nbsp;slis_layout_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_fcat&nbsp;&nbsp;&nbsp;TYPE&nbsp;slis_t_fieldcat_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_fcat&nbsp;&nbsp;&nbsp;TYPE&nbsp;slis_fieldcat_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_subt&nbsp;&nbsp;&nbsp;TYPE&nbsp;slis_t_sortinfo_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_subt&nbsp;&nbsp;&nbsp;TYPE&nbsp;slis_sortinfo_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_prog&nbsp;&nbsp;&nbsp;TYPE&nbsp;sy-repid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_listh&nbsp;&nbsp;TYPE&nbsp;slis_t_listheader,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_listh&nbsp;&nbsp;TYPE&nbsp;slis_listheader.<br />
+<br />
+SELECT-OPTIONS: s_lifnr FOR ls_lfb1-lifnr.<br />
+<br />
+START-OF-SELECTION.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;lifnr&nbsp;bukrs&nbsp;erdat<br />
+&nbsp;&nbsp;FROM&nbsp;lfb1<br />
+&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_lfb1<br />
+&nbsp;&nbsp;WHERE&nbsp;lifnr&nbsp;IN&nbsp;s_lifnr.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;lt_lfb1&nbsp;BY&nbsp;lifnr&nbsp;bukrs.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;lt_lfb1[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;lifnr&nbsp;name1&nbsp;FROM&nbsp;lfa1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_lfa1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_lfb1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;lifnr&nbsp;=&nbsp;lt_lfb1-lifnr.<br />
+<br />
+&nbsp;If&nbsp;Sy-Subrc&nbsp;IS&nbsp;Initial.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;lt_lfa1&nbsp;BY&nbsp;lifnr.<br />
+ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;belnr&nbsp;gjahr&nbsp;bukrs&nbsp;lifnr&nbsp;wrbtr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;bseg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_bseg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_lfb1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;lifnr&nbsp;=&nbsp;lt_lfb1-lifnr&nbsp;AND&nbsp;bukrs&nbsp;=&nbsp;lt_lfb1-bukrs.<br />
+<br />
+&nbsp;If&nbsp;Sy-Subrc&nbsp;IS&nbsp;Initial.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;lt_bseg&nbsp;BY&nbsp;gjahr&nbsp;bukrs&nbsp;belnr.<br />
+ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;lt_bseg[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;bukrs&nbsp;lifnr&nbsp;augdt&nbsp;augbl&nbsp;xblnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;bsik<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_bsik<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_bseg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;bukrs&nbsp;=&nbsp;lt_bseg-bukrs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;lifnr&nbsp;=&nbsp;lt_bseg-lifnr.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;lt_bsik&nbsp;BY&nbsp;bukrs&nbsp;lifnr&nbsp;augdt.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;bukrs&nbsp;belnr&nbsp;gjahr&nbsp;bktxt&nbsp;bldat&nbsp;budat<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;bkpf<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_bkpf<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_bseg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;bukrs&nbsp;=&nbsp;lt_bseg-bukrs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;belnr&nbsp;=&nbsp;lt_bseg-belnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;gjahr&nbsp;=&nbsp;lt_bseg-gjahr.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;lt_bkpf&nbsp;BY&nbsp;bukrs&nbsp;belnr&nbsp;gjahr.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_bseg&nbsp;INTO&nbsp;ls_bseg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_final-belnr&nbsp;=&nbsp;ls_bseg-belnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_final-bukrs&nbsp;=&nbsp;ls_bseg-bukrs.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_final-gjahr&nbsp;=&nbsp;ls_bseg-gjahr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_final-lifnr&nbsp;=&nbsp;ls_bseg-lifnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_final-wrbtr&nbsp;=&nbsp;ls_bseg-wrbtr.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_bsik&nbsp;INTO&nbsp;ls_bsik<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;bukrs&nbsp;=&nbsp;ls_bseg-bukrs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lifnr&nbsp;=&nbsp;ls_bseg-lifnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final-augbl&nbsp;=&nbsp;ls_bsik-augbl.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final-xblnr&nbsp;=&nbsp;ls_bsik-xblnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final-augdt&nbsp;=&nbsp;ls_bsik-augdt.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_bkpf&nbsp;INTO&nbsp;ls_bkpf<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;bukrs&nbsp;=&nbsp;ls_bseg-bukrs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;belnr&nbsp;=&nbsp;ls_bseg-belnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gjahr&nbsp;=&nbsp;ls_bseg-gjahr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final-bktxt&nbsp;=&nbsp;ls_bkpf-bktxt.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final-budat&nbsp;=&nbsp;ls_bkpf-budat.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_final&nbsp;TO&nbsp;lt_final.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_final.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;ls_layout-colwidth_optimize&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ls_layout-zebra&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;ls_subt-fieldname&nbsp;=&nbsp;'BELNR'.<br />
+&nbsp;&nbsp;ls_subt-up&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ls_subt-subtot&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_subt&nbsp;TO&nbsp;lt_subt[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_subt.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'BELNR'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Accounting&nbsp;Document&nbsp;Number'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'BUKRS'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=<br />
+<br />
+&nbsp;&nbsp;'Company&nbsp;Code'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'GJAHR'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Fiscal&nbsp;Year'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'4'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'LIFNR'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Vendor&nbsp;Number'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'5'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'BUDAT'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Posting&nbsp;Date'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'6'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'WRBTR'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Amount&nbsp;in&nbsp;document&nbsp;currency'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;ls_fcat-do_sum&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'7'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'AUGBL'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Document&nbsp;Number&nbsp;of&nbsp;the&nbsp;Clearing&nbsp;Document'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'8'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'XBLNR'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Reference&nbsp;Document&nbsp;Number'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'9'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'BKTXT'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Document&nbsp;Header&nbsp;Text'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+&nbsp;&nbsp;ls_fcat-col_pos&nbsp;=&nbsp;'10'.<br />
+&nbsp;&nbsp;ls_fcat-fieldname&nbsp;=&nbsp;'AUGDT'.<br />
+&nbsp;&nbsp;ls_fcat-seltext_m&nbsp;=&nbsp;'Clearing&nbsp;Date'.<br />
+&nbsp;&nbsp;ls_fcat-tabname&nbsp;=&nbsp;'LT_FINAL'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_fcat&nbsp;TO&nbsp;lt_fcat.<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_fcat.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_callback_program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_callback_pf_status_set&nbsp;=&nbsp;'BUTTON'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_callback_user_command&nbsp;&nbsp;=&nbsp;'UCOMMAND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_callback_top_of_page&nbsp;&nbsp;&nbsp;=&nbsp;'TOP_OF_PAGE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is_layout&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_layout<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it_fieldcat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_fcat<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it_sort&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_subt<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_outtab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_final.<br />
+<br />
+FORM top_of_page.<br />
+&nbsp;&nbsp;DATA:&nbsp;lv_total&nbsp;TYPE&nbsp;i.<br />
+&nbsp;&nbsp;DESCRIBE&nbsp;TABLE&nbsp;lt_final&nbsp;LINES&nbsp;lv_total.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_listh.<br />
+&nbsp;&nbsp;ls_listh-typ&nbsp;=&nbsp;'H'.<br />
+&nbsp;&nbsp;ls_listh-info&nbsp;=&nbsp;'VENDOR&nbsp;PAYMENT&nbsp;STATUS&nbsp;REPORT'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_listh&nbsp;TO&nbsp;lt_listh.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_listh.<br />
+&nbsp;&nbsp;ls_listh-typ&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;ls_listh-info&nbsp;=&nbsp;lv_total.<br />
+&nbsp;&nbsp;ls_listh-key&nbsp;=&nbsp;'Number&nbsp;of&nbsp;Records:'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_listh&nbsp;TO&nbsp;lt_listh.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_listh.<br />
+&nbsp;&nbsp;ls_listh-typ&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;ls_listh-info&nbsp;=&nbsp;sy-cprog.<br />
+&nbsp;&nbsp;ls_listh-key&nbsp;=&nbsp;'Program&nbsp;Name:&nbsp;'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_listh&nbsp;TO&nbsp;lt_listh.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;ls_listh.<br />
+&nbsp;&nbsp;ls_listh-typ&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;ls_listh-key&nbsp;=&nbsp;'Date:'.<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;sy-datum+6(2)<br />
+&nbsp;&nbsp;sy-datum+4(2)<br />
+&nbsp;&nbsp;sy-datum(4)<br />
+&nbsp;&nbsp;INTO&nbsp;ls_listh-info<br />
+&nbsp;&nbsp;SEPARATED&nbsp;BY&nbsp;'/'.<br />
+&nbsp;&nbsp;APPEND&nbsp;ls_listh&nbsp;TO&nbsp;lt_listh.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_COMMENTARY_WRITE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it_list_commentary&nbsp;=&nbsp;lt_listh.<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;lt_listh.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM button USING lv_status TYPE slis_t_extab.<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZALVREPORT'.<br />
+ENDFORM.<br />
+<br />
+FORM ucommand USING ucomm LIKE sy-ucomm<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_button&nbsp;TYPE&nbsp;slis_selfield.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;ucomm.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'XML'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;TRANSFORMATION&nbsp;id&nbsp;SOURCE&nbsp;lt_final&nbsp;=&nbsp;lt_final<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RESULT&nbsp;XML&nbsp;DATA(lv_xml).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cl_demo_output=&gt;display_xml(&nbsp;xml&nbsp;=&nbsp;lv_xml&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'JSO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA(lv_json)&nbsp;=&nbsp;cl_sxml_string_writer=&gt;create(&nbsp;type&nbsp;&nbsp;=&nbsp;if_sxml=&gt;co_xt_json&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;TRANSFORMATION&nbsp;id&nbsp;SOURCE&nbsp;lt_final&nbsp;=&nbsp;lt_final<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RESULT&nbsp;XML&nbsp;lv_json.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA(json)&nbsp;=&nbsp;lv_json-&gt;get_output(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cl_demo_output=&gt;display_json(&nbsp;json&nbsp;=&nbsp;json&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'HTM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA(lv_html)&nbsp;=&nbsp;cl_demo_output=&gt;get(&nbsp;data&nbsp;=&nbsp;lt_final&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cl_demo_output=&gt;display_html(&nbsp;html&nbsp;=&nbsp;lv_html&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'HTL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;:&nbsp;html&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;w3html&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fields&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;w3fields&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'WWW_ITAB_TO_HTML'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all_fields&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;html&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;html<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fields&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;fields<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;itable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_final.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GUI_DOWNLOAD'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C:\Temp\ITAB_TO_HTML.html'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data_tab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;html.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cl_gui_frontend_services=&gt;execute(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C:\Temp\ITAB_TO_HTML.html'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;operation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'OPEN'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enter&nbsp;Vendor&nbsp;Number<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740</td>
+   </tr>
+</table>
+</body>
+</html>

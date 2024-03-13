@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+<title>ZBAPI_TEST1</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZBAPI_TEST1</h2>
+<h3> Description: Create Material Using Standard BAPI</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;Report&nbsp;&nbsp;ZBAPI_TEST1<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+*&<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT zbapi_test1.<br />
+<br />
+TYPES: BEGIN OF ts_bapi,<br />
+material TYPE C LENGTH 18,<br />
+ind_sec TYPE C LENGTH 1,<br />
+mat_type TYPE C LENGTH 4,<br />
+mat_grp TYPE C LENGTH 9,<br />
+uom TYPE C LENGTH 3,<br />
+lang TYPE C LENGTH 1,<br />
+desc TYPE C LENGTH 40,<br />
+END OF ts_bapi.<br />
+<br />
+DATA: ls_bapi TYPE ts_bapi,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_bapi&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ts_bapi,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_bapihead&nbsp;TYPE&nbsp;bapimathead,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_bapimara&nbsp;TYPE&nbsp;bapi_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_bapimarax&nbsp;TYPE&nbsp;bapi_marax,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_matdesc&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;bapi_makt,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_matdesc&nbsp;TYPE&nbsp;bapi_makt,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raw_data&nbsp;TYPE&nbsp;truxs_t_text_data,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_return&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;bapiret2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_return&nbsp;TYPE&nbsp;bapiret2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_num&nbsp;TYPE&nbsp;c&nbsp;LENGTH&nbsp;1&nbsp;VALUE&nbsp;'0'.<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.<br />
+PARAMETERS: p_file TYPE rlgrap-filename.<br />
+SELECTION-SCREEN END OF BLOCK b1.<br />
+<br />
+<br />
+START-OF-SELECTION.<br />
+<br />
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.<br />
+<br />
+CALL FUNCTION 'F4_FILENAME'<br />
+EXPORTING<br />
+&nbsp;&nbsp;program_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;syst-cprog<br />
+&nbsp;&nbsp;dynpro_number&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;syst-dynnr<br />
+&nbsp;&nbsp;field_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'P_FILE'<br />
+IMPORTING<br />
+&nbsp;&nbsp;file_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;p_file.<br />
+<br />
+CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'<br />
+EXPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;i_field_seperator&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;i_line_header&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;i_tab_raw_data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;raw_data<br />
+&nbsp;&nbsp;i_filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;p_file<br />
+TABLES<br />
+&nbsp;&nbsp;i_tab_converted_data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_bapi<br />
+EXCEPTIONS<br />
+&nbsp;&nbsp;CONVERSION_FAILED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;.<br />
+<br />
+<br />
+LOOP AT lt_bapi INTO ls_bapi.<br />
+<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;lv_num&nbsp;ls_bapi-mat_grp&nbsp;INTO&nbsp;DATA(lv_matgrp).<br />
+<br />
+ls_bapihead-material = ls_bapi-material.<br />
+ls_bapihead-ind_sector = ls_bapi-ind_sec.<br />
+ls_bapihead-matl_type = ls_bapi-mat_type.<br />
+<br />
+ls_bapimara-base_uom = ls_bapi-uom.<br />
+ls_bapimara-matl_group = lv_matgrp.<br />
+<br />
+ls_bapimarax-matl_group = abap_true.<br />
+ls_bapimarax-base_uom = abap_true.<br />
+<br />
+ls_matdesc-langu = ls_bapi-lang.<br />
+ls_matdesc-matl_desc = ls_bapi-desc.<br />
+<br />
+APPEND ls_matdesc TO lt_matdesc.<br />
+<br />
+CALL FUNCTION 'BAPI_MATERIAL_SAVEDATA'<br />
+EXPORTING<br />
+&nbsp;&nbsp;headdata&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_bapihead<br />
+&nbsp;&nbsp;clientdata&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_bapimara<br />
+&nbsp;&nbsp;clientdatax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_bapimarax<br />
+IMPORTING<br />
+&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;ls_return<br />
+TABLES<br />
+&nbsp;&nbsp;materialdescription&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_matdesc.<br />
+<br />
+IF ls_return-TYPE = 'S'.<br />
+<br />
+CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'<br />
+EXPORTING<br />
+&nbsp;&nbsp;WAIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+<br />
+IF sy-subrc IS INITIAL.<br />
+<br />
+DATA(lv_text) = 'material successfully created in DB table'.<br />
+<br />
+CONCATENATE ls_bapi-material lv_text INTO DATA(msg) SEPARATED BY ' '.<br />
+<br />
+WRITE : / msg.<br />
+<br />
+ENDIF.<br />
+<br />
+ELSEIF ls_return-TYPE = 'E'.<br />
+<br />
+CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.<br />
+WRITE : / 'unable to create entries in db table',ls_bapi-material.<br />
+<br />
+ENDIF.<br />
+<br />
+CLEAR :  ls_matdesc,ls_bapimara,ls_bapimarax,ls_bapihead,ls_return,lv_matgrp.<br />
+<br />
+REFRESH : lt_matdesc.<br />
+<br />
+<br />
+ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;001&nbsp;Enter&nbsp;file&nbsp;Path<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_FILE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Upload&nbsp;File<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740</td>
+   </tr>
+</table>
+</body>
+</html>

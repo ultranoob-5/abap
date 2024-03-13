@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+<title>Dictionary object- ZSTR_EMPLOYEE</title>
+<style type="text/css">
+  th{text-align:left}
+  .cell{
+     font-family:"Courier New", Courier, monospace;
+     color:#000;
+     font-size:12px;
+     background-color:#F2F4F7;
+  }
+  .cell td { border: thin solid #ccc; }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+  <table class="outerTable">
+    <tr>
+      <td><h2>Table: ZSTR_EMPLOYEE</h2>
+  <h3>Description: Structure for Employee</h3></td>
+    </tr>
+    <tr>
+      <td><!--This is where our main table begins  -->
+<table class="innerTable">
+<tr>
+  <th>Row</th>
+  <th>Field name</th>
+  <th>Position</th>
+  <th>Key</th>
+  <th>Data element</th>
+  <th>Domain</th>
+  <th>Datatype</th>
+  <th>Length</th>
+  <th>Lowercase</th>
+  <th>Domain text</th>
+</tr>
+<tr class="cell">
+  <td> 1</td>
+  <td>EMPLOYEE_NUMBER</td>
+  <td>1</td>
+  <td>&nbsp;</td>
+  <td>ZEMP_NO</td>
+  <td>ZEMP_NO</td>
+  <td>CHAR</td>
+  <td>20</td>
+  <td>&nbsp;</td>
+  <td>Employee Number</td>
+</tr>
+<tr class="cell">
+  <td> 2</td>
+  <td>GENDER</td>
+  <td>2</td>
+  <td>&nbsp;</td>
+  <td>ZGEND</td>
+  <td>ZGEND</td>
+  <td>CHAR</td>
+  <td>10</td>
+  <td>X</td>
+  <td>Employee Gender</td>
+</tr>
+<tr class="cell">
+  <td> 3</td>
+  <td>DEPARTMENT_ID</td>
+  <td>3</td>
+  <td>&nbsp;</td>
+  <td>ZDEPT_ID</td>
+  <td>CHAR10</td>
+  <td>CHAR</td>
+  <td>10</td>
+  <td>&nbsp;</td>
+  <td>department id</td>
+</tr>
+<tr class="cell">
+  <td> 4</td>
+  <td>DEPT_NAME</td>
+  <td>4</td>
+  <td>&nbsp;</td>
+  <td>ZDEPARTMEN_NAME</td>
+  <td>ZDEPART_NAME</td>
+  <td>CHAR</td>
+  <td>20</td>
+  <td>X</td>
+  <td>department name</td>
+</tr>
+<tr class="cell">
+  <td> 5</td>
+  <td>SALARY</td>
+  <td>5</td>
+  <td>&nbsp;</td>
+  <td>ZSALARY</td>
+  <td>WERT5</td>
+  <td>CURR</td>
+  <td>9</td>
+  <td>&nbsp;</td>
+  <td>Candidate Salary</td>
+</tr>
+<tr class="cell">
+  <td> 6</td>
+  <td>CURRENCY</td>
+  <td>6</td>
+  <td>&nbsp;</td>
+  <td>WAERK</td>
+  <td>WAERS</td>
+  <td>CUKY</td>
+  <td>5</td>
+  <td>&nbsp;</td>
+  <td>SD Document Currency</td>
+</tr>
+      </table>
+     </td>
+   </tr>
+<br/>
+  <table class="outerTable">
+    <tr>
+      <td><h2>Fixed Domain Values </h2>
+    </tr>
+    <tr>
+      <td><!--This is where our main table begins  -->
+<table class="innerTable">
+<tr>
+  <th>Domain Name</th>
+  <th>Value Low</th>
+  <th>Value High</th>
+  <th>Text</th>
+</tr>
+<tr class="cell">
+  <td>ZGEND</td>
+  <td>Male</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+<tr class="cell">
+  <td>ZGEND</td>
+  <td>Female</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+<tr class="cell">
+  <td>ZDEPART_NAME</td>
+  <td>SAP ABAP</td>
+  <td>&nbsp;</td>
+  <td>Team</td>
+</tr>
+<tr class="cell">
+  <td>ZDEPART_NAME</td>
+  <td>JAVA</td>
+  <td>&nbsp;</td>
+  <td>Team</td>
+</tr>
+<tr class="cell">
+  <td>ZDEPART_NAME</td>
+  <td>.NET</td>
+  <td>&nbsp;</td>
+  <td>Team</td>
+</tr>
+<tr class="cell">
+  <td>ZDEPART_NAME</td>
+  <td>PYTHON</td>
+  <td>&nbsp;</td>
+  <td>Team</td>
+</tr>
+      </table>
+     </td>
+   </tr>
+   <tr>
+<td class="footer">Extracted by Mass Download version 1.5.5 - E.G.Mellodew. 1998-2024. Sap Release 740</td>
+   </tr>
+</table>
+</body>
+</html>
