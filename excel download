@@ -1,0 +1,191 @@
+*&---------------------------------------------------------------------*
+*& Report ZPENDING_ORDER_STATUS
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zpending_order_status.
+
+TYPES: BEGIN OF ts_zsordoutcol,
+         vbeln       TYPE vbeln,
+         kunnr       TYPE kunnr,
+         audat       TYPE audat,
+         matnr       TYPE matnr,
+         penord      TYPE p LENGTH 10  DECIMALS 2,
+         penordv     TYPE p LENGTH 10 DECIMALS 2,
+       END OF ts_zsordoutcol,
+
+       BEGIN OF ts_kna1,
+         kunnr TYPE kunnr,
+         name1 TYPE name1_gp,
+       END OF ts_kna1,
+
+       BEGIN OF ts_makt,
+         matnr TYPE matnr,
+         maktx TYPE  maktx,
+       END OF ts_makt,
+
+
+       BEGIN OF ts_final,
+         vbeln       TYPE vbeln,
+         kunnr       TYPE kunnr,
+         audat       TYPE audat,
+         matnr       TYPE matnr,
+         penord(10) TYPE p DECIMALS 2,
+         penordv(10) TYPE p DECIMALS 2,
+         name1       TYPE name1_gp,
+         maktx       TYPE  maktx,
+       END OF ts_final.
+
+DATA: lt_zsordoutcol TYPE TABLE OF ts_zsordoutcol,
+      ls_zsordoutcol TYPE ts_zsordoutcol,
+      lt_kna1        TYPE TABLE OF ts_kna1,
+      ls_kna1        TYPE ts_kna1,
+      lt_makt        TYPE TABLE OF ts_makt,
+      ls_makt        TYPE ts_makt,
+      lt_final       TYPE TABLE OF ts_final,
+      ls_final       TYPE ts_final,
+      ls_layout TYPE slis_layout_alv,
+      lt_fcat   TYPE slis_t_fieldcat_alv,
+      ls_fcat   TYPE slis_fieldcat_alv.
+
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+
+  SELECT-OPTIONS so_kunnr FOR ls_zsordoutcol-kunnr.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+START-OF-SELECTION.
+
+  IF so_kunnr IS NOT INITIAL.
+    SELECT  vbeln kunnr audat matnr penord penordv
+      FROM zsordoutcol
+      INTO TABLE lt_zsordoutcol
+      WHERE kunnr IN so_kunnr
+      AND  penord NE 0
+      ORDER BY kunnr.
+  ENDIF.
+
+  IF lt_zsordoutcol IS NOT INITIAL.
+    SELECT kunnr
+           name1
+      FROM kna1
+      INTO TABLE lt_kna1
+      FOR ALL ENTRIES IN lt_zsordoutcol
+      WHERE kunnr = lt_zsordoutcol-kunnr.
+    SORT lt_kna1 BY kunnr.
+
+
+    SELECT matnr
+           maktx
+      FROM makt
+      INTO TABLE lt_makt
+      FOR ALL ENTRIES IN lt_zsordoutcol
+      WHERE matnr = lt_zsordoutcol-matnr.
+    SORT lt_makt[] BY matnr.
+
+  ENDIF.
+
+  LOOP AT lt_zsordoutcol INTO ls_zsordoutcol.
+    ls_final-vbeln = ls_zsordoutcol-vbeln.
+    ls_final-kunnr = ls_zsordoutcol-kunnr.
+    ls_final-audat = ls_zsordoutcol-audat.
+    ls_final-matnr = ls_zsordoutcol-matnr.
+    ls_final-penord = ls_zsordoutcol-penord.
+    ls_final-penordv = ls_zsordoutcol-penordv.
+
+    READ TABLE lt_kna1 INTO ls_kna1 WITH KEY kunnr = ls_zsordoutcol-kunnr BINARY SEARCH .
+    IF sy-subrc IS INITIAL.
+      ls_final-name1 = ls_kna1-kunnr.
+    ENDIF.
+
+    READ TABLE lt_makt INTO ls_makt WITH KEY matnr = ls_zsordoutcol-matnr BINARY SEARCH .
+    IF sy-subrc IS INITIAL.
+      ls_final-maktx = ls_makt-maktx.
+    ENDIF.
+
+    APPEND ls_final TO lt_final.
+    CLEAR ls_final.
+
+  ENDLOOP.
+
+  ls_layout-colwidth_optimize = 'X'.
+  ls_layout-zebra = 'X'.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '1'.
+  ls_fcat-fieldname = 'VBELN'.
+  ls_fcat-seltext_m = 'Document Number'.
+  ls_fcat-tabname = 'lt_final'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '2'.
+  ls_fcat-fieldname = 'KUNNR'.
+  ls_fcat-seltext_m = 'Customer Number'.
+  ls_fcat-tabname = 'lt_final'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '3'.
+  ls_fcat-fieldname = 'AUDAT'.
+  ls_fcat-seltext_m = 'Document Date'.
+  ls_fcat-tabname = 'lt_final'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '4'.
+  ls_fcat-fieldname = 'MATNR'.
+  ls_fcat-seltext_m = 'Material Number'.
+  ls_fcat-tabname = 'lt_final'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '5'.
+  ls_fcat-fieldname = 'PENORD'.
+  ls_fcat-seltext_m = 'Pending Order Quantity'.
+  ls_fcat-tabname = 'lt_final'.
+  ls_fcat-do_sum = 'X'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '6'.
+  ls_fcat-fieldname = 'PENORDV'.
+  ls_fcat-seltext_m = 'Pending Order Value'.
+  ls_fcat-tabname = 'lt_final'.
+  ls_fcat-do_sum = 'X'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '7'.
+  ls_fcat-fieldname = 'NAME1'.
+  ls_fcat-seltext_m = 'Document Number of the Clearing Document'.
+  ls_fcat-tabname = 'lt_final'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CLEAR ls_fcat.
+  ls_fcat-col_pos = '8'.
+  ls_fcat-fieldname = 'MAKTX'.
+  ls_fcat-seltext_m = 'Reference Document Number'.
+  ls_fcat-tabname = 'lt_final'.
+  APPEND ls_fcat TO lt_fcat.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+   EXPORTING
+     I_CALLBACK_PROGRAM                = sy-repid
+     I_CALLBACK_PF_STATUS_SET          = 'BUTTON'
+     IS_LAYOUT                         = ls_layout
+     IT_FIELDCAT                       = lt_fcat
+    TABLES
+      t_outtab                          = lt_final
+     EXCEPTIONS
+       PROGRAM_ERROR                     = 1
+       OTHERS                            = 2
+            .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+  FORM button USING lv_status TYPE slis_t_extab.
+  SET PF-STATUS 'ZPO'.
+ENDFORM.
