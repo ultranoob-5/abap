@@ -6,13 +6,15 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT ZPENDING_ORDER4.
+REPORT zpending_order4.
+
+* Data Types
 TYPES: BEGIN OF ts_zsordoutcol,
          vbeln       TYPE vbeln,
          kunnr       TYPE kunnr,
          audat       TYPE audat,
          matnr       TYPE matnr,
-         penord      TYPE p LENGTH 10  DECIMALS 2,
+         penord      TYPE p LENGTH 10 DECIMALS 2,
          penordv     TYPE p LENGTH 10 DECIMALS 2,
        END OF ts_zsordoutcol,
 
@@ -23,21 +25,21 @@ TYPES: BEGIN OF ts_zsordoutcol,
 
        BEGIN OF ts_makt,
          matnr TYPE matnr,
-         maktx TYPE  maktx,
+         maktx TYPE maktx,
        END OF ts_makt,
-
 
        BEGIN OF ts_final,
          vbeln       TYPE vbeln,
          kunnr       TYPE kunnr,
          audat       TYPE audat,
          matnr       TYPE matnr,
-         penord(10) TYPE p DECIMALS 2,
+         penord(10)  TYPE p DECIMALS 2,
          penordv(10) TYPE p DECIMALS 2,
          name1       TYPE name1_gp,
-         maktx       TYPE  maktx,
+         maktx       TYPE maktx,
        END OF ts_final.
 
+* Data Objects
 DATA: lt_zsordoutcol TYPE TABLE OF ts_zsordoutcol,
       ls_zsordoutcol TYPE ts_zsordoutcol,
       lt_kna1        TYPE TABLE OF ts_kna1,
@@ -46,48 +48,54 @@ DATA: lt_zsordoutcol TYPE TABLE OF ts_zsordoutcol,
       ls_makt        TYPE ts_makt,
       lt_final       TYPE TABLE OF ts_final,
       ls_final       TYPE ts_final,
-      ls_layout TYPE slis_layout_alv,
-      lt_fcat   TYPE slis_t_fieldcat_alv,
-      ls_fcat   TYPE slis_fieldcat_alv.
+      ls_layout      TYPE slis_layout_alv,
+      lt_fcat        TYPE slis_t_fieldcat_alv,
+      ls_fcat        TYPE slis_fieldcat_alv.
 
-
-SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
-
+* Selection Screen
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
   SELECT-OPTIONS so_kunnr FOR ls_zsordoutcol-kunnr.
-
 SELECTION-SCREEN END OF BLOCK b1.
 
 START-OF-SELECTION.
 
+  " Check if customer number is provided
   IF so_kunnr IS NOT INITIAL.
-    SELECT  vbeln kunnr audat matnr penord penordv
+    SELECT vbeln kunnr audat matnr penord penordv
       FROM zsordoutcol
       INTO TABLE lt_zsordoutcol
       WHERE kunnr IN so_kunnr
-      AND  penord NE 0
+      AND penord NE 0
       ORDER BY kunnr.
+
+    " If no pending orders found for provided customer numbers, display error message
+    IF sy-subrc NE 0.
+      MESSAGE 'Customer does not have pending orders' TYPE 'E' DISPLAY LIKE 'I'.
+      STOP.
+    ENDIF.
+  ELSE.
+    MESSAGE 'Please enter customer number' TYPE 'E' DISPLAY LIKE 'I'.
+    STOP.
   ENDIF.
 
+  " If pending orders found, retrieve customer names and material descriptions
   IF lt_zsordoutcol IS NOT INITIAL.
-    SELECT kunnr
-           name1
+    SELECT kunnr name1
       FROM kna1
       INTO TABLE lt_kna1
       FOR ALL ENTRIES IN lt_zsordoutcol
       WHERE kunnr = lt_zsordoutcol-kunnr.
     SORT lt_kna1 BY kunnr.
 
-
-    SELECT matnr
-           maktx
+    SELECT matnr maktx
       FROM makt
       INTO TABLE lt_makt
       FOR ALL ENTRIES IN lt_zsordoutcol
       WHERE matnr = lt_zsordoutcol-matnr.
     SORT lt_makt[] BY matnr.
-
   ENDIF.
 
+  " Process retrieved data
   LOOP AT lt_zsordoutcol INTO ls_zsordoutcol.
     ls_final-vbeln = ls_zsordoutcol-vbeln.
     ls_final-kunnr = ls_zsordoutcol-kunnr.
@@ -96,80 +104,73 @@ START-OF-SELECTION.
     ls_final-penord = ls_zsordoutcol-penord.
     ls_final-penordv = ls_zsordoutcol-penordv.
 
-    READ TABLE lt_kna1 INTO ls_kna1 WITH KEY kunnr = ls_zsordoutcol-kunnr BINARY SEARCH .
+    " Retrieve customer name
+    READ TABLE lt_kna1 INTO ls_kna1 WITH KEY kunnr = ls_zsordoutcol-kunnr BINARY SEARCH.
     IF sy-subrc IS INITIAL.
-      ls_final-name1 = ls_kna1-kunnr.
+      ls_final-name1 = ls_kna1-name1.
     ENDIF.
 
-    READ TABLE lt_makt INTO ls_makt WITH KEY matnr = ls_zsordoutcol-matnr BINARY SEARCH .
+    " Retrieve material description
+    READ TABLE lt_makt INTO ls_makt WITH KEY matnr = ls_zsordoutcol-matnr BINARY SEARCH.
     IF sy-subrc IS INITIAL.
       ls_final-maktx = ls_makt-maktx.
     ENDIF.
 
     APPEND ls_final TO lt_final.
     CLEAR ls_final.
-
   ENDLOOP.
 
-    IF lt_zsordoutcol IS NOT INITIAL.
-
-    cl_salv_table=>factory(
-      IMPORTING
-        r_salv_table = DATA(lo_alv)
-      CHANGING
-        t_table      = lt_zsordoutcol
-      ).
-
-    " Get columns object for ALV
-    DATA lo_columns TYPE REF TO cl_salv_columns.
-    lo_columns = lo_alv->get_columns( ).
-
-    " Optimize column settings
-    lo_columns->set_optimize( 'X' ).
-
-    " Get display settings object for ALV
-    DATA lo_zebra TYPE REF TO cl_salv_display_settings.
-    lo_zebra = lo_alv->get_display_settings( ).
-
-    " Set striped pattern for display settings
-    lo_zebra->set_striped_pattern( cl_salv_display_settings=>true ).
-
-    lo_alv->set_screen_status(
-      EXPORTING
-        report        =  sy-repid   " ABAP Program: Current Main Program
-        pfstatus      = 'ZPOD'    " Screens, Current GUI Status
-        set_functions =  lo_alv->c_functions_all   " ALV: Data Element for Constants
+  " Display data using ALV
+  cl_salv_table=>factory(
+    IMPORTING
+      r_salv_table = DATA(lo_alv)
+    CHANGING
+      t_table      = lt_zsordoutcol
     ).
 
-  DATA: column TYPE REF TO cl_salv_column_table.   " Reference variable for ALV column table
-TRY.
-  column ?= lo_columns->get_column( 'PENORD' ).
-              column->set_long_text( 'Pending Order Quantity' ).
+  " Optimize column settings
+  DATA lo_columns TYPE REF TO cl_salv_columns.
+  lo_columns = lo_alv->get_columns( ).
+  lo_columns->set_optimize( 'X' ).
 
-  column ?= lo_columns->get_column( 'PENORDV' ).
-              column->set_long_text( 'Pending Order Value' ).
+  " Set striped pattern for display
+  DATA lo_zebra TYPE REF TO cl_salv_display_settings.
+  lo_zebra = lo_alv->get_display_settings( ).
+  lo_zebra->set_striped_pattern( cl_salv_display_settings=>true ).
 
+  " Set screen status
+  lo_alv->set_screen_status(
+    EXPORTING
+      report        = sy-repid
+      pfstatus      = 'ZPOD'
+      set_functions = lo_alv->c_functions_all
+  ).
 
+  " Set long text for columns
+  DATA: column TYPE REF TO cl_salv_column_table.
+  TRY.
+    column ?= lo_columns->get_column( 'PENORD' ).
+    column->set_long_text( 'Pending Order Quantity' ).
+
+    column ?= lo_columns->get_column( 'PENORDV' ).
+    column->set_long_text( 'Pending Order Value' ).
+
+    " Add total aggregation for columns
     DATA lo_total TYPE REF TO cl_salv_aggregations.
     lo_total = lo_alv->get_aggregations( ).
+    CALL METHOD lo_total->add_aggregation
+      EXPORTING
+        columnname  = 'PENORD'
+        aggregation = if_salv_c_aggregation=>total.
 
     CALL METHOD lo_total->add_aggregation
-    EXPORTING
-      columnname  = 'PENORD'   " ALV Control: Field Name of Internal Table Field
-      aggregation = if_salv_c_aggregation=>total.    " Aggregation
+      EXPORTING
+        columnname  = 'PENORDV'
+        aggregation = if_salv_c_aggregation=>total.
 
-    CALL METHOD lo_total->add_aggregation
-    EXPORTING
-      columnname  = 'PENORDV'   " ALV Control: Field Name of Internal Table Field
-      aggregation = if_salv_c_aggregation=>total.    " Aggregation
+  CATCH cx_salv_data_error.
+  CATCH cx_salv_not_found.
+  CATCH cx_salv_existing.
+  ENDTRY.
 
-    CATCH cx_salv_data_error.    "
-    CATCH cx_salv_not_found.    "
-    CATCH cx_salv_existing.    "
-    ENDTRY.
-
-    lo_alv->display( ).
-
-  ELSE.
-    WRITE: / 'No pending orders found.'.
-  ENDIF.
+  lo_alv->display( ).
