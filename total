@@ -1,0 +1,104 @@
+*&---------------------------------------------------------------------*
+*& Report  ZPENDING_ORDER
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zpending_order3.
+
+TYPES: BEGIN OF ts_zsordoutcol,
+        vbeln TYPE vbeln,
+        kunnr	TYPE kunnr,
+        audat	TYPE audat,
+        matnr	TYPE matnr,
+        penord TYPE	p LENGTH 10 DECIMALS 0,
+        penordv	TYPE p LENGTH 10 DECIMALS 0,
+      END OF ts_zsordoutcol,
+      BEGIN OF ts_kna1,
+        kunnr	TYPE kunnr,
+      END OF ts_kna1,
+      BEGIN OF ts_makt,
+        matnr TYPE matnr,
+      END OF ts_makt.
+
+DATA: lt_zsordoutcol TYPE TABLE OF ts_zsordoutcol,
+      ls_zsordoutcol TYPE ts_zsordoutcol,
+      lt_kna1 TYPE TABLE OF ts_kna1,
+      ls_kna1 TYPE ts_kna1,
+      lt_makt TYPE TABLE OF ts_makt,
+      ls_makt TYPE ts_makt,
+      lv_total_penord TYPE zeg.
+
+START-OF-SELECTION.
+
+  SELECT kunnr
+    FROM kna1
+    INTO TABLE lt_kna1.
+  SORT lt_kna1[] BY kunnr.
+
+  SELECT matnr
+    FROM makt
+    INTO TABLE lt_makt.
+  SORT lt_makt[] BY matnr.
+
+  SELECT vbeln kunnr audat matnr penord  penordv
+    FROM zsordoutcol
+    INTO TABLE lt_zsordoutcol
+    FOR ALL ENTRIES IN lt_kna1
+    WHERE kunnr = lt_kna1-kunnr.
+
+*     IF lt_zsordoutcol IS NOT INITIAL.
+
+    cl_salv_table=>factory(
+      IMPORTING
+        r_salv_table = DATA(lo_alv)
+      CHANGING
+        t_table      = lt_zsordoutcol
+      ).
+
+    " Get columns object for ALV
+    DATA lo_columns TYPE REF TO cl_salv_columns.
+    lo_columns = lo_alv->get_columns( ).
+
+    " Optimize column settings
+    lo_columns->set_optimize( 'X' ).
+
+    " Get display settings object for ALV
+    DATA lo_zebra TYPE REF TO cl_salv_display_settings.
+    lo_zebra = lo_alv->get_display_settings( ).
+
+    " Set striped pattern for display settings
+    lo_zebra->set_striped_pattern( cl_salv_display_settings=>true ).
+
+    lo_alv->set_screen_status(
+      EXPORTING
+        report        =  sy-repid   " ABAP Program: Current Main Program
+        pfstatus      =  'ZPENDING_ORDER'   " Screens, Current GUI Status
+        set_functions =  lo_alv->c_functions_all   " ALV: Data Element for Constants
+    ).
+
+    DATA lo_total TYPE REF TO cl_salv_aggregations.
+    lo_total = lo_alv->get_aggregations( ).
+
+    TRY .
+    CALL METHOD lo_total->add_aggregation
+    EXPORTING
+      columnname  = 'PENORD'   " ALV Control: Field Name of Internal Table Field
+      aggregation = if_salv_c_aggregation=>total.    " Aggregation
+    CALL METHOD lo_total->add_aggregation
+    EXPORTING
+      columnname  = 'PENORDV'   " ALV Control: Field Name of Internal Table Field
+      aggregation = if_salv_c_aggregation=>total.    " Aggregation
+
+    CATCH cx_salv_data_error.    "
+    CATCH cx_salv_not_found.    "
+    CATCH cx_salv_existing.    "
+    ENDTRY.
+
+    lo_alv->display( ).
+
+*  ELSE.
+*    WRITE: / 'No pending orders found.'.
+*  ENDIF.
