@@ -1,0 +1,194 @@
+  method IF_REST_RESOURCE~POST.
+*CALL METHOD SUPER->IF_REST_RESOURCE~POST
+*  EXPORTING
+*    IO_ENTITY =
+*    .
+
+TYPES: BEGIN OF ts_sch,
+       LIFNR TYPE ELIFN, "vendor
+       EVART TYPE EVART, "document type
+       VEDAT TYPE c LENGTH 10, "Agreement Date
+       EKORG TYPE EKORG, "Purchasing organization
+       EKGRP TYPE EKGRP, "Purchasing Group
+       WERKS TYPE EWERK, "plant
+       BUKRS TYPE BUKRS, "company code
+       WAERS TYPE WAERS, "CURRENCY
+       KDATB TYPE c LENGTH 10, "Start of Validity Period
+       KDATE TYPE c LENGTH 10, "End of Validity Period
+       INCO2_L TYPE INCO2_L, "location
+       EMATN TYPE EMATNR, "Material number
+       KTMNG TYPE KTMNG, "Target Quantity
+       NETPR TYPE NETPR, "Net Price
+       WERKS1 TYPE EWERK, "plant
+      END OF ts_sch.
+
+  DATA: lt_sch TYPE TABLE OF ts_sch,
+        wa_sch TYPE ts_sch,
+        lt_sch_converted TYPE TABLE OF ts_sch,
+        wa_sch_converted TYPE ts_sch,
+        lt_sch_header TYPE TABLE OF BAPIMEOUTHEADER,
+        wa_sch_header TYPE BAPIMEOUTHEADER,
+        lt_sch_header_x TYPE TABLE OF BAPIMEOUTHEADERX,
+        wa_sch_header_x TYPE BAPIMEOUTHEADERX,
+        lt_sch_item TYPE TABLE OF BAPIMEOUTITEM,
+        wa_sch_item TYPE BAPIMEOUTITEM,
+        lt_sch_item_x TYPE TABLE OF BAPIMEOUTITEMX,
+        wa_sch_item_x TYPE BAPIMEOUTITEMX,
+        lt_return TYPE TABLE OF BAPIRET2,
+        wa_return TYPE  BAPIRET2.
+
+    DATA(lo_entity) = mo_request->get_entity( ).
+    DATA(lt_sch_raw)  = io_entity->get_string_data( ).      " get data from Portal
+
+
+    CALL METHOD /ui2/cl_json=>deserialize(                     "Convert Raw data to Internal table
+      EXPORTING
+        json        = lt_sch_raw
+        pretty_name = /ui2/cl_json=>pretty_mode-camel_case
+      CHANGING
+        data        = lt_sch   "ls_data
+       ).
+
+
+LOOP AT lt_sch INTO wa_sch.
+      CALL FUNCTION 'CONVERSION_EXIT_ALPHA_INPUT'          "FM for add leading zero
+        EXPORTING
+          input  = wa_sch-lifnr
+        IMPORTING
+          output = wa_sch_converted-lifnr.
+      CALL FUNCTION 'CONVERSION_EXIT_IDATE_INPUT'    "FM for convert ASN date format
+        EXPORTING
+          input  = wa_sch-KDATB
+        IMPORTING
+          output = wa_sch_converted-KDATB.
+      CALL FUNCTION 'CONVERSION_EXIT_IDATE_INPUT'    "FM for convert ASN date format
+        EXPORTING
+          input  = wa_sch-KDATE
+        IMPORTING
+          output = wa_sch_converted-KDATE.
+
+  wa_sch_header-vendor = wa_sch_converted-lifnr.
+  wa_sch_header-doc_type = wa_sch-EVART.
+  wa_sch_header-doc_date = sy-datum.
+  wa_sch_header-purch_org = wa_sch-EKORG.
+  wa_sch_header-pur_group = wa_sch-EKGRP.
+  wa_sch_header-suppl_plnt = wa_sch-WERKS.
+  wa_sch_header-comp_code = wa_sch-BUKRS.
+  wa_sch_header-currency = wa_sch-WAERS.
+  wa_sch_header-vper_start = wa_sch_converted-KDATB.
+  wa_sch_header-vper_end = wa_sch_converted-KDATE.
+  wa_sch_header-incoterms2l = wa_sch-INCO2_L.
+
+  APPEND wa_sch_header TO lt_sch_header.
+
+  wa_sch_header_x-vendor = 'X'.
+  wa_sch_header_x-doc_type = 'X'.
+  wa_sch_header_x-doc_date = 'X'.
+  wa_sch_header_x-purch_org = 'X'.
+  wa_sch_header_x-pur_group = 'X'.
+  wa_sch_header_x-suppl_plnt = 'X'.
+  wa_sch_header_x-comp_code = 'X'.
+  wa_sch_header_x-currency = 'X'.
+  wa_sch_header_x-vper_start = 'X'.
+  wa_sch_header_x-vper_end = 'X'.
+  wa_sch_header_x-incoterms2l = 'X'.
+
+  APPEND wa_sch_header_x TO lt_sch_header_x.
+
+  wa_sch_item-material = wa_sch-EMATN.
+  wa_sch_item-target_qty = wa_sch-KTMNG.
+  wa_sch_item-net_price = wa_sch-NETPR.
+  wa_sch_item-plant = wa_sch-WERKS1.
+
+  APPEND wa_sch_item TO lt_sch_item.
+
+  wa_sch_item_x-material = 'X'.
+  wa_sch_item_x-target_qty = 'X'.
+  wa_sch_item_x-net_price = 'X'.
+  wa_sch_item_x-plant = 'X'.
+
+  APPEND wa_sch_item_x TO lt_sch_item_x.
+
+*ENDLOOP.
+
+CALL FUNCTION 'BAPI_SAG_CREATE'
+  EXPORTING
+    header                      = wa_sch_header
+    headerx                     = wa_sch_header_x
+*   VENDOR_ADDRESS              =
+*   HEAD_EXPORT_IMPORT          =
+*   HEAD_EXPORT_IMPORTX         =
+*   TECHNICAL_DATA              =
+*   TESTRUN                     =
+* IMPORTING
+*   PURCHASINGDOCUMENT          =
+*   EXP_HEADER                  =
+  TABLES
+   RETURN                      = lt_return
+    item                        = lt_sch_item
+    itemx                       = lt_sch_item_x
+*   ACCOUNT                     =
+*   ACCOUNTPROFITSEGMENT        =
+*   ACCOUNTX                    =
+*   SCHEDULE                    =
+*   SCHEDULEX                   =
+*   SC_COMPONENT                =
+*   SC_COMPONENTX               =
+*   SHIPPING                    =
+*   SHIPPINGX                   =
+*   SHIPPING_EXP                =
+*   DELIVERY_ADDRESS            =
+*   ITEM_COND_VALIDITY          =
+*   ITEM_COND_VALIDITYX         =
+*   ITEM_CONDITION              =
+*   ITEM_CONDITIONX             =
+*   ITEM_COND_SCALE_VALUE       =
+*   ITEM_COND_SCALE_QUAN        =
+*   EXPORT_IMPORT               =
+*   EXPORT_IMPORTX              =
+*   ITEM_TEXT                   =
+*   HEADER_TEXT                 =
+*   HEAD_COND_VALIDITY          =
+*   HEAD_COND_VALIDITYX         =
+*   HEAD_CONDITION              =
+*   HEAD_CONDITIONX             =
+*   HEAD_COND_SCALE_VAL         =
+*   HEAD_COND_SCALE_QUAN        =
+*   PARTNER                     =
+*   PARTNERX                    =
+*   EXTENSIONIN                 =
+*   EXTENSIONOUT                =
+          .
+
+  CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+   EXPORTING
+     WAIT          = 'X'
+*   IMPORTING
+*     RETURN        =
+            .
+
+  CLEAR: wa_sch,wa_sch_header,wa_sch_header_x,wa_sch_item,wa_sch_item_x.
+
+
+ENDLOOP.
+
+DATA lv_output TYPE string.
+
+LOOP AT lt_return INTO wa_return.
+ if wa_return-type = 'S' AND wa_return-id = 'BAPI'.
+ lv_output = wa_return-message.
+ ELSEIF wa_return-type = 'E'.
+ lv_output = 'Not created'.
+ ENDIF.
+ENDLOOP.
+
+
+  /ui2/cl_json=>serialize(
+      EXPORTING
+        data             =  lv_output                " Data to serialize
+      RECEIVING
+        r_json           = DATA(ls_json)                 " JSON string
+    ).
+
+    mo_response->create_entity( )->set_string_data( iv_data = ls_json ).
+  endmethod.
