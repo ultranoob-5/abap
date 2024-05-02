@@ -1,0 +1,208 @@
+  METHOD if_rest_resource~post.
+*CALL METHOD SUPER->IF_REST_RESOURCE~POST
+*  EXPORTING
+*    IO_ENTITY =
+*    .
+    TYPES : BEGIN OF ts_po,
+              superfield TYPE elifn, "SUPPLIER
+              doc_date   TYPE c LENGTH 10, " DOCUMENT DATE
+              ekorg      TYPE ekorg, "PURCHASE ORGANISATION
+              ekgrp      TYPE ekgrp, "PURCHASE GROUP
+              bukrs      TYPE bukrs, "COMPANY CODE
+              ematn      TYPE ematnr, "MATERIAL
+              menge      TYPE bstmg, "PO QUANGITY
+              eeind      TYPE c LENGTH 10, "DELIVERY DATE
+              name1      TYPE mepo_ewerk, "PLANT
+              mwskz      TYPE mwskz, "TAX CODE
+              ebelp      TYPE ebelp, "ITWM NO
+            END OF ts_po.
+
+    DATA : lt_po           TYPE TABLE OF ts_po,
+           ls_po           TYPE ts_po,
+           lt_po_header    TYPE TABLE OF bapimepoheader,
+           ls_po_header    TYPE bapimepoheader,
+           lt_po_headerx   TYPE TABLE OF bapimepoheaderx,
+           ls_po_headerx   TYPE bapimepoheaderx,
+           lt_po_item      TYPE TABLE OF bapimepoitem,
+           ls_po_item      TYPE bapimepoitem,
+           lt_po_itemx     TYPE TABLE OF bapimepoitemx,
+           ls_po_itemx     TYPE bapimepoitemx,
+           lt_po_schedule  TYPE TABLE OF bapimeposchedule,
+           ls_po_schedule  TYPE bapimeposchedule,
+           lt_po_schedulex TYPE TABLE OF bapimeposchedulx,
+           ls_po_schedulex TYPE bapimeposchedulx,
+           lt_return       TYPE TABLE OF bapiret2,
+           ls_return       TYPE bapiret2,
+           lt_po_converted TYPE TABLE OF ts_po,
+           ls_po_converted TYPE ts_po.
+
+
+    DATA(lo_entity) = mo_request->get_entity( ).
+    DATA(lt_po_raw) = lo_entity->get_string_data( ).
+
+    CALL METHOD /ui2/cl_json=>deserialize
+      EXPORTING
+        json = lt_po_raw             " JSON string
+*       jsonx            =                  " JSON XString
+*       pretty_name      =                  " Pretty Print property names
+*       assoc_arrays     =                  " Deserialize associative array as tables with unique keys
+*       assoc_arrays_opt =                  " Optimize rendering of name value maps
+*       name_mappings    =                  " ABAP<->JSON Name Mapping Table
+*       conversion_exits =                  " Use DDIC conversion exits on deserialize of values
+      CHANGING
+        data = lt_po.                 " Data to serialize
+
+    LOOP AT lt_po INTO ls_po.
+
+      CALL FUNCTION 'CONVERSION_EXIT_ALPHA_INPUT'
+        EXPORTING
+          input  = ls_po-superfield
+        IMPORTING
+          output = ls_po_converted-superfield.
+
+      CALL FUNCTION 'CONVERSION_EXIT_IDATE_INPUT'
+        EXPORTING
+          input  = ls_po-doc_date
+        IMPORTING
+          output = ls_po_converted-doc_date.
+
+      CALL FUNCTION 'CONVERSION_EXIT_IDATE_INPUT'
+        EXPORTING
+          input  = ls_po-eeind
+        IMPORTING
+          output = ls_po_converted-eeind.
+
+      ls_po_header-vendor = ls_po_converted-superfield.
+      ls_po_header-doc_date = ls_po_converted-doc_date.
+      ls_po_header-purch_org = ls_po-ekorg.
+      ls_po_header-pur_group = ls_po-ekgrp.
+      ls_po_header-comp_code = ls_po-bukrs.
+      APPEND ls_po_header TO lt_po_header.
+
+      ls_po_headerx-vendor = 'X'.
+      ls_po_headerx-doc_date = 'X'.
+      ls_po_headerx-purch_org = 'X'.
+      ls_po_headerx-pur_group = 'X'.
+      ls_po_headerx-comp_code = 'X'.
+      APPEND ls_po_headerx TO lt_po_headerx.
+
+      ls_po_item-material = ls_po-ematn.
+      ls_po_item-quantity = ls_po-menge.
+      ls_po_item-plant = ls_po-name1.
+      ls_po_item-tax_code = ls_po-mwskz.
+      ls_po_item-po_item = ls_po-ebelp.
+      APPEND ls_po_item TO lt_po_item.
+
+      ls_po_itemx-material = 'X'.
+      ls_po_itemx-quantity = 'X'.
+      ls_po_itemx-plant = 'X'.
+      ls_po_itemx-tax_code = 'X'.
+      ls_po_itemx-po_item = ls_po-ebelp.
+      APPEND ls_po_itemx TO lt_po_itemx.
+
+      ls_po_schedule-delivery_date = ls_po_converted-eeind.
+      ls_po_schedule-po_item = ls_po-ebelp.
+      APPEND ls_po_schedule TO lt_po_schedule.
+
+      ls_po_schedulex-delivery_date = 'X'.
+      ls_po_schedulex-po_item = ls_po-ebelp.
+      APPEND ls_po_schedulex TO lt_po_schedulex.
+          ENDLOOP.
+
+      CALL FUNCTION 'BAPI_PO_CREATE1'
+        EXPORTING
+          poheader    = ls_po_header
+          poheaderx   = ls_po_headerx
+*         POADDRVENDOR                 =
+*         TESTRUN     =
+*         MEMORY_UNCOMPLETE            =
+*         MEMORY_COMPLETE              =
+*         POEXPIMPHEADER               =
+*         POEXPIMPHEADERX              =
+*         VERSIONS    =
+*         NO_MESSAGING                 =
+*         NO_MESSAGE_REQ               =
+*         NO_AUTHORITY                 =
+*         NO_PRICE_FROM_PO             =
+*         PARK_COMPLETE                =
+*         PARK_UNCOMPLETE              =
+* IMPORTING
+*         EXPPURCHASEORDER             =
+*         EXPHEADER   =
+*         EXPPOEXPIMPHEADER            =
+        TABLES
+          return      = lt_return
+          poitem      = lt_po_item
+          poitemx     = lt_po_itemx
+*         POADDRDELIVERY               =
+          poschedule  = lt_po_schedule
+          poschedulex = lt_po_schedulex
+*         POACCOUNT   =
+*         POACCOUNTPROFITSEGMENT       =
+*         POACCOUNTX  =
+*         POCONDHEADER                 =
+*         POCONDHEADERX                =
+*         POCOND      =
+*         POCONDX     =
+*         POLIMITS    =
+*         POCONTRACTLIMITS             =
+*         POSERVICES  =
+*         POSRVACCESSVALUES            =
+*         POSERVICESTEXT               =
+*         EXTENSIONIN =
+*         EXTENSIONOUT                 =
+*         POEXPIMPITEM                 =
+*         POEXPIMPITEMX                =
+*         POTEXTHEADER                 =
+*         POTEXTITEM  =
+*         ALLVERSIONS =
+*         POPARTNER   =
+*         POCOMPONENTS                 =
+*         POCOMPONENTSX                =
+*         POSHIPPING  =
+*         POSHIPPINGX =
+*         POSHIPPINGEXP                =
+*         SERIALNUMBER                 =
+*         SERIALNUMBERX                =
+*         INVPLANHEADER                =
+*         INVPLANHEADERX               =
+*         INVPLANITEM =
+*         INVPLANITEMX                 =
+*         NFMETALLITMS                 =
+        .
+
+      CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+        EXPORTING
+          wait = 'X'.
+
+    DATA : lv_output TYPE string.
+
+    LOOP AT lt_return INTO ls_return.
+      IF ls_return-type = 'S'.
+        lv_output = ls_return-message.
+      ELSEIF ls_return-type = 'E'.
+        lv_output = ls_return-message.
+      ENDIF.
+    ENDLOOP.
+
+    /ui2/cl_json=>serialize(
+      EXPORTING
+        data             =      lv_output            " Data to serialize
+*          compress         =                  " Skip empty elements
+*          name             =                  " Object name
+*          pretty_name      =                  " Pretty Print property names
+*          type_descr       =                  " Data descriptor
+*          assoc_arrays     =                  " Serialize tables with unique keys as associative array
+*          ts_as_iso8601    =                  " Dump timestamps as string in ISO8601 format
+*          expand_includes  =                  " Expand named includes in structures
+*          assoc_arrays_opt =                  " Optimize rendering of name value maps
+*          numc_as_string   =                  " Serialize NUMC fields as strings
+*          name_mappings    =                  " ABAP<->JSON Name Mapping Table
+*          conversion_exits =                  " Use DDIC conversion exits on serialize of values
+      RECEIVING
+        r_json           =      DATA(ls_json)            " JSON string
+    ).
+
+    mo_response->create_entity( )->set_string_data( iv_data = ls_json ).
+
+  ENDMETHOD.
