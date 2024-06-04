@@ -1,1 +1,37 @@
+  method IF_REST_RESOURCE~POST.
+*CALL METHOD SUPER->IF_REST_RESOURCE~POST
+*  EXPORTING
+*    IO_ENTITY =
+*    .
 
+    DATA(lo_entity) = mo_request->get_entity( ).
+    DATA(lt_asn_rawdata)  = io_entity->get_string_data( ).      " get data from Portal
+
+    DATA : lv_input TYPE string.
+
+    lv_input = mo_request->get_uri_query_parameter( 'NAME' ).
+
+    EXPORT lv_input = lv_input TO MEMORY ID 'lv_input'.
+
+    DATA : p_xstring TYPE string.
+
+    p_xstring = lt_asn_rawdata.
+
+    EXPORT p_xstring = p_xstring TO MEMORY ID 'p_xstring'.
+
+    SUBMIT ZAL11 EXPORTING LIST TO MEMORY AND RETURN.
+
+    DATA lv_msg TYPE string.
+
+    IMPORT lv_msg TO lv_msg FROM MEMORY ID 'lv_msg'.
+
+  /ui2/cl_json=>serialize(
+    EXPORTING
+      data             =    lv_msg              " Data to serialize
+    RECEIVING
+      r_json           =   DATA(ls_json)               " JSON string
+  ).
+
+  mo_response->create_entity( )->set_string_data( iv_data = ls_json ).
+
+  endmethod.
