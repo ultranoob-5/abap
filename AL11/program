@@ -1,0 +1,54 @@
+*&---------------------------------------------------------------------*
+*& Report ZAL11
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZAL11.
+
+DATA :lv_xstring       TYPE xstring,
+      lt_binary_tab    TYPE solix_tab,
+      ls_binary        TYPE solix,
+      lv_filename      TYPE string,
+      lv_filelength    TYPE i,
+      lv_string        TYPE string,
+      lv_input         TYPE string.
+
+IMPORT p_xstring TO lv_string FROM MEMORY ID 'p_xstring'.
+
+
+CALL FUNCTION 'SCMS_BASE64_DECODE_STR'
+  EXPORTING
+    input  = lv_string
+  IMPORTING
+    output = lv_xstring.
+
+CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
+  EXPORTING
+    buffer        = lv_xstring
+  IMPORTING
+    output_length = lv_filelength
+  TABLES
+    binary_tab    = lt_binary_tab.
+
+
+IMPORT lv_input TO lv_input FROM MEMORY ID 'lv_input'.
+
+DATA(path_final) = '/tmp/' && lv_input.
+
+CONDENSE path_final NO-GAPS.
+
+OPEN DATASET path_final FOR OUTPUT IN BINARY MODE.  "XSTRING Format
+DATA: lv_msg TYPE string.
+
+LOOP AT lt_binary_tab INTO ls_binary.
+TRANSFER ls_binary TO path_final.
+ENDLOOP.
+IF sy-subrc = 0 .
+  lv_msg = 'Successfully Uploaded.'.
+ELSE.
+  lv_msg = 'Error Uploading.'.
+ENDIF.
+
+CLOSE DATASET path_final.
+
+EXPORT lv_msg = lv_msg TO MEMORY ID 'lv_msg'.
